@@ -26,6 +26,11 @@ class BrevoEmailBackend(BaseEmailBackend):
                 "subject": message.subject,
                 "textContent": message.body,
             }
+            # EmailMultiAlternatives: send the HTML version too; mail apps pick the one they can show.
+            for alternative in getattr(message, "alternatives", None) or ():
+                content, mimetype = alternative[0], alternative[1]
+                if mimetype == "text/html":
+                    payload["htmlContent"] = content
             if message.cc:
                 payload["cc"] = [{"email": address} for address in message.cc]
             if message.bcc:

@@ -5,7 +5,6 @@ from uuid import UUID
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.mail import EmailMessage
 from django.core.validators import validate_email
 from django.db import DatabaseError, connection, transaction
 from django.http import JsonResponse
@@ -14,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .models import BookingRequest
+from .notifications import build_booking_email
 
 logger = logging.getLogger(__name__)
 
@@ -35,20 +35,7 @@ def _send_booking_notification(booking_id):
         if not settings.BOOKING_NOTIFICATION_EMAIL:
             raise RuntimeError("BOOKING_NOTIFICATION_EMAIL is not configured")
         booking = BookingRequest.objects.get(pk=booking_id)
-        message = EmailMessage(
-            subject=f"New table request — {booking.name}",
-            body=(
-                "A new table request came in through the Lumi Lane website.\n\n"
-                f"Name: {booking.name}\nEmail: {booking.email}\nPhone: {booking.phone}\n"
-                f"Guests: {booking.guests}\nDate: {booking.date:%A %d/%m/%Y}\nTime: {booking.time:%I:%M %p}\n"
-                f"Special requests: {booking.notes or 'None'}\n\n"
-                f"Open the admin to confirm it: {settings.PUBLIC_BACKEND_URL}/admin/bookings/bookingrequest/{booking.pk}/change/"
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[settings.BOOKING_NOTIFICATION_EMAIL],
-            reply_to=[booking.email],
-        )
-        message.send(fail_silently=False)
+        build_booking_email(booking).send(fail_silently=False)
         BookingRequest.objects.filter(pk=booking_id).update(notification_status=BookingRequest.NotificationStatus.SENT)
     except Exception:
         logger.exception("Booking notification failed for booking id %s", booking_id)
