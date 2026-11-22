@@ -1,0 +1,144 @@
+@import './fonts.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- site styles carried over from the prototype <style> block ---- */
+@keyframes pageFade {
+  from {
+    opacity: 0;
+  }
+}
+body {
+  animation: pageFade 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Route entry transition (same timing as the prototype's view switcher). */
+@keyframes viewIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.view-enter {
+  animation: viewIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  .view-enter {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- hero dish animation ----
+   Both headline lines share one grid cell so the outgoing and incoming
+   copy can cross without the block resizing or the page reflowing. */
+.hero-line {
+  grid-area: 1 / 1;
+}
+
+/* The stage hangs off the bottom of the hero so the focus dish bleeds past the edge. */
+.hero-stage {
+  --dish: clamp(300px, min(58svh, 122vw), 520px);
+  --bleed: 0.11;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--dish) * var(--bleed) * -1);
+  height: var(--dish);
+}
+@media (min-width: 640px) {
+  .hero-stage {
+    --dish: clamp(380px, min(82svh, 92vw), 760px);
+  }
+}
+@media (min-width: 1024px) {
+  .hero-stage {
+    --dish: clamp(430px, min(112.4svh - 326px, 78vw), 1100px);
+  }
+}
+
+.hero-dish {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: var(--dish);
+  height: var(--dish);
+  max-width: none;
+  margin-left: calc(var(--dish) / -2);
+  object-fit: contain;
+  object-position: 50% 100%;
+  transform-origin: 50% 70%;
+  filter: drop-shadow(0 22px 30px rgba(28, 24, 20, 0.26));
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  opacity: 0; /* the hero script sets the real opacity, so the plates never flash stacked */
+}
+picture {
+  display: contents;
+}
+
+/* ---- menu item thumbnails ----
+   Square slot on the left of every menu item. The original menu has no item
+   photography, so the slot shows a quiet brand monogram instead of a fake photo.
+   An <img> placed inside the slot covers it. */
+.menu-thumb {
+  position: relative;
+  flex: none;
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(28, 24, 20, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(28, 24, 20, 0.045);
+}
+@media (min-width: 640px) {
+  .menu-thumb {
+    width: 80px;
+    height: 80px;
+  }
+}
+@media (min-width: 1024px) {
+  .menu-thumb {
+    width: 96px;
+    height: 96px;
+    border-radius: 12px;
+  }
+}
+.menu-thumb::after {
+  content: 'L';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Pinyon Script', cursive;
+  font-size: 30px;
+  line-height: 1;
+  color: rgba(196, 84, 65, 0.28);
+}
+.menu-thumb img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Short entries (most drinks) have no description: centre the name against the thumbnail. */
+.menu-item:not(:has(p)) {
+  align-items: center;
+}
+
+/* Hide the horizontal scrollbar of the category tab strip on small screens. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

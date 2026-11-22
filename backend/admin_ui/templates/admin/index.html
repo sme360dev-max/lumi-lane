@@ -1,0 +1,57 @@
+{% extends "admin/base_site.html" %}
+{% load admin_ui i18n %}
+
+{% block bodyclass %}{{ block.super }} dashboard hv-dash{% endblock %}
+{% block breadcrumbs %}
+  <div class="breadcrumbs"><span>{% if LANGUAGE_CODE == 'vi' %}Tổng quan{% else %}Overview{% endif %}</span></div>
+{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block content %}
+{% booking_dashboard_counts as counts %}
+<div class="hv-page">
+  <header class="hv-hero">
+    <div class="hv-hero-text">
+      <p class="hv-eyebrow">{% today_label %}</p>
+      <h1>{% greeting %}, {% firstof user.first_name user.get_username %}</h1>
+      {% if LANGUAGE_CODE == 'vi' %}
+        <p class="hv-lead">Chào mừng trở lại. Quản lý yêu cầu đặt bàn và tài khoản nhân viên tại đây.</p>
+      {% else %}
+        <p class="hv-lead">Welcome back. Manage table requests and staff access from one place.</p>
+      {% endif %}
+    </div>
+    <div class="hv-hero-actions">
+      <a class="hv-btn hv-btn-primary" href="{% url 'admin:bookings_bookingrequest_changelist' %}">
+        {% icon 'calendar' %}{% if LANGUAGE_CODE == 'vi' %}Xem yêu cầu đặt bàn{% else %}View booking requests{% endif %}
+      </a>
+    </div>
+  </header>
+
+  <section class="hv-stats hv-dash-stats" aria-label="{% if LANGUAGE_CODE == 'vi' %}Tóm tắt đặt bàn{% else %}Booking summary{% endif %}">
+    <article class="hv-stat">
+      <p class="hv-stat-label">{% icon 'hourglass' %}{% if LANGUAGE_CODE == 'vi' %}Chờ xử lý{% else %}Awaiting response{% endif %}</p>
+      <p class="hv-stat-value">{{ counts.new }}</p>
+      <p class="hv-stat-note">{% if LANGUAGE_CODE == 'vi' %}Yêu cầu mới{% else %}New requests{% endif %}</p>
+    </article>
+    <article class="hv-stat">
+      <p class="hv-stat-label">{% icon 'calendar' %}{% if LANGUAGE_CODE == 'vi' %}Hôm nay{% else %}Today{% endif %}</p>
+      <p class="hv-stat-value">{{ counts.today }}</p>
+      <p class="hv-stat-note">{% if LANGUAGE_CODE == 'vi' %}Lượt đặt chưa hủy{% else %}Active reservations{% endif %}</p>
+    </article>
+    <article class="hv-stat{% if counts.email_issues %} hv-stat-alert{% endif %}">
+      <p class="hv-stat-label">{% icon 'mail' %}{% if LANGUAGE_CODE == 'vi' %}Email lỗi{% else %}Email issues{% endif %}</p>
+      <p class="hv-stat-value">{{ counts.email_issues }}</p>
+      <p class="hv-stat-note">{% if LANGUAGE_CODE == 'vi' %}Cần gửi lại thông báo{% else %}Notifications to retry{% endif %}</p>
+    </article>
+  </section>
+
+  <section class="hv-card hv-dash-shortcut">
+    <div class="hv-dash-shortcut-icon">{% icon 'clipboard' %}</div>
+    <div>
+      <h2>{% if LANGUAGE_CODE == 'vi' %}Yêu cầu đặt bàn{% else %}Table requests{% endif %}</h2>
+      <p>{% if LANGUAGE_CODE == 'vi' %}Xem thông tin khách, cập nhật trạng thái và gửi lại email nếu thông báo bị lỗi.{% else %}Review guest details, update reservation status, and retry failed email notifications.{% endif %}</p>
+    </div>
+    <a class="hv-btn hv-btn-ghost" href="{% url 'admin:bookings_bookingrequest_changelist' %}">{% if LANGUAGE_CODE == 'vi' %}Mở danh sách{% else %}Open list{% endif %}{% icon 'arrow-right' %}</a>
+  </section>
+</div>
+{% endblock %}

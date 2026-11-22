@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumi Lane · Coffee House &amp; Bar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Archivo', 'system-ui', 'sans-serif'],
+          serif: ['"Playfair Display"', 'Georgia', 'serif'],
+          script: ['"Pinyon Script"', 'cursive']
+        },
+        colors: {
+          olive: '#2c342a',
+          cream: '#dacdb5',
+          shell: '#FAEDDD',
+          ember: '#C45441',
+          cocoa: '#1C1814'
+        }
+      }
+    }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+  @keyframes pageFade { from { opacity: 0; } }
+  [hidden] { display: none !important; }
+  body { animation: pageFade 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @media (prefers-reduced-motion: reduce) { body { animation: none; } }
+
+  /* ---- hero dish animation ---------------------------------------------
+     Both headline lines share one grid cell so the outgoing and incoming
+     copy can cross without the block resizing or the page reflowing. */
+  .hero-line { grid-area: 1 / 1; }
+
+  /* ---- menu item thumbnails -------------------------------------------
+     Square photo slot on the left of every menu item. Empty by default: the
+     ::after label is the placeholder, and a real <img> (injected from the
+     item's data-image field, or dropped in by a CMS template) simply covers
+     it. Deliberately small and quiet so the menu stays an editorial list
+     rather than a grid of product cards. */
+  .menu-thumb {
+    position: relative;
+    flex: none;
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(28, 24, 20, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(28, 24, 20, 0.045);
+  }
+  @media (min-width: 640px)  { .menu-thumb { width: 80px; height: 80px; } }
+  @media (min-width: 1024px) { .menu-thumb { width: 96px; height: 96px; border-radius: 12px; } }
+
+  .menu-thumb::after {
+    content: "IMAGE";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: rgba(28, 24, 20, 0.26);
+  }
+
+  /* Short entries (most drinks) carry no description, so centre the name
+     against the thumbnail rather than stranding it at the top of a tall row. */
+  li[data-image]:not(:has(p)) { align-items: center; }
+
+  .menu-thumb img {
+    position: relative;   /* sits above the placeholder label */
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* The stage hangs off the bottom of the hero so the focus dish bleeds past
+     the edge the way it does in the reference, instead of floating in a band. */
+  #hero-stage {
+    --dish: clamp(300px, min(58svh, 122vw), 520px);
+    --bleed: 0.11;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--dish) * var(--bleed) * -1);
+    height: var(--dish);
+  }
+  @media (min-width: 640px) { #hero-stage { --dish: clamp(380px, min(82svh, 92vw), 760px); } }
+  /* Desktop: the headline sits on fixed top padding while the stage is anchored
+     to the bottom, so a plain svh size makes the gap between them swing wildly
+     with window height. Sizing the dish linearly against the height instead
+     holds the headline overlap steady from a short laptop to a 1080 display.
+     The vw term stops very tall/narrow windows cropping the plate sideways. */
+  @media (min-width: 1024px) { #hero-stage { --dish: clamp(430px, min(112.4svh - 326px, 78vw), 1100px); } }
+
+  /* One square box per dish (all five sources are ~1254x1254), centred on the
+     stage and bottom-anchored. Slot positions are transforms only, so the
+     cycle stays on the compositor. */
+  .hero-dish {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: var(--dish);
+    height: var(--dish);
+    max-width: none;          /* preflight's img{max-width:100%} squashes the
+                                 box once --dish exceeds the stage width */
+    margin-left: calc(var(--dish) / -2);
+    object-fit: contain;
+    object-position: 50% 100%;
+    transform-origin: 50% 70%;
+    filter: drop-shadow(0 22px 30px rgba(28, 24, 20, 0.26));
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+  }
+</style>
+</head>
+<body class="bg-shell font-sans text-cocoa antialiased">
+
+<header class="fixed inset-x-0 top-0 z-40 bg-gradient-to-b from-shell via-shell/90 to-transparent px-6 pb-6 pt-6 text-center lg:px-10">
+  <a href="index.html#landing" data-goto="landing" class="font-serif text-base font-medium tracking-[0.34em] text-cocoa transition-colors duration-200 hover:text-ember focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell sm:text-lg">LUMI LANE</a>
+</header>
+
+<main data-view="landing" class="relative flex min-h-[100svh] flex-col overflow-hidden px-4 pb-32 pt-20 text-center sm:px-6 sm:pt-24">
+
+  <p class="font-script text-3xl text-[#C45441] sm:text-4xl">Brewed &amp; Baked Fresh Daily</p>
+
+  <h1 id="hero-headline" class="mx-auto mt-4 grid max-w-[26ch] font-serif text-[clamp(1.5rem,7.6vw,6.4rem)] font-black leading-[0.93] tracking-tight text-cocoa">
+    <span class="hero-line">Espresso. Milk.<br>Crema. Long&nbsp;Blacks.</span>
+    <span class="hero-line" aria-hidden="true"></span>
+  </h1>
+
+  <!-- Dish order here IS the cycle order: coffee, chocolate, eggs, pita, burger. -->
+  <div id="hero-stage" class="pointer-events-none">
+    <img class="hero-dish" src="assets/coffee.png" alt="Latte with leaf art, seen from above">
+    <img class="hero-dish" src="assets/choco.png"  alt="Hot chocolate topped with marshmallows, seen from above">
+    <img class="hero-dish" src="assets/food.png"   alt="Scrambled eggs on sourdough with roasted tomatoes, seen from above">
+    <img class="hero-dish" src="assets/mezze.png"  alt="Mezze board with hummus, beetroot dip, olives and pita">
+    <img class="hero-dish" src="assets/burger.png" alt="Loaded brioche burger with bacon, egg and cheese">
+  </div>
+
+</main>
+
+<section data-view="menu" class="px-6 pb-44 pt-32 sm:pt-36 lg:px-10" hidden>
+  <div class="mx-auto max-w-6xl">
+
+    <header class="text-center">
+      <p class="font-script text-3xl text-ember sm:text-4xl">Our Menu</p>
+      <h2 class="mx-auto mt-6 max-w-[17ch] font-serif text-[clamp(2rem,5.2vw,4.2rem)] font-black leading-[1.02] tracking-tight text-cocoa">Brunch, coffee &amp; everything in between.</h2>
+      <p class="mx-auto mt-6 max-w-[44ch] text-sm leading-relaxed text-cocoa/60">All-day favourites, coffee, bowls and evening pours.</p>
+    </header>
+
+    <div class="-mx-6 mt-16 overflow-x-auto px-6 sm:mx-0 sm:px-0 [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+      <div role="tablist" aria-label="Menu categories" class="mx-auto flex w-max gap-8 border-b border-cocoa/10 sm:w-full sm:justify-center sm:gap-14">
+        <button role="tab" id="tab-brunch" type="button" aria-controls="panel-brunch" aria-selected="true" data-tab="brunch"
+                class="menu-tab relative whitespace-nowrap px-1 pb-3 font-serif text-[15px] uppercase tracking-[0.24em] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell sm:text-base">
+          Brunch
+          <span aria-hidden="true" class="menu-tab-line absolute inset-x-0 bottom-0 h-px origin-center scale-x-0 bg-ember transition-transform duration-200"></span>
+        </button>
+        <button role="tab" id="tab-acai" type="button" aria-controls="panel-acai" aria-selected="false" data-tab="acai"
+                class="menu-tab relative whitespace-nowrap px-1 pb-3 font-serif text-[15px] uppercase tracking-[0.24em] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell sm:text-base">
+          Açai
+          <span aria-hidden="true" class="menu-tab-line absolute inset-x-0 bottom-0 h-px origin-center scale-x-0 bg-ember transition-transform duration-200"></span>
+        </button>
+        <button role="tab" id="tab-coffee" type="button" aria-controls="panel-coffee" aria-selected="false" data-tab="coffee"
+                class="menu-tab relative whitespace-nowrap px-1 pb-3 font-serif text-[15px] uppercase tracking-[0.24em] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell sm:text-base">
+          Coffee &amp; Drinks
+          <span aria-hidden="true" class="menu-tab-line absolute inset-x-0 bottom-0 h-px origin-center scale-x-0 bg-ember transition-transform duration-200"></span>
+        </button>
+        <button role="tab" id="tab-bar" type="button" aria-controls="panel-bar" aria-selected="false" data-tab="bar"
+                class="menu-tab relative whitespace-nowrap px-1 pb-3 font-serif text-[15px] uppercase tracking-[0.24em] transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell sm:text-base">
+          Bar
+          <span aria-hidden="true" class="menu-tab-line absolute inset-x-0 bottom-0 h-px origin-center scale-x-0 bg-ember transition-transform duration-200"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-16">
+
+      <div role="tabpanel" id="panel-brunch" aria-labelledby="tab-brunch" data-panel="brunch"
+           class="menu-panel grid gap-x-16 gap-y-16 md:grid-cols-2">
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">All Day</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Lumi Breakfast</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$25.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Eggs your way, chargrilled bacon, sausage, baked beans, sauteed mushrooms, grilled tomato, spinach, hashbrown, served on sourdough</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Omelette Lane</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$21.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Egg omelette, sauteed mushroom, spinach, cheese, chargrilled tomatoes, served on sourdough</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Eggs Your Way</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$14.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Eggs your way served on sourdough. + Chargrilled bacon or sausage $6</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Smashed Avo</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$19.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Smashed avocado, beetroot feta, cherry tomatoes, za’atar, served on sourdough. + Egg $3</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Chilli Eggs</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$21.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Scrambled eggs, chargrilled cherry tomatoes, parmesan, chilli jam served on sourdough or croissant. + Chargrilled bacon $6</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Benedict</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$22.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Poached eggs, smoked ham, spinach, hollandaise sauce served on English muffin. Substitute ham for chargrilled bacon or salmon $6</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Truffle Mushroom</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$22.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Truffle mushroom medley, spinach, whipped feta, chargrilled tomatoes, served on rye</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Labneh Eggs</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$19.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Poached eggs, velvety labneh, topped with sumac, mint, za’atar, pine nuts served with rye bread</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Sweet</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Pancakes</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$21.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Pancake stack, berry compote, vanilla ice cream, maple syrup</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Cinnamon Waffles</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$21.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Waffles, caramel sauce, biscuit crum, served with icecream</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Açai Bowl</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$17.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Fresh, seasonal fruit, nutty granola, coconut, honey</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">B’N’B</h3>
+          <p class="mt-2 text-[12px] italic text-cocoa/55">Choice of bagel or brioche bun</p>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Bacon and Egg</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$13.9</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Sausage and Egg</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$13.9</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Double Trouble</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$22.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Egg, chargrilled bacon, sausage, cheese, hashbrown, BBQ sauce &amp; aioli</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Loaded Lisa</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$22.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Scrambled eggs, chargrilled bacon, mushroom, halloumi, avocado, tomato relish, rocket</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Salmon Royal</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$19.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Salmon, cream cheese, rocket, red onion, capers</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Small Bites</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Banana Bread</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$7.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Served with butter</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Fruit Toast</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$7.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Served with butter and jam</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Toast</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$7.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Choice of butter, vegemite, jam, honey</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Ham &amp; Cheese Croissant</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$10.9</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Bruschetta</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$17.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Tomatoes, basil, mozzarella cheese, chilli oil</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Lunch</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Lumi Lasagna</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$26.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Beef or spinach ricotta</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Chicken Schnitzel</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$27.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Chicken schnitzel served with chips and garden salad, choice of gravy or mushroom gravy. + Parmi $6</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Fritto Misto</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$38.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Fish, prawns, calamari served with chips, rocket &amp; walnut salad &amp; tartar sauce</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Salt &amp; Pepper Squid</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$25.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Served with chips, salad, lemon &amp; tartar sauce</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Falafel Feast</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$24.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Falafel, beetroot hummus, fattoush salad, pickles, served with za’atar bread</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Cauliflower Delight</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$24.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Crispy cauliflower, tahini, parsley, pomegranate glaze served with za’atar bread</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Steak Sando</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$27.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Chargrilled scotch fillet, bacon, herb mayo, onion, cheese, tomato, rocket on a ciabatta served with chips</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Burgers</h3>
+          <p class="mt-2 text-[12px] italic text-cocoa/55">Served with chips</p>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Chargrilled Beef</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$23.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Cheese, tomato, lettuce, onion, pickles, tomato sauce &amp; mayo</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Cheeky Chicken</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$23.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Avocado, slaw, spicy mayo</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Snapper</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$23.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Slaw, pickles, tartar sauce</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Halloumi</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$23.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Sauteed mushrooms, avocado, rocket, tomato relish</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Salads</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Caesar</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$21.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Lettuce, bacon, parmesan cheese, caesar dressing, croutons, poached egg. + Grilled chicken $6</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Rocket &amp; Walnut</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$21.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Rocket, pear, walnut, parmesan cheese, pomegranate glaze</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Grilled Chicken</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$23.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Chicken, lettuce, tomato, cucumber, onion, carrot, chipotle sauce</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Sides</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Dips &amp; Bread</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$19.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Served with olives</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Garlic Focaccia</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$9.8</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Charred Corn</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$15.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">With chipotle sauce</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Chips</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$13.8</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">+ Gravy $4</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Sweet Potato Fries</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$17.8</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Served with aioli</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Wedges</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$15.8</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Served with sweet chilli sauce and sour cream</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Little Lumi’s</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Ham &amp; Cheese</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$9.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Ham &amp; cheese toastie</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Chicken Tenders</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$13.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Served with chips and tomato sauce</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Cheese Burger</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$13.9</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Beef patty, cheese, lettuce, tomato sauce served with chips</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Add On</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Salmon</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$6</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Chargrilled Bacon</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$6</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Sausage</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$6</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Halloumi</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$6</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Baked Beans</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$5</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Avocado</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$5</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Sauteed Mushrooms</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$5</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Tomato</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$4</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Hashbrown</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$4</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Egg</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$3</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Gluten Free Bread</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">$3</span>
+              </div>
+            </div></li>
+          </ul>
+        </div>
+        <div class="md:col-span-2">
+          <div class="border-t border-cocoa/10 pt-8">
+            <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Let Us Know</h3>
+            <p class="mt-3 text-[13px] text-cocoa/60">Please advise staff of any dietary requirements or allergies.</p>
+          </div>
+        </div>
+      </div>
+
+      <div role="tabpanel" id="panel-acai" aria-labelledby="tab-acai" data-panel="acai" hidden
+           class="menu-panel grid gap-x-16 gap-y-16 md:grid-cols-2">
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Açai Menu</h3>
+          <ul class="mt-6">
+            <li class="flex items-start gap-4 border-t border-cocoa/10 py-5 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <h4 class="font-serif text-[19px] font-medium text-cocoa">Lumi</h4>
+              <p class="mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-cocoa/60">Acai, granola, strawberries, banana, and honey.</p>
+            </div></li>
+            <li class="flex items-start gap-4 border-t border-cocoa/10 py-5 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <h4 class="font-serif text-[19px] font-medium text-cocoa">Pistachia</h4>
+              <p class="mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-cocoa/60">Acai, strawberries, blueberries, kiwi, granola, coconut, and pistachio sauce</p>
+            </div></li>
+            <li class="flex items-start gap-4 border-t border-cocoa/10 py-5 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <h4 class="font-serif text-[19px] font-medium text-cocoa">Chocoacai</h4>
+              <p class="mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-cocoa/60">Acai, granola, strawberries, banana, blueberries, choc drops, and Nutella.</p>
+            </div></li>
+            <li class="flex items-start gap-4 border-t border-cocoa/10 py-5 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <h4 class="font-serif text-[19px] font-medium text-cocoa">Bisscoff Burst</h4>
+              <p class="mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-cocoa/60">Acai, granola, strawberries, banana, melted Biscoff sauce and Lotus biscuit.</p>
+            </div></li>
+            <li class="flex items-start gap-4 border-t border-cocoa/10 py-5 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <h4 class="font-serif text-[19px] font-medium text-cocoa">Bueno</h4>
+              <p class="mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-cocoa/60">Acai, granola, strawberries, banana and Bueno sauce</p>
+            </div></li>
+            <li class="flex items-start gap-4 border-t border-cocoa/10 py-5 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <h4 class="font-serif text-[19px] font-medium text-cocoa">Coco Froyo</h4>
+              <p class="mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-cocoa/60">Coconut frozen yogurt, granola, strawberries &amp; banana</p>
+            </div></li>
+          </ul>
+        </div>
+        <div class="md:pt-1">
+          <div class="border border-cocoa/15 px-8 py-10">
+            <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Takeaway</h3>
+            <ul class="mt-5 space-y-2 text-sm text-cocoa/75">
+              <li class="flex items-baseline justify-between gap-4"><span>Small</span><span class="tabular-nums">$16.9</span></li>
+              <li class="flex items-baseline justify-between gap-4"><span>Large</span><span class="tabular-nums">$20.4</span></li>
+            </ul>
+            <h3 class="mt-10 text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Dine In</h3>
+            <ul class="mt-5 space-y-2 text-sm text-cocoa/75">
+              <li class="flex items-baseline justify-between gap-4"><span>Bowl</span><span class="tabular-nums">$20.4</span></li>
+            </ul>
+            <p class="mt-10 text-[12px] italic leading-relaxed text-cocoa/50">Pricing applies to size and service type across all açai flavours.</p>
+          </div>
+        </div>
+      </div>
+
+      <div role="tabpanel" id="panel-coffee" aria-labelledby="tab-coffee" data-panel="coffee" hidden
+           class="menu-panel grid gap-x-16 gap-y-16 md:grid-cols-2">
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Coffee</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Espresso</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">3.80</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Macchiato</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">4.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Long Macchiato</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">4.20</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Piccolo</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">4.60</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Long Black</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">4.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Cafe Latte</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">4.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Cappuccino</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">4.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Flat White</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">4.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Chai Latte</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">5.20</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Hot Chocolate</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">5.20</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Dirty Chai</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">6.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Mochaccino</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">6.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Matcha Latte</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">5.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Baby Cino</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">3.5</span>
+              </div>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Extras</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Extra Shot</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">1.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Mug</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">1.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Decaf</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">1.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Alternative Milks</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">1.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Lactose free, almond, oat, coconut, soy</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Smoothie Time</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Berry Bliss</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">11.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Strawberries, blueberries, raspberries, blackberries, honey &amp; almond milk</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Minty Matcha</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">11.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Matcha, spinach, fresh mint, banana, &amp; oat milk</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Salted Caramel</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">11.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Caramel sauce, sea salt, banana, ice cream, &amp; milk</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Avocado Dream</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">11.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Avocado, banana, yogurt, honey, ice &amp; milk</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">PB &amp; Banana</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">11.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Banana, peanut butter, yogurt, ice &amp; milk</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Add Protein Powder</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">5.00</span>
+              </div>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Iced</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Long Black</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">7.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Iced Latte</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">7.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Iced Coffee</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">8.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Iced Mocha</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">8.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Iced Chai</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">8.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Iced Dirty Chai</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">9.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Iced Matcha</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">9.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Iced Chocolate</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">8.90</span>
+              </div>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Milkshakes &amp; Thickshakes</h3>
+          <p class="mt-2 text-[12px] italic text-cocoa/55">Strawberry, chocolate, caramel, vanilla</p>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Milkshakes</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">8.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Thickshakes</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">10.90</span>
+              </div>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Loose Leaf Teas</h3>
+          <p class="mt-2 text-[12px] italic text-cocoa/55">English Breakfast, peppermint, green, lemongrass, ginger, chamomile, blue flower Earl Grey</p>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Tea Pot</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">7.90</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Tea Cup</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">4.90</span>
+              </div>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Puppaccino</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Puppaccino</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">5.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Frothed lactose free milk &amp; dog treat</p>
+            </div></li>
+          </ul>
+        </div>
+      </div>
+
+      <div role="tabpanel" id="panel-bar" aria-labelledby="tab-bar" data-panel="bar" hidden
+           class="menu-panel grid gap-x-16 gap-y-16 md:grid-cols-2">
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Sparkling</h3>
+          <div class="mt-6 grid grid-cols-[1fr_auto_auto] gap-x-5 pb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cocoa/40">
+            <span></span><span class="w-12 text-right">Gls</span><span class="w-14 text-right">Btl</span>
+          </div>
+          <ul>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">The Lane Lois Blanc de Blancs, 200ml</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Adelaide Hills, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">12.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Aurelia Prosecco NV, 200ml</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">South East Australia</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">12.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">The Lane Lois Blanc de Blancs</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Adelaide Hills, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">42.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Piper-Heidsieck Cuvee Brut</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Champagne, France</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">100.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Hancock &amp; Hancock Shiraz Cuvee, 200ml</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">McLaren Vale, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">11.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">White</h3>
+          <div class="mt-6 grid grid-cols-[1fr_auto_auto] gap-x-5 pb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cocoa/40">
+            <span></span><span class="w-12 text-right">Gls</span><span class="w-14 text-right">Btl</span>
+          </div>
+          <ul>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Pikes Traditional Riesling</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Clare Valley, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">13.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">46.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Wicks Estate Sauvignon Blanc</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Adelaide Hills, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">12.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">38.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Shaw &amp; Smith Sauvignon Blanc</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Adelaide Hills, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">100.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">The Lane Pinot Gris</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Adelaide Hills, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">11.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">40.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">The Lane Chardonnay</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Adelaide Hills, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">40.00</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Rose / Moscato</h3>
+          <div class="mt-6 grid grid-cols-[1fr_auto_auto] gap-x-5 pb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cocoa/40">
+            <span></span><span class="w-12 text-right">Gls</span><span class="w-14 text-right">Btl</span>
+          </div>
+          <ul>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Hancock &amp; Hancock Grenache Rose</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">McLaren Vale, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">14.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">40.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Rockford Alicante Bouchet Rose</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Barossa Valley, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">60.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Robert Oatley Fiore Moscato</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Mudgee, NSW</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">12.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Red</h3>
+          <div class="mt-6 grid grid-cols-[1fr_auto_auto] gap-x-5 pb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cocoa/40">
+            <span></span><span class="w-12 text-right">Gls</span><span class="w-14 text-right">Btl</span>
+          </div>
+          <ul>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Wicks Estate Pinot Noir</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Adelaide Hills, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">12.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Robert Oatley GSM</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">McLaren Vale, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">12.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Rockford Moppa Springs GSM</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Barossa Valley, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">42.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Majella Composer Cabernet Sauvignon</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Coonawarra, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">42.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Hintons Hundred Shiraz</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Coonawarra, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85">13.00</span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">36.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Hedley Farm Villain &amp; Vixen Shiraz</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Barossa Valley, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">44.00</span>
+            </li>
+            <li class="grid grid-cols-[auto_1fr_auto_auto] items-baseline gap-x-5 border-t border-cocoa/10 py-4" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div>
+              <div>
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Somerton Old Adam Shiraz</h4>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.2em] text-cocoa/45">Langhorne Creek, SA</p>
+              </div>
+              <span class="w-12 text-right text-sm tabular-nums text-cocoa/85"><span class="text-cocoa/25">-</span></span>
+              <span class="w-14 text-right text-sm tabular-nums text-cocoa/85">75.00</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Cocktails</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Lumi Sunrise</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">22.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">White rum, lime, orange curacao, orgeat syrup, dark rum</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Long Island</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">22.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Gin, vodka, rum, tequila, triple sec, lemon, cola</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Margarita</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">19.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Tequila, Cointreau, triple sec, lime</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Strawberry Sour</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">21.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Gin, lemon syrup, strawberry</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Whiskey Sour</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">21.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Whiskey, lemon, syrup</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Mojito</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">22.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Rum, lime, mint, triple sec</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Negroni</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">22.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Campari, gin, sweet vermouth</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Espresso Martini</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">20.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Vodka, Kahlua, espresso</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Aperol / Limoncello Spritz</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">21.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Aperol or Limoncello, prosecco, soda</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Mimosa</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">15.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Prosecco, orange juice</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Mocktails</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Tropical Mojito</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">15.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Seasonal fruit, lemon, lime, soda</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Lane Way Special</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">15.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Orange, dulce, grenadine, lime, soda</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Jugs</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Pimm’s</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">45.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Pimm’s, ginger ale, orange, lemonade, seasonal fruit</p>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Sangria</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">45.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Sangria gin, dry red wine, orange, Cointreau, lemonade</p>
+            </div></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa">Beers / Spritz</h3>
+          <ul class="mt-6">
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Corona</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">10.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Peroni Red</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">10.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">Coopers Pale Ale</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">10.00</span>
+              </div>
+            </div></li>
+            <li class="group flex items-start gap-4 border-t border-cocoa/10 py-4 sm:gap-5" data-image=""><div class="menu-thumb self-start" aria-hidden="true"></div><div class="min-w-0 flex-1">
+              <div class="flex items-baseline gap-3">
+                <h4 class="font-serif text-[17px] font-medium leading-snug text-cocoa">South Ave</h4>
+                <span aria-hidden="true" class="h-px flex-1 translate-y-[-3px] border-b border-dotted border-cocoa/25"></span>
+                <span class="shrink-0 text-sm font-medium tabular-nums text-cocoa/85">13.00</span>
+              </div>
+              <p class="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">Watermelon, mango, sour blue raspberry, grape</p>
+            </div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-28 border-t border-cocoa/10 pt-20 text-center">
+      <h3 class="font-serif text-[clamp(1.8rem,4.4vw,3.2rem)] font-black uppercase tracking-tight text-cocoa">Stay a little longer.</h3>
+      <p class="mt-4 text-sm text-cocoa/60">Found something you like?</p>
+      <a href="index.html#reserve" data-goto="reserve" class="mt-9 inline-block rounded-full bg-cocoa px-11 py-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-shell transition-colors duration-200 hover:bg-ember focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell">Book a Table</a>
+    </div>
+
+  </div>
+</section>
+
+<section data-view="about" class="px-6 pt-32 pb-44 sm:pt-36 lg:px-10" hidden>
+  <div class="mx-auto max-w-5xl">
+
+    <header class="text-center">
+      <p class="font-script text-3xl text-ember sm:text-4xl">Our Story</p>
+      <h2 class="mx-auto mt-6 max-w-[18ch] font-serif text-[clamp(2rem,5.2vw,4.2rem)] font-black leading-[1.02] tracking-tight text-cocoa">A coffee house with a long table.</h2>
+    </header>
+
+    <div class="mt-16 grid gap-x-16 gap-y-10 border-t border-cocoa/10 pt-12 md:grid-cols-2">
+      <div class="space-y-6 text-[15px] leading-[1.75] text-cocoa/70">
+        <p>Lumi Lane is a modern Australian coffee house and bar in Lightsview, built around long brunches, good coffee and the kind of table you don&rsquo;t rush to leave.</p>
+        <p>The kitchen cooks Australian brunch with a Middle Eastern accent: labneh under poached eggs, za&rsquo;atar on smashed avocado, beetroot hummus beside falafel, pomegranate over crisp cauliflower. Familiar plates, seasoned the way we grew up eating.</p>
+      </div>
+      <div class="space-y-6 text-[15px] leading-[1.75] text-cocoa/70">
+        <p>Coffee is the constant. Espresso from open, long blacks through the morning, matcha and iced everything when Adelaide turns warm.</p>
+        <p>By afternoon the room shifts. South Australian wine by the glass, a short cocktail list, and small plates that carry the day into evening.</p>
+      </div>
+    </div>
+
+    <figure class="mt-20 border-y border-cocoa/10 py-14 text-center">
+      <blockquote class="mx-auto max-w-[26ch] font-serif text-[clamp(1.5rem,3.4vw,2.4rem)] font-medium italic leading-[1.25] text-cocoa">&ldquo;Modern Australian, seasoned Middle Eastern, open from seven.&rdquo;</blockquote>
+    </figure>
+
+    <dl class="mt-20 grid gap-x-12 gap-y-12 text-center sm:grid-cols-3">
+      <div>
+        <dt class="text-[11px] font-semibold uppercase tracking-[0.3em] text-ember">Since</dt>
+        <dd class="mt-4 font-serif text-2xl text-cocoa">Lightsview, SA</dd>
+        <dd class="mt-2 text-[13px] leading-relaxed text-cocoa/55">A neighbourhood room on Fosters Rd.</dd>
+      </div>
+      <div>
+        <dt class="text-[11px] font-semibold uppercase tracking-[0.3em] text-ember">Kitchen</dt>
+        <dd class="mt-4 font-serif text-2xl text-cocoa">All-day brunch</dd>
+        <dd class="mt-2 text-[13px] leading-relaxed text-cocoa/55">Seven till four, every day of the week.</dd>
+      </div>
+      <div>
+        <dt class="text-[11px] font-semibold uppercase tracking-[0.3em] text-ember">Bar</dt>
+        <dd class="mt-4 font-serif text-2xl text-cocoa">SA wine &amp; cocktails</dd>
+        <dd class="mt-2 text-[13px] leading-relaxed text-cocoa/55">Adelaide Hills, Barossa, McLaren Vale.</dd>
+      </div>
+    </dl>
+
+    <div class="mt-20 text-center">
+      <a href="index.html#menu" data-goto="menu" class="inline-block rounded-full bg-cocoa px-11 py-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-shell transition-colors duration-200 hover:bg-ember focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell">See the menu</a>
+    </div>
+
+  </div>
+</section>
+
+<section data-view="visit" class="px-6 pt-32 pb-44 sm:pt-36 lg:px-10" hidden>
+  <div class="mx-auto max-w-6xl">
+
+    <header class="text-center">
+      <p class="font-script text-3xl text-ember sm:text-4xl">Visit Us</p>
+      <h2 class="mx-auto mt-6 max-w-[17ch] font-serif text-[clamp(2rem,5.2vw,4.2rem)] font-black leading-[1.02] tracking-tight text-cocoa">Come for the coffee, stay for the vibe.</h2>
+    </header>
+
+    <div class="mt-16 grid gap-x-16 gap-y-12 md:grid-cols-2">
+
+      <div>
+        <h3 class="text-[11px] font-semibold uppercase tracking-[0.3em] text-ember">Where We Are</h3>
+        <address class="mt-6 not-italic font-sans text-[clamp(1.25rem,2.4vw,1.8rem)] font-normal leading-[1.5] tracking-wide text-cocoa">
+          Shop 9, 163/169 Fosters Rd,<br>Lightsview SA 5085
+        </address>
+
+        <h3 class="mt-14 text-[11px] font-semibold uppercase tracking-[0.3em] text-ember">Opening Hours</h3>
+        <dl class="mt-6">
+          <div class="flex items-baseline gap-4 border-t border-cocoa/10 py-4">
+            <dt class="w-[9rem] shrink-0 text-[11px] uppercase tracking-[0.2em] text-cocoa/45">Monday to Saturday</dt>
+            <dd class="text-[15px] font-medium tabular-nums text-cocoa">7:00am to 4:00pm</dd>
+          </div>
+          <div class="flex items-baseline gap-4 border-t border-cocoa/10 py-4">
+            <dt class="w-[9rem] shrink-0 text-[11px] uppercase tracking-[0.2em] text-cocoa/45">Sunday</dt>
+            <dd class="text-[15px] font-medium tabular-nums text-cocoa">8:00am to 4:00pm</dd>
+          </div>
+        </dl>
+
+        <h3 class="mt-14 text-[11px] font-semibold uppercase tracking-[0.3em] text-ember">Contact</h3>
+        <dl class="mt-6">
+          <div class="flex items-baseline gap-4 border-t border-cocoa/10 py-4">
+            <dt class="w-[9rem] shrink-0 text-[11px] uppercase tracking-[0.2em] text-cocoa/45">Phone</dt>
+            <dd class="text-[15px] font-medium tabular-nums text-cocoa"><a href="tel:0405555442" class="transition-colors hover:text-ember">0405 555 442</a></dd>
+          </div>
+          <div class="flex items-baseline gap-4 border-t border-cocoa/10 py-4">
+            <dt class="w-[9rem] shrink-0 text-[11px] uppercase tracking-[0.2em] text-cocoa/45">Instagram</dt>
+            <dd class="text-[15px] font-medium tabular-nums text-cocoa">@lumilane.adl</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="flex flex-col">
+        <div class="relative overflow-hidden border border-cocoa/15">
+          <img src="assets/storefront.png" alt="The Lumi Lane shopfront on Fosters Rd, sign above open glass frontage with tables inside" class="block aspect-[4/3] w-full object-cover">
+        </div>
+        <div class="mt-7">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-ember">Getting Here</p>
+          <p class="mt-4 max-w-[38ch] font-sans text-[14px] leading-relaxed text-cocoa/60">Street parking along Fosters Rd, with the Lightsview shopping precinct next door. Walk-ins welcome; larger groups are better booked ahead.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section data-view="reserve" class="px-6 pt-32 pb-44 sm:pt-36 lg:px-10" hidden>
+  <div class="mx-auto max-w-3xl">
+
+    <div id="book-form-wrap">
+      <header class="text-center">
+        <p class="font-script text-3xl text-ember sm:text-4xl">Book a Table</p>
+        <h2 class="mx-auto mt-6 max-w-[16ch] font-serif text-[clamp(2rem,5.2vw,4.2rem)] font-black leading-[1.02] tracking-tight text-cocoa">Keep a seat for you.</h2>
+        <p class="mx-auto mt-6 max-w-[42ch] font-sans text-[15px] leading-relaxed text-cocoa/70">Join us in Lightsview for breakfast, brunch, lunch, coffee or a drink.</p>
+        <p class="mx-auto mt-3 max-w-[44ch] font-sans text-[13px] leading-relaxed text-cocoa/50">Choose your preferred date and time and send us your reservation request.</p>
+      </header>
+
+      <form id="book-form" novalidate class="mt-16 border-t border-cocoa/10 pt-14">
+        <div class="grid gap-x-12 gap-y-10 sm:grid-cols-2">
+
+          <label class="block sm:col-span-2">
+            <span class="text-[10px] font-semibold uppercase tracking-[0.26em] text-cocoa/50">Name</span>
+            <input id="book-name" type="text" name="name" autocomplete="name" placeholder="Full name" class="mt-3 w-full appearance-none border-b border-cocoa/20 bg-transparent pb-3 font-sans text-[17px] text-cocoa placeholder:text-cocoa/25 transition-colors duration-200 focus:border-ember focus:outline-none">
+            <span data-error-for="book-name" class="mt-2 hidden text-[11px] text-ember">Please tell us your name.</span>
+          </label>
+
+          <label class="block">
+            <span class="text-[10px] font-semibold uppercase tracking-[0.26em] text-cocoa/50">Email</span>
+            <input id="book-email" type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com" class="mt-3 w-full appearance-none border-b border-cocoa/20 bg-transparent pb-3 font-sans text-[17px] text-cocoa placeholder:text-cocoa/25 transition-colors duration-200 focus:border-ember focus:outline-none">
+            <span data-error-for="book-email" class="mt-2 hidden text-[11px] text-ember">Enter a valid email address.</span>
+          </label>
+
+          <label class="block">
+            <span class="text-[10px] font-semibold uppercase tracking-[0.26em] text-cocoa/50">Phone</span>
+            <input id="book-phone" type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="0400 000 000" class="mt-3 w-full appearance-none border-b border-cocoa/20 bg-transparent pb-3 font-sans text-[17px] text-cocoa placeholder:text-cocoa/25 transition-colors duration-200 focus:border-ember focus:outline-none">
+            <span data-error-for="book-phone" class="mt-2 hidden text-[11px] text-ember">Enter a contact number.</span>
+          </label>
+
+          <label class="block">
+            <span class="text-[10px] font-semibold uppercase tracking-[0.26em] text-cocoa/50">Guests</span>
+            <input id="book-guests" type="text" name="guests" inputmode="numeric" placeholder="Number of guests" class="mt-3 w-full appearance-none border-b border-cocoa/20 bg-transparent pb-3 font-sans text-[17px] text-cocoa placeholder:text-cocoa/25 transition-colors duration-200 focus:border-ember focus:outline-none">
+            <span data-error-for="book-guests" class="mt-2 hidden text-[11px] text-ember">How many are joining us?</span>
+          </label>
+
+          <label class="block">
+            <span class="text-[10px] font-semibold uppercase tracking-[0.26em] text-cocoa/50">Date</span>
+            <input id="book-date" type="text" name="date" inputmode="numeric" placeholder="DD/MM/YYYY" class="mt-3 w-full appearance-none border-b border-cocoa/20 bg-transparent pb-3 font-sans text-[17px] text-cocoa placeholder:text-cocoa/25 transition-colors duration-200 focus:border-ember focus:outline-none">
+            <span data-error-for="book-date" class="mt-2 hidden text-[11px] text-ember">Add a date, for example 24/08/2026.</span>
+          </label>
+
+          <label class="block sm:col-span-2 sm:max-w-[calc(50%-1.5rem)]">
+            <span class="text-[10px] font-semibold uppercase tracking-[0.26em] text-cocoa/50">Time</span>
+            <input id="book-time" type="text" name="time" placeholder="e.g. 10:30 AM" class="mt-3 w-full appearance-none border-b border-cocoa/20 bg-transparent pb-3 font-sans text-[17px] text-cocoa placeholder:text-cocoa/25 transition-colors duration-200 focus:border-ember focus:outline-none">
+            <span data-error-for="book-time" class="mt-2 hidden text-[11px] text-ember">Let us know a time.</span>
+          </label>
+
+          <label class="block sm:col-span-2">
+            <span class="text-[10px] font-semibold uppercase tracking-[0.26em] text-cocoa/50">Special Requests <span class="tracking-normal text-cocoa/30">(optional)</span></span>
+            <textarea id="book-notes" name="notes" rows="3" placeholder="Dietary requirements, allergies, high chair, accessibility, a birthday" class="mt-3 w-full resize-none appearance-none border-b border-cocoa/20 bg-transparent pb-3 font-sans text-[16px] leading-relaxed text-cocoa placeholder:text-cocoa/25 transition-colors duration-200 focus:border-ember focus:outline-none"></textarea>
+          </label>
+
+        </div>
+
+        <div class="mt-16 text-center">
+          <button type="submit" class="relative z-[55] w-full rounded-full bg-cocoa px-11 py-5 text-[12px] font-semibold uppercase tracking-[0.34em] text-shell transition-colors duration-200 hover:bg-ember focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell sm:w-auto">Request a Table</button>
+          <!-- VERIFY LUMI LANE PHONE NUMBER WITH VENUE BEFORE LAUNCH -->
+          <p class="mt-6 font-sans text-[12px] italic text-cocoa/45">Or call us on <a href="tel:0405555442" class="not-italic text-cocoa/70 underline decoration-cocoa/25 underline-offset-4 transition-colors hover:text-ember">0405 555 442</a>.</p>
+        </div>
+      </form>
+
+    </div>
+
+    <div id="book-done" hidden class="text-center">
+      <p class="font-script text-3xl text-ember sm:text-4xl">Request Sent</p>
+      <h2 class="mx-auto mt-6 max-w-[18ch] font-serif text-[clamp(2rem,5.2vw,4.2rem)] font-black leading-[1.02] tracking-tight text-cocoa">We will be in touch.</h2>
+      <p id="book-summary" class="mx-auto mt-8 max-w-[40ch] font-sans text-[15px] leading-relaxed text-cocoa/70"></p>
+      <dl class="mx-auto mt-12 max-w-md border-t border-cocoa/10 text-left">
+        <div class="flex items-baseline justify-between gap-4 border-b border-cocoa/10 py-4">
+          <dt class="text-[10px] uppercase tracking-[0.24em] text-cocoa/45">Guests</dt>
+          <dd id="book-out-guests" class="font-sans text-[15px] font-medium tabular-nums text-cocoa"></dd>
+        </div>
+        <div class="flex items-baseline justify-between gap-4 border-b border-cocoa/10 py-4">
+          <dt class="text-[10px] uppercase tracking-[0.24em] text-cocoa/45">When</dt>
+          <dd id="book-out-when" class="font-sans text-[15px] font-medium tabular-nums text-cocoa"></dd>
+        </div>
+        <div class="flex items-baseline justify-between gap-4 border-b border-cocoa/10 py-4">
+          <dt class="text-[10px] uppercase tracking-[0.24em] text-cocoa/45">Contact</dt>
+          <dd id="book-out-contact" class="font-sans text-[15px] font-medium text-cocoa"></dd>
+        </div>
+        <div id="book-out-notes-row" hidden class="flex items-baseline justify-between gap-6 border-b border-cocoa/10 py-4">
+          <dt class="shrink-0 text-[10px] uppercase tracking-[0.24em] text-cocoa/45">Requests</dt>
+          <dd id="book-out-notes" class="text-right font-sans text-[14px] leading-relaxed text-cocoa"></dd>
+        </div>
+      </dl>
+      <p class="mt-8 font-sans text-[12px] italic text-cocoa/45">Nothing is locked in yet. We will contact you to settle the details.</p>
+      <div class="mt-12 flex flex-wrap items-center justify-center gap-4">
+        <button id="book-reset" type="button" class="rounded-full border border-cocoa/25 px-9 py-4 text-[10px] font-semibold uppercase tracking-[0.28em] text-cocoa transition-colors duration-200 hover:border-cocoa hover:bg-cocoa hover:text-shell focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell">New request</button>
+        <a href="index.html#menu" data-goto="menu" class="rounded-full bg-cocoa px-9 py-4 text-[10px] font-semibold uppercase tracking-[0.28em] text-shell transition-colors duration-200 hover:bg-ember focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell">See the menu</a>
+      </div>
+    </div>
+
+
+  </div>
+</section>
+
+<footer class="bg-olive px-6 pb-40 pt-32 text-cream lg:px-10">
+  <div class="mx-auto max-w-6xl">
+
+    <p class="text-center font-serif text-2xl italic text-cream sm:text-3xl">
+      Modern Australian <span class="not-italic text-cream">&#10038;</span> Coffee House &amp; Bar
+    </p>
+
+    <div class="mt-20 grid grid-cols-2 gap-x-8 gap-y-14 text-center sm:gap-y-16 md:grid-cols-4 md:text-left">
+
+      <nav aria-label="Footer" class="flex flex-col gap-3">
+        <a href="index.html#about" data-goto="about" class="text-xs uppercase tracking-[0.2em] text-cream/70 transition-colors hover:text-cream">About</a>
+        <a href="index.html#menu" data-goto="menu" class="text-xs uppercase tracking-[0.2em] text-cream/70 transition-colors hover:text-cream">Menu</a>
+        <a href="index.html#visit" data-goto="visit" class="text-xs uppercase tracking-[0.2em] text-cream/70 transition-colors hover:text-cream">Visit Us</a>
+        <a href="index.html#reserve" data-goto="reserve" class="text-xs uppercase tracking-[0.2em] text-cream/70 transition-colors hover:text-cream">Book a Table</a>
+
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3 md:justify-start">
+          <a href="https://www.instagram.com/lumilane.adl/?hl=en" target="_blank" rel="noopener noreferrer" aria-label="Lumi Lane on Instagram"
+             class="grid aspect-square h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-cream text-cream transition-all duration-200 hover:scale-110 hover:bg-cream hover:text-olive focus:outline-none focus-visible:ring-2 focus-visible:ring-cream focus-visible:ring-offset-2 focus-visible:ring-offset-olive">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="h-6 w-6">
+              <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.8 3.8 0 0 1-1.38-.9 3.8 3.8 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16Zm0 1.98c-3.15 0-3.5.01-4.74.07-1.14.05-1.76.24-2.17.4-.55.21-.94.47-1.35.88-.41.41-.67.8-.88 1.35-.16.41-.35 1.03-.4 2.17-.06 1.24-.07 1.59-.07 4.74s.01 3.5.07 4.74c.05 1.14.24 1.76.4 2.17.21.55.47.94.88 1.35.41.41.8.67 1.35.88.41.16 1.03.35 2.17.4 1.24.06 1.59.07 4.74.07s3.5-.01 4.74-.07c1.14-.05 1.76-.24 2.17-.4.55-.21.94-.47 1.35-.88.41-.41.67-.8.88-1.35.16-.41.35-1.03.4-2.17.06-1.24.07-1.59.07-4.74s-.01-3.5-.07-4.74c-.05-1.14-.24-1.76-.4-2.17a3.6 3.6 0 0 0-.88-1.35 3.6 3.6 0 0 0-1.35-.88c-.41-.16-1.03-.35-2.17-.4-1.24-.06-1.59-.07-4.74-.07Zm0 3.37a4.49 4.49 0 1 1 0 8.98 4.49 4.49 0 0 1 0-8.98Zm0 7.4a2.91 2.91 0 1 0 0-5.82 2.91 2.91 0 0 0 0 5.82Zm5.72-7.6a1.05 1.05 0 1 1-2.1 0 1.05 1.05 0 0 1 2.1 0Z"/>
+            </svg>
+          </a>
+          <a href="https://www.tiktok.com/@lumi.lane" target="_blank" rel="noopener noreferrer" aria-label="Lumi Lane on TikTok"
+             class="grid aspect-square h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-cream text-cream transition-all duration-200 hover:scale-110 hover:bg-cream hover:text-olive focus:outline-none focus-visible:ring-2 focus-visible:ring-cream focus-visible:ring-offset-2 focus-visible:ring-offset-olive">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="h-6 w-6">
+              <path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5 2.59 2.59 0 1 1 .77-5.06V9.66a5.67 5.67 0 0 0-.77-.05A5.68 5.68 0 1 0 15.54 15.3V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.29 4.29 0 0 1-3.24-1.48Z"/>
+            </svg>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61562074355905&amp;mibextid=LQQJ4d" target="_blank" rel="noopener noreferrer" aria-label="Lumi Lane on Facebook"
+             class="grid aspect-square h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-cream text-cream transition-all duration-200 hover:scale-110 hover:bg-cream hover:text-olive focus:outline-none focus-visible:ring-2 focus-visible:ring-cream focus-visible:ring-offset-2 focus-visible:ring-offset-olive">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="h-6 w-6">
+              <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.49-3.91 3.77-3.91 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.45 2.91h-2.33V22c4.78-.76 8.44-4.92 8.44-9.94Z"/>
+            </svg>
+          </a>
+        </div>
+      </nav>
+
+      <div>
+        <h2 class="text-xs font-semibold uppercase tracking-[0.24em] text-cream">Opening Hours</h2>
+        <div class="mt-5 space-y-2 text-sm leading-relaxed text-cream/70">
+          <p>Monday to Saturday<br>7:00am to 4:00pm</p>
+          <p>Sunday<br>8:00am to 4:00pm</p>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-xs font-semibold uppercase tracking-[0.24em] text-cream">Where We Are</h2>
+        <div class="mt-5 space-y-2 text-sm leading-relaxed text-cream/70">
+          <p>Shop 9, 163/169 Fosters Rd,<br>Lightsview SA 5085</p>
+          <p>0405 555 442</p>
+        </div>
+      </div>
+
+      <nav aria-label="Policies" class="flex flex-col gap-3">
+        <a href="index.html#" class="text-xs text-cream/70 transition-colors hover:text-cream">Terms &amp; Conditions</a>
+        <a href="index.html#" class="text-xs text-cream/70 transition-colors hover:text-cream">Refund Policy</a>
+        <a href="index.html#" class="text-xs text-cream/70 transition-colors hover:text-cream">Privacy Policy</a>
+        <a href="index.html#" class="text-xs text-cream/70 transition-colors hover:text-cream">Accessibility Statement</a>
+      </nav>
+
+    </div>
+  </div>
+</footer>
+
+<div id="mega" hidden role="dialog" aria-modal="false" aria-label="Menu"
+     class="fixed inset-0 z-[45]">
+
+  <div id="mega-scrim" class="absolute inset-0 bg-cocoa/40 opacity-0 backdrop-blur-[2px] transition-opacity duration-500"></div>
+
+  <div id="mega-panel"
+       class="absolute inset-x-0 top-0 max-h-[88svh] overflow-y-auto overscroll-contain bg-shell shadow-[0_40px_120px_-40px_rgba(28,24,20,0.55)] [transform:translateY(-101%)] [transition:transform_620ms_cubic-bezier(0.22,1,0.36,1)]">
+
+    <div class="relative px-6 pb-10 pt-10 sm:px-10 lg:px-16">
+
+      <button id="mega-close" type="button" aria-label="Close menu"
+              class="absolute right-6 top-8 grid h-11 w-11 place-items-center rounded-full border border-cocoa/20 text-lg text-cocoa transition-colors duration-200 hover:border-cocoa hover:bg-cocoa hover:text-shell focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-shell sm:right-10 lg:right-16">&#10005;</button>
+
+      <header class="text-center">
+        <p class="font-script text-2xl text-ember sm:text-3xl">Our Menu</p>
+        <h2 class="mx-auto mt-4 max-w-[20ch] font-serif text-[clamp(1.6rem,3.4vw,2.6rem)] font-black leading-[1.06] tracking-tight text-cocoa">Four ways to spend the day.</h2>
+      </header>
+
+      <div class="mt-12 grid gap-x-12 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="mega-col border-t border-cocoa/15 pt-7">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-ember">01</p>
+          <h3 class="mt-6 font-serif text-[clamp(1.4rem,2.2vw,1.95rem)] font-medium leading-[1.12] tracking-tight text-cocoa">Brunch<br>&amp; All Day</h3>
+        </div>
+        <div class="mega-col border-t border-cocoa/15 pt-7">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-ember">02</p>
+          <h3 class="mt-6 font-serif text-[clamp(1.4rem,2.2vw,1.95rem)] font-medium leading-[1.12] tracking-tight text-cocoa">A&ccedil;a&iacute;<br>Bowls</h3>
+        </div>
+        <div class="mega-col border-t border-cocoa/15 pt-7">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-ember">03</p>
+          <h3 class="mt-6 font-serif text-[clamp(1.4rem,2.2vw,1.95rem)] font-medium leading-[1.12] tracking-tight text-cocoa">Coffee<br>&amp; Drinks</h3>
+        </div>
+        <div class="mega-col border-t border-cocoa/15 pt-7">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-ember">04</p>
+          <h3 class="mt-6 font-serif text-[clamp(1.4rem,2.2vw,1.95rem)] font-medium leading-[1.12] tracking-tight text-cocoa">Bar<br>&amp; Sweets</h3>
+        </div>
+      </div>
+
+      <div class="mt-14 flex flex-wrap items-center justify-between gap-5 border-t border-cocoa/10 pt-8">
+        <p class="text-[11px] uppercase tracking-[0.24em] text-cocoa/40">Seven till four, every day</p>
+        <div class="flex flex-wrap items-center gap-4">
+          <a href="tel:0405555442" class="text-[11px] uppercase tracking-[0.2em] text-cocoa/55 transition-colors hover:text-ember">0405 555 442</a>
+          <a href="index.html#menu" id="mega-full" class="rounded-full bg-cocoa px-8 py-3.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-shell transition-colors duration-200 hover:bg-ember focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-shell">See the full menu</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<nav aria-label="Primary"
+     class="fixed bottom-6 left-1/2 z-50 max-w-[calc(100vw-1.5rem)] -translate-x-1/2 rounded-full border-none bg-gradient-to-r from-red-500 via-orange-400 to-purple-400 px-4 py-3 sm:bottom-10 sm:px-6">
+  <div class="flex items-center gap-4 sm:gap-8">
+    <a href="index.html#about" data-goto="about" class="nav-link whitespace-nowrap text-[10px] uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-75 focus:outline-none focus-visible:opacity-100 sm:text-[11px] sm:tracking-[0.24em]">About</a>
+    <button id="mega-trigger" type="button" data-goto="menu" aria-haspopup="true" aria-expanded="false" aria-controls="mega"
+            class="nav-link whitespace-nowrap text-[10px] uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-75 focus:outline-none focus-visible:opacity-100 sm:text-[11px] sm:tracking-[0.24em]">Menu</button>
+    <a href="index.html#visit" data-goto="visit" class="nav-link whitespace-nowrap text-[10px] uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-75 focus:outline-none focus-visible:opacity-100 sm:text-[11px] sm:tracking-[0.24em]">Visit&nbsp;Us</a>
+    <a href="index.html#reserve" data-goto="reserve" class="nav-link whitespace-nowrap text-[10px] uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-75 focus:outline-none focus-visible:opacity-100 sm:text-[11px] sm:tracking-[0.24em]">Book&nbsp;a&nbsp;Table</a>
+  </div>
+</nav>
+<script>
+  /* Hero dish cycle.
+
+     The dishes ride an invisible ellipse whose centre sits well below the hero,
+     so a swap is one step of an orbit rather than a slide: each dish arcs up and
+     across instead of tracking a straight line. A single float (`ring.pos`, the
+     fractional active index) drives every dish's angle, scale, tilt, fade and
+     stacking, so there is one tween and one timer for the whole composition.
+
+     Rest positions are design-locked to the approved hero screenshot: the
+     ellipse supplies the curve, and a small per-anchor correction pins p = -1,
+     0 and +1 to the exact approved coordinates. The correction is piecewise
+     linear, so it shifts the path without flattening its bow. */
+  (function () {
+    var GS = window.gsap;
+    var stage = document.getElementById('hero-stage');
+    var headline = document.getElementById('hero-headline');
+    if (!GS || !stage || !headline) return;
+
+    var dishes = Array.prototype.slice.call(stage.querySelectorAll('.hero-dish'));
+    var layers = Array.prototype.slice.call(headline.querySelectorAll('.hero-line'));
+    var N = dishes.length;
+    if (N < 2 || layers.length < 2) return;
+
+    // Same order as the markup: coffee, chocolate, eggs, pita, burger.
+    var COPY = [
+      ['Espresso. Milk.',    'Crema. Long Blacks.'],
+      ['Cocoa. Milk.',       'Marshmallow. Warmth.'],
+      ['Eggs. Sourdough.',   'Tomato. Chilli Jam.'],
+      ['Hummus. Pita.',      'Olives. Beetroot.'],
+      ['Bacon. Egg.',        'Cheese. Brioche.']
+    ];
+
+    var REST = 1.6;   // seconds the hero dish holds the centre
+    var MOVE = 0.7;   // seconds of dish travel per swap
+    var TEXT = 0.42;  // headline cross duration
+    var LEAD = 0.11;  // headline starts this far ahead of the dishes
+
+    // The hero cycle runs unconditionally. It used to fall back to a static
+    // dissolve under prefers-reduced-motion, but several viewers (in-app
+    // preview panes, embedded webviews) report "reduce" regardless of the OS
+    // setting, which made the hero look broken. Motion here is a slow, smooth,
+    // non-parallax orbit rather than the flashing/zooming kind the media query
+    // is meant to suppress.
+
+    // --- the invisible ring -------------------------------------------------
+    // STEP is the angle between neighbouring dishes; RX/RY are the ellipse
+    // radii as fractions of the stage box. Only ~120 deg of the ring is ever on
+    // screen and the dishes sit at very different scales, so it never reads as
+    // a wheel — but the travel between slots is a genuine arc.
+    var STEP = 58;
+    var RX = 0.389, RY = 0.82;
+    var HALF = N / 2;
+    var RAD = Math.PI / 180;
+
+    function baseX(p) { return RX * Math.sin(p * STEP * RAD); }
+    function baseY(p) { return RY * (1 - Math.cos(p * STEP * RAD)); }
+
+    // --- design lock --------------------------------------------------------
+    // Approved resting coordinates from the signed-off hero screenshot. Only
+    // p = -1, 0, +1 are ever visible, so those are the anchors that must land
+    // exactly; everything past |p| = 2 is off-stage and fully transparent.
+    var WIDE = {
+      anchor: { '-1': [-0.355, 0.36], '0': [0, 0], '1': [0.345, 0.39] },
+      scale:  [[-2.5, 0.56], [-2, 0.62], [-1, 0.73], [0, 1.00], [1, 0.71], [2, 0.58], [2.5, 0.54]]
+    };
+    // Narrow screens: the focus dish spans the full width, so the wings sit
+    // wider and higher, cropped by the side and bottom edges.
+    var NARROW = {
+      anchor: { '-1': [-0.48, 0.02], '0': [0, 0], '1': [0.47, 0.04] },
+      scale:  [[-2.5, 0.42], [-2, 0.48], [-1, 0.54], [0, 1.00], [1, 0.52], [2, 0.44], [2.5, 0.46]]
+    };
+    var TILT  = [[-2.5, 32], [-2, 26], [-1, 11], [0, 0], [1, -16], [2, -34], [2.5, -40]];
+    var ALPHA = [[-2, 0], [-1, 1], [0, 1], [1, 1], [2, 0]];
+
+    var LOOK = WIDE;
+    var W = 0, H = 0;
+    var corr = {};     // per-anchor offset that pins the ellipse to the design lock
+
+    function track(knots, p) {                 // linear interpolation over knots
+      if (p <= knots[0][0]) return knots[0][1];
+      var last = knots.length - 1;
+      if (p >= knots[last][0]) return knots[last][1];
+      for (var i = 1; i <= last; i++) {
+        if (p <= knots[i][0]) {
+          var a = knots[i - 1], b = knots[i];
+          return a[1] + (b[1] - a[1]) * (p - a[0]) / (b[0] - a[0]);
+        }
+      }
+      return knots[last][1];
+    }
+
+    function measure() {
+      W = stage.clientWidth;
+      H = stage.clientHeight;
+      LOOK = window.innerWidth < 640 ? NARROW : WIDE;
+      corr = {};
+      for (var key in LOOK.anchor) {
+        var p = parseFloat(key), a = LOOK.anchor[key];
+        corr[key] = [a[0] - baseX(p), a[1] - baseY(p)];
+      }
+    }
+
+    // Correction is only defined at the three visible anchors and fades to zero
+    // by |p| = 2. Being piecewise linear, it shifts the arc without flattening it.
+    function corrAt(p) {
+      var lo, hi, t;
+      if (p >= 1) { lo = corr['1']; hi = [0, 0]; t = Math.min(1, p - 1); }
+      else if (p >= 0) { lo = corr['0']; hi = corr['1']; t = p; }
+      else if (p >= -1) { lo = corr['0']; hi = corr['-1']; t = -p; }
+      else { lo = corr['-1']; hi = [0, 0]; t = Math.min(1, -p - 1); }
+      return [lo[0] + (hi[0] - lo[0]) * t, lo[1] + (hi[1] - lo[1]) * t];
+    }
+
+    // Signed ring position of dish k, in slot units, wrapped to [-HALF, HALF).
+    // A dish crossing the seam is at the far side of the ring and invisible.
+    function ringP(k, pos) {
+      var d = (k - pos + HALF) % N;
+      if (d < 0) d += N;
+      return d - HALF;
+    }
+
+    var ring = { pos: 0 };
+    var live = 0;      // which headline layer is showing
+    var tl = null;
+    var timer = null;
+
+    function render() {
+      for (var k = 0; k < N; k++) {
+        var p = ringP(k, ring.pos);
+        var c = corrAt(p);
+        var x = (baseX(p) + c[0]) * W;
+        var y = (baseY(p) + c[1]) * H;
+        var el = dishes[k];
+        el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0) ' +
+                             'rotate(' + track(TILT, p).toFixed(2) + 'deg) ' +
+                             'scale(' + track(LOOK.scale, p).toFixed(4) + ')';
+        el.style.opacity = track(ALPHA, p).toFixed(3);
+        // Hero on top, the approaching dish above the departing one, so the
+        // newcomer sweeps over the dish it is replacing. Kept well under the
+        // nav's z-50 so the gradient pill still sits over the food.
+        el.style.zIndex = Math.round(34 - Math.abs(p) * 5 + p * 3);
+      }
+    }
+
+    function paint() { measure(); render(); }
+
+    function activeIndex() { return ((Math.round(ring.pos) % N) + N) % N; }
+
+    function goToFood(target) {
+      if (target === activeIndex()) return;
+
+      clearTimeout(timer);
+      if (tl) tl.kill();
+      GS.killTweensOf(ring);
+      GS.killTweensOf(layers);
+      GS.killTweensOf(stage);
+      measure();
+
+      // Always rotate the ring forward to the nearest matching position, so the
+      // orbit never reverses or takes the long way round.
+      var from = ring.pos;
+      var steps = (((target - Math.round(from)) % N) + N) % N;
+      var to = Math.round(from) + (steps || N);
+
+      tl = GS.timeline({ onComplete: schedule });
+
+      // ---- headline: old lifts and fades, new rises into its place
+      var out = layers[live];
+      var into = layers[1 - live];
+      into.innerHTML = COPY[target][0] + '<br>' + COPY[target][1];
+      into.removeAttribute('aria-hidden');
+      out.setAttribute('aria-hidden', 'true');
+      live = 1 - live;
+
+      GS.set(into, { yPercent: 30, opacity: 0 });
+      tl.to(out,  { yPercent: -28, opacity: 0, duration: TEXT * 0.8, ease: 'power2.in' }, 0)
+        .to(into, { yPercent: 0, opacity: 1, duration: TEXT, ease: 'power3.out' }, TEXT * 0.34);
+
+      // ---- dishes: one tween of the ring carries the whole composition
+      tl.to(ring, {
+        pos: to,
+        duration: MOVE,
+        ease: 'power2.inOut',
+        onUpdate: render
+      }, LEAD);
+    }
+
+    function schedule() {
+      clearTimeout(timer);
+      timer = setTimeout(function () { goToFood((activeIndex() + 1) % N); }, REST * 1000);
+    }
+
+    // Keep the composition proportional without interrupting a running swap.
+    var rt = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(rt);
+      rt = setTimeout(function () {
+        if (tl && tl.isActive()) return;
+        paint();
+      }, 150);
+    });
+
+    layers[0].innerHTML = COPY[0][0] + '<br>' + COPY[0][1];
+    GS.set(layers[1], { opacity: 0 });
+    paint();
+    schedule();          // autoplay: no click, hover, scroll or keypress needed
+  })();
+</script>
+
+
+<script>
+  (function () {
+    var views = {}, order = ['landing', 'menu', 'about', 'visit', 'reserve'], current = 'landing';
+    var titles = {
+      landing: 'Lumi Lane \u00b7 Coffee House & Bar',
+      menu: 'Menu \u00b7 Lumi Lane',
+      about: 'About \u00b7 Lumi Lane',
+      visit: 'Visit Us \u00b7 Lumi Lane',
+      reserve: 'Book a Table \u00b7 Lumi Lane'
+    };
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    order.forEach(function (name) {
+      var el = document.querySelector('main[data-view="' + name + '"], section[data-view="' + name + '"]');
+      views[name] = el;
+      el.hidden = name !== current;
+      el.style.transition = reduce ? 'none' : 'opacity 420ms ease, transform 520ms cubic-bezier(0.22,1,0.36,1)';
+      el.style.opacity = name === current ? '1' : '0';
+    });
+
+    var links = Array.prototype.slice.call(document.querySelectorAll('[data-goto]'));
+
+    function mark(name) {
+      document.querySelectorAll('.nav-link').forEach(function (a) {
+        var on = a.dataset.goto === name;
+        a.classList.toggle('underline', on);
+        a.classList.toggle('decoration-white/80', on);
+        a.classList.toggle('decoration-1', on);
+        a.classList.toggle('underline-offset-[6px]', on);
+        if (on) { a.setAttribute('aria-current', 'page'); } else { a.removeAttribute('aria-current'); }
+      });
+      document.title = titles[name] || titles.landing;
+    }
+
+    function paint(name) {
+      order.forEach(function (n) {
+        var el = views[n];
+        if (n === name) {
+          el.hidden = false;
+          el.style.opacity = '0';
+          el.style.transform = reduce ? 'none' : 'translateY(14px)';
+          void el.offsetHeight;
+          setTimeout(function () {
+            el.style.opacity = '1';
+            el.style.transform = 'none';
+          }, 20);
+        } else {
+          el.hidden = true;
+        }
+      });
+      current = name;
+      mark(name);
+      window.scrollTo(0, 0);
+    }
+
+    function go(name, push) {
+      if (!views[name] || name === current) return;
+      var out = views[current];
+      if (reduce) { paint(name); }
+      else {
+        out.style.opacity = '0';
+        out.style.transform = 'translateY(-10px)';
+        setTimeout(function () { paint(name); }, 240);
+      }
+      if (push !== false) {
+        history.pushState(null, '', name === 'landing' ? location.pathname : '#' + name);
+      }
+    }
+
+    links.forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+        e.preventDefault();
+        go(a.dataset.goto);
+      });
+    });
+
+    window.addEventListener('popstate', function () {
+      var name = (location.hash || '#landing').slice(1);
+      if (views[name] && name !== current) { go(name, false); }
+    });
+
+    window.LumiView = go;
+
+    var initial = (location.hash || '#landing').slice(1);
+    if (views[initial] && initial !== 'landing') { paint(initial); } else { mark('landing'); }
+  })();
+</script>
+
+<script>
+  (function () {
+    var root = document.getElementById('mega'),
+        panel = document.getElementById('mega-panel'),
+        scrim = document.getElementById('mega-scrim'),
+        trigger = document.getElementById('mega-trigger'),
+        cols = root.querySelectorAll('.mega-col'),
+        reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+        open = false, timer;
+
+    cols.forEach(function (c) {
+      c.style.opacity = '0';
+      c.style.transform = 'translateY(16px)';
+      c.style.transition = reduce ? 'none' : 'opacity 520ms ease, transform 620ms cubic-bezier(0.22,1,0.36,1)';
+    });
+
+    function show() {
+      if (open) return;
+      open = true;
+      root.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      trigger.classList.add('underline', 'decoration-white/80', 'decoration-1', 'underline-offset-[6px]');
+      void panel.offsetHeight;
+      setTimeout(function () {
+        scrim.style.opacity = '1';
+        panel.style.transform = 'translateY(0)';
+        cols.forEach(function (c, i) {
+          c.style.transitionDelay = reduce ? '0ms' : (170 + i * 80) + 'ms';
+          c.style.opacity = '1';
+          c.style.transform = 'none';
+        });
+      }, 20);
+    }
+
+    function hide() {
+      if (!open) return;
+      open = false;
+      trigger.setAttribute('aria-expanded', 'false');
+      if (trigger.getAttribute('aria-current') !== 'page') {
+        trigger.classList.remove('underline', 'decoration-white/80', 'decoration-1', 'underline-offset-[6px]');
+      }
+      scrim.style.opacity = '0';
+      panel.style.transform = 'translateY(-101%)';
+      cols.forEach(function (c) {
+        c.style.transitionDelay = '0ms';
+        c.style.opacity = '0';
+        c.style.transform = 'translateY(16px)';
+      });
+      clearTimeout(timer);
+      timer = setTimeout(function () { if (!open) { root.hidden = true; } }, reduce ? 0 : 640);
+    }
+
+    var hoverIn, hoverOut;
+    function cancel() { clearTimeout(hoverIn); clearTimeout(hoverOut); }
+
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      trigger.addEventListener('mouseenter', function () {
+        cancel();
+        hoverIn = setTimeout(show, 110);
+      });
+      trigger.addEventListener('mouseleave', function () {
+        cancel();
+        hoverOut = setTimeout(hide, 520);
+      });
+      panel.addEventListener('mouseenter', cancel);
+      panel.addEventListener('mouseleave', function () {
+        cancel();
+        hoverOut = setTimeout(hide, 220);
+      });
+      trigger.addEventListener('focus', show);
+      trigger.addEventListener('blur', function () {
+        cancel();
+        hoverOut = setTimeout(hide, 220);
+      });
+    }
+
+    // click/tap = go to the full menu view (the view switcher handles the state change)
+    trigger.addEventListener('click', function () { cancel(); hide(); });
+    document.getElementById('mega-close').addEventListener('click', hide);
+    scrim.addEventListener('click', hide);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { hide(); } });
+    document.getElementById('mega-full').addEventListener('click', function (e) {
+      e.preventDefault();
+      hide();
+      if (window.LumiView) { window.LumiView('menu'); }
+    });
+  })();
+</script>
+
+<script>
+  /* Menu item photos.
+
+     Every menu <li> carries an image field:
+
+         <li ... data-image="">            -> shows the neutral placeholder
+         <li ... data-image="assets/x.jpg"> -> shows that photo, cover-cropped
+
+     which maps 1:1 onto a CMS record { name, description, price, image }.
+     Set data-image from the CMS (or render an <img> straight into .menu-thumb
+     server-side) and this pass leaves it alone. */
+  (function () {
+    document.querySelectorAll('li[data-image]').forEach(function (item) {
+      var src = (item.getAttribute('data-image') || '').trim();
+      var slot = item.querySelector('.menu-thumb');
+      if (!src || !slot || slot.querySelector('img')) return;
+
+      var img = document.createElement('img');
+      img.src = src;
+      img.alt = '';                       // decorative: the name is right beside it
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.addEventListener('error', function () { img.remove(); });  // fall back to
+      slot.appendChild(img);                                         // the placeholder
+    });
+  })();
+</script>
+
+<script>
+  (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.menu-tab'));
+    var panels = document.querySelectorAll('.menu-panel');
+    function select(id) {
+      tabs.forEach(function (t) {
+        var on = t.dataset.tab === id;
+        t.setAttribute('aria-selected', on);
+        t.classList.toggle('text-cocoa', on);
+        t.classList.toggle('text-cocoa/45', !on);
+        t.querySelector('.menu-tab-line').classList.toggle('scale-x-100', on);
+        t.querySelector('.menu-tab-line').classList.toggle('scale-x-0', !on);
+      });
+      panels.forEach(function (p) { p.hidden = p.dataset.panel !== id; });
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { select(t.dataset.tab); });
+      t.addEventListener('keydown', function (e) {
+        var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        e.preventDefault();
+        var next = tabs[(i + d + tabs.length) % tabs.length];
+        next.focus();
+        select(next.dataset.tab);
+      });
+    });
+    select('brunch');
+  })();
+</script>
+
+<script>
+  (function () {
+    var form = document.getElementById('book-form'),
+        wrap = document.getElementById('book-form-wrap'),
+        done = document.getElementById('book-done'),
+        dateEl = document.getElementById('book-date'),
+        timeEl = document.getElementById('book-time');
+
+    // accepts 24/08/2026, 24-8-26, 24.08.2026
+    function parseDate(v) {
+      var p = (v || '').trim().split(/[\/\-.\s]+/);
+      if (p.length !== 3) return null;
+      var d = +p[0], m = +p[1], y = +p[2];
+      if (!d || !m || !y) return null;
+      if (y < 100) { y += 2000; }
+      var out = new Date(y, m - 1, d);
+      return (out.getDate() === d && out.getMonth() === m - 1 && out.getFullYear() === y) ? out : null;
+    }
+
+    function err(el, show) {
+      var msg = form.querySelector('[data-error-for="' + el.id + '"]');
+      if (msg) { msg.classList.toggle('hidden', !show); }
+      el.classList.toggle('border-ember', show);
+      el.classList.toggle('border-cocoa/20', !show);
+      el.setAttribute('aria-invalid', show ? 'true' : 'false');
+    }
+
+    var required = ['book-name', 'book-email', 'book-phone', 'book-guests', 'book-date', 'book-time'];
+    required.forEach(function (id) {
+      var el = document.getElementById(id);
+      el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', function () { err(el, false); });
+    });
+
+
+    function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()); }
+    function digits(v) { return (v.match(/\d/g) || []).length; }
+
+    function prettyDate(v) {
+      var d = parseDate(v);
+      return d ? d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' }) : v;
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = document.getElementById('book-name'),
+          email = document.getElementById('book-email'),
+          phone = document.getElementById('book-phone'),
+          guests = document.getElementById('book-guests'),
+          notes = document.getElementById('book-notes'),
+          bad = null;
+
+      function check(el, ok) { err(el, !ok); if (!ok && !bad) { bad = el; } }
+
+      check(name, !!name.value.trim());
+      check(email, validEmail(email.value));
+      check(phone, digits(phone.value) >= 8);
+      check(guests, !!guests.value.trim());
+
+      var d = parseDate(dateEl.value), t0 = new Date();
+      t0.setHours(0, 0, 0, 0);
+      check(dateEl, !!d && d >= t0);
+      if (d) { dateEl.value = d.toLocaleDateString('en-AU'); }
+      check(timeEl, !!timeEl.value.trim());
+
+      if (bad) { bad.focus(); return; }
+
+      document.getElementById('book-summary').textContent =
+        'Thanks ' + name.value.trim().split(' ')[0] + ', your reservation request has been received.';
+      document.getElementById('book-out-guests').textContent =
+        guests.value.trim();
+      document.getElementById('book-out-when').textContent = prettyDate(dateEl.value) + ', ' + timeEl.value.trim();
+      document.getElementById('book-out-contact').textContent = email.value.trim();
+
+      var row = document.getElementById('book-out-notes-row');
+      if (notes.value.trim()) {
+        document.getElementById('book-out-notes').textContent = notes.value.trim();
+        row.hidden = false;
+      } else {
+        row.hidden = true;
+      }
+
+      wrap.hidden = true;
+      done.hidden = false;
+      done.style.opacity = '0';
+      done.style.transition = 'opacity 420ms ease';
+      void done.offsetHeight;
+      setTimeout(function () { done.style.opacity = '1'; }, 20);
+      window.scrollTo(0, 0);
+    });
+
+    document.getElementById('book-reset').addEventListener('click', function () {
+      form.reset();
+      required.forEach(function (id) { err(document.getElementById(id), false); });
+      done.hidden = true;
+      wrap.hidden = false;
+      window.scrollTo(0, 0);
+      document.getElementById('book-name').focus();
+    });
+  })();
+</script>
+
+</body>
+</html>

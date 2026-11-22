@@ -1,0 +1,200 @@
+{% load i18n static admin_ui %}<!DOCTYPE html>
+{% comment %}
+   ==================================================================
+   ==   @ Henvo                                                    ==
+   ==   @ author: Mai Quoc Viet                                    ==
+   ==   @ project: knowledge                                       ==
+   ==   @ copyright: (c) 2026 Henvo. All rights reserved.          ==
+   ==================================================================
+{% endcomment %}
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE|default:'en-au' }}" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}{% endblock %}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+{% comment %}
+  Sets data-theme before the first paint. Loaded blocking and first on
+  purpose: deferred, the page would flash light for a frame in dark mode.
+{% endcomment %}
+<script src="{% static 'admin_ui/js/admin-theme.js' %}"></script>
+<link rel="icon" type="image/svg+xml" href="{% static 'admin_ui/img/favicon.svg' %}">
+<link rel="stylesheet" href="{% block stylesheet %}{% static 'admin/css/base.css' %}{% endblock %}">
+{% block dark-mode-vars %}{% endblock %}
+{% block responsive %}<link rel="stylesheet" href="{% static 'admin/css/responsive.css' %}">{% endblock %}
+{% block extrastyle %}{% endblock %}
+<link rel="stylesheet" href="{% static 'admin_ui/css/admin.css' %}">
+{% block extrahead %}{% endblock %}
+<script src="{% static 'admin_ui/js/admin.js' %}" defer></script>
+</head>
+
+<body class="hv-admin {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+      data-admin-utc-offset="{% now 'Z' %}">
+<a href="#content-start" class="skip-to-content-link">{% if LANGUAGE_CODE == 'vi' %}Bỏ qua tới nội dung chính{% else %}Skip to main content{% endif %}</a>
+
+<div class="hv-shell{% if is_popup %} hv-shell-popup{% endif %}" id="container">
+  {% if not is_popup %}
+    {% block nav-sidebar %}
+    <aside class="hv-sidebar" id="hv-sidebar" aria-label="{% if LANGUAGE_CODE == 'vi' %}Điều hướng chính{% else %}Main navigation{% endif %}">
+      <a class="hv-brand" href="{% url 'admin:index' %}">
+        <span class="hv-brand-mark"><img src="{% static 'admin_ui/img/logo-mark-light.svg' %}" alt=""></span>
+        <span class="hv-brand-text">
+          <strong>{{ site_header|default:"Admin" }}</strong>
+          <small>{% if LANGUAGE_CODE == 'vi' %}Quản lý Lumi Lane{% else %}Venue management{% endif %}</small>
+        </span>
+      </a>
+
+      {% admin_nav as nav %}
+      <nav class="hv-nav" data-hv-nav>
+        {% for section in nav %}
+          <div class="hv-nav-section">
+            {% if section.title %}<p class="hv-nav-title">{{ section.title }}</p>{% endif %}
+            <ul>
+              {% for item in section.items %}
+                <li>
+                  <a class="hv-nav-link{% if item.active %} is-active{% endif %}" href="{{ item.url }}"
+                     {% if item.active %}aria-current="page"{% endif %} title="{{ item.name }}" data-hv-nav-link
+                     data-hv-section="{{ section.title|default:'' }}">
+                    {% icon item.icon %}
+                    <span class="hv-nav-text">{{ item.name }}</span>
+                    {% if item.badge %}<span class="hv-nav-badge" aria-label="{{ item.badge }} việc đang chờ">{{ item.badge }}</span>{% endif %}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+      </nav>
+
+      <div class="hv-sidebar-foot">
+        <button type="button" class="hv-collapse" data-hv-collapse
+                data-label-collapse="{% if LANGUAGE_CODE == 'vi' %}Thu gọn menu{% else %}Collapse menu{% endif %}"
+                data-label-expand="{% if LANGUAGE_CODE == 'vi' %}Mở rộng menu{% else %}Expand menu{% endif %}"
+                aria-label="{% if LANGUAGE_CODE == 'vi' %}Thu gọn menu{% else %}Collapse menu{% endif %}"
+                title="{% if LANGUAGE_CODE == 'vi' %}Thu gọn menu{% else %}Collapse menu{% endif %}">
+          {% icon 'panel' %}<span class="hv-nav-text">{% if LANGUAGE_CODE == 'vi' %}Thu gọn{% else %}Collapse{% endif %}</span>
+        </button>
+      </div>
+    </aside>
+    <div class="hv-scrim" data-hv-close-nav hidden></div>
+    {% endblock %}
+  {% endif %}
+
+  <div class="hv-main">
+    {% if not is_popup %}
+    {% block header %}
+    <header class="hv-topbar">
+      <button type="button" class="hv-icon-btn hv-nav-toggle" data-hv-nav-toggle aria-controls="hv-sidebar"
+              aria-expanded="false" aria-label="{% if LANGUAGE_CODE == 'vi' %}Mở menu{% else %}Open menu{% endif %}">{% icon 'menu' %}</button>
+
+      {% block nav-breadcrumbs %}
+        <nav class="hv-crumbs" aria-label="{% if LANGUAGE_CODE == 'vi' %}Đường dẫn{% else %}Breadcrumbs{% endif %}">
+          {% block breadcrumbs %}
+            <div class="breadcrumbs">
+              <a href="{% url 'admin:index' %}">{% if LANGUAGE_CODE == 'vi' %}Tổng quan{% else %}Overview{% endif %}</a>
+              {% if title %} &rsaquo; {{ title }}{% endif %}
+            </div>
+          {% endblock %}
+        </nav>
+      {% endblock %}
+
+      <div class="hv-topbar-tools">
+        {% block nav-global %}{% endblock %}
+
+        {% if has_permission %}
+          <button type="button" class="hv-search-trigger" data-hv-palette-open aria-haspopup="dialog">
+            {% icon 'search' %}<span>{% if LANGUAGE_CODE == 'vi' %}Đi tới trang…{% else %}Go to page…{% endif %}</span><kbd>Ctrl K</kbd>
+          </button>
+        {% endif %}
+
+        <form class="hv-language-form" action="{% url 'set_language' %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <label class="hv-sr-only" for="hv-language">Language</label>
+          <select id="hv-language" name="language" aria-label="{% if LANGUAGE_CODE == 'vi' %}Ngôn ngữ{% else %}Language{% endif %}" onchange="this.form.submit()">
+            <option value="en-au"{% if LANGUAGE_CODE == 'en-au' %} selected{% endif %}>EN</option>
+            <option value="vi"{% if LANGUAGE_CODE == 'vi' %} selected{% endif %}>VI</option>
+          </select>
+        </form>
+
+        <button type="button" class="hv-icon-btn hv-theme-toggle" data-hv-theme-toggle
+                aria-label="{% if LANGUAGE_CODE == 'vi' %}Chuyển giao diện sáng hoặc tối{% else %}Toggle light or dark theme{% endif %}"
+                title="{% if LANGUAGE_CODE == 'vi' %}Chuyển giao diện sáng / tối{% else %}Toggle theme{% endif %}">
+          {% icon 'moon' 'hv-show-light' %}{% icon 'sun' 'hv-show-dark' %}
+        </button>
+
+        {% block usertools %}
+        {% if has_permission %}
+          <details class="hv-user" data-hv-menu>
+            <summary aria-label="{% if LANGUAGE_CODE == 'vi' %}Tài khoản của bạn{% else %}Your account{% endif %}">
+                <span class="hv-avatar" aria-hidden="true">{{ user|initials }}</span>
+              <span class="hv-user-name">{% firstof user.get_full_name user.get_username %}</span>
+              {% icon 'chevron-down' 'hv-user-caret' %}
+            </summary>
+            <div class="hv-menu" role="menu">
+              <div class="hv-menu-head">
+                <strong>{% firstof user.get_full_name user.get_username %}</strong>
+                <span>{% if LANGUAGE_CODE == 'vi' %}{% if user.is_superuser %}Quản trị viên cấp cao{% else %}Nhân viên quản trị{% endif %}{% else %}{% if user.is_superuser %}Superuser{% else %}Administrator{% endif %}{% endif %}{% if user.email %} · {{ user.email }}{% endif %}</span>
+              </div>
+              {% comment %}
+                Not named "userlinks": Django's password pages override that
+                block with their own links and its theme switcher.
+              {% endcomment %}
+              {% block hv-userlinks %}
+                {% if perms.auth.change_user %}
+                  <a class="hv-menu-item" role="menuitem" href="{% url 'admin:auth_user_change' user.pk %}">{% icon 'user' %}{% if LANGUAGE_CODE == 'vi' %}Hồ sơ của tôi{% else %}My profile{% endif %}</a>
+                {% endif %}
+                {% if user.has_usable_password %}
+                  <a class="hv-menu-item" role="menuitem" href="{% url 'admin:password_change' %}">{% icon 'key' %}{% if LANGUAGE_CODE == 'vi' %}Đổi mật khẩu{% else %}Change password{% endif %}</a>
+                {% endif %}
+                <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="hv-menu-item hv-menu-danger" role="menuitem">{% icon 'logout' %}{% if LANGUAGE_CODE == 'vi' %}Đăng xuất{% else %}Sign out{% endif %}</button>
+                </form>
+              {% endblock %}
+            </div>
+          </details>
+        {% endif %}
+        {% endblock %}
+      </div>
+    </header>
+    {% endblock %}
+    {% endif %}
+
+    <main id="content-start" class="hv-content" tabindex="-1">
+      {% block messages %}{% include "admin/includes/hv_messages.html" %}{% endblock messages %}
+      <div id="content" class="{% block coltype %}colM{% endblock %}">
+        {% block pretitle %}{% endblock %}
+        {% block content_title %}{% if cl %}<h1>{{ cl.opts.verbose_name_plural|capfirst }}</h1>{% elif title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+        {% block content_subtitle %}{% if subtitle %}<h2>{{ subtitle }}</h2>{% endif %}{% endblock %}
+        {% block content %}
+          {% block object-tools %}{% endblock %}
+          {{ content }}
+        {% endblock %}
+        {% block sidebar %}{% endblock %}
+        <br class="clear">
+      </div>
+    </main>
+    {% if not is_popup %}<footer id="footer" class="hv-footer">{% block footer %}{% endblock %}</footer>{% endif %}
+  </div>
+</div>
+
+{% if has_permission and not is_popup %}
+  <div class="hv-palette" data-hv-palette hidden>
+      <div class="hv-palette-box" role="dialog" aria-modal="true" aria-label="{% if LANGUAGE_CODE == 'vi' %}Đi tới trang{% else %}Go to page{% endif %}">
+      <label class="hv-palette-field">
+        {% icon 'search' %}
+        <input type="search" placeholder="{% if LANGUAGE_CODE == 'vi' %}Nhập tên trang…{% else %}Search pages…{% endif %}" autocomplete="off"
+               aria-label="{% if LANGUAGE_CODE == 'vi' %}Tên trang{% else %}Page name{% endif %}" data-hv-palette-input>
+        <kbd>Esc</kbd>
+      </label>
+      <ul class="hv-palette-list" data-hv-palette-list role="listbox"></ul>
+      <p class="hv-palette-empty" data-hv-palette-empty hidden>{% if LANGUAGE_CODE == 'vi' %}Không có trang nào khớp.{% else %}No matching pages.{% endif %}</p>
+    </div>
+  </div>
+{% endif %}
+
+{% block extrabody %}{% endblock extrabody %}
+</body>
+</html>

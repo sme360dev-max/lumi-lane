@@ -1,0 +1,43 @@
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Python / Django
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.db
+*.log
+.venv/
+venv/
+backend/staticfiles/
+backend/media/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+
+# Node.js / Next.js
+node_modules/
+.next/
+out/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+.turbo/
+
+# Local QA output (keep the QA report)
+website/qa/screenshots/
+website/qa/last-run.txt
+
+# Editors and operating systems
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
