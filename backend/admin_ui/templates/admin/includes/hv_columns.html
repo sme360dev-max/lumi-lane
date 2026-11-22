@@ -24,7 +24,7 @@
         </div>
       {% endfor %}
     </div>
-    {% if chart.is_empty %}<p class="hv-chart-empty">Chưa có số liệu trong khoảng này.</p>{% endif %}
+    {% if chart.is_empty %}<p class="hv-chart-empty">No data for this period yet.</p>{% endif %}
   </div>
   <div class="hv-chart-labels" aria-hidden="true">
     {% for bar in chart.bars %}<span>{{ bar.label }}</span>{% endfor %}

@@ -18,6 +18,12 @@ endif
 endif
 endif
 
+# Run any backend command against production settings (backend/.env.prod), e.g.
+#   make superuser env=prod
+ifeq ($(env),prod)
+export DJANGO_ENV_FILE := .env.prod
+endif
+
 .PHONY: help run backend website migrate makemigrations showmigrations superuser seed_data shell check collectstatic \
 	install install-backend install-website lint typecheck build
 

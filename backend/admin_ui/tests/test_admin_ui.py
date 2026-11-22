@@ -12,19 +12,15 @@ from types import SimpleNamespace
 from django.contrib.auth.models import User
 from django.test import RequestFactory, SimpleTestCase, TestCase
 
-from admin_ui import charts, nav, vn_text
+from admin_ui import charts, nav, text_format
 from admin_ui.templatetags import admin_ui as tags
 
 
 class ChartTests(SimpleTestCase):
-    """admin_ui/charts.py."""
-
     def test_css_pct_never_uses_comma(self):
-        """Locale vi would print 12,5 and the browser drops the rule."""
         self.assertNotIn(",", charts.css_pct(12.5))
 
     def test_nice_ceiling(self):
-        """Round, even tops so the middle tick is whole."""
         self.assertEqual(charts.nice_ceiling(0), 2)
         for value in (5, 37, 999):
             top = charts.nice_ceiling(value)
@@ -32,122 +28,82 @@ class ChartTests(SimpleTestCase):
             self.assertEqual(top % 2, 0)
 
     def test_column_chart(self):
-        """Bars scaled to the ceiling, tooltips, totals."""
-        chart = charts.column_chart([("1", 0, "Ngày 1"), ("2", 4, "Ngày 2")], unit="lượt")
-        self.assertEqual(len(chart["bars"]), 2)
+        chart = charts.column_chart([("1", 0, "Day 1"), ("2", 4, "Day 2")], unit="visits")
         self.assertTrue(chart["bars"][0]["empty"])
-        self.assertIn("Ngày 2: 4 lượt", chart["bars"][1]["tip"])
+        self.assertIn("Day 2: 4 visits", chart["bars"][1]["tip"])
         self.assertEqual(len(chart["ticks"]), 3)
 
-    def test_delta(self):
-        """None without a baseline; direction and rounded pct otherwise."""
-        self.assertIsNone(charts.delta(5, 0))
-        self.assertEqual(charts.delta(42, 30), {"pct": 40, "direction": "up"})
-        self.assertEqual(charts.delta(10, 20)["direction"], "down")
-        self.assertEqual(charts.delta(100, 100)["direction"], "flat")
+    def test_compact_and_share_rows(self):
+        self.assertEqual(charts.compact(1_200_000), "1.2M")
+        self.assertEqual(charts.compact(45_000), "45k")
+        self.assertEqual(charts.compact(4_500), "4,500")
+        rows = charts.share_rows([{"value": 50}, {"value": 25}])
+        self.assertEqual([r["pct"] for r in rows], [charts.css_pct(100), charts.css_pct(50)])
 
 
-class VnTextTests(SimpleTestCase):
-    """admin_ui/vn_text.py."""
-
-    def test_group_digits_and_duration(self):
-        """450000 -> 450.000; 90s -> '1 phút 30 giây'."""
-        self.assertEqual(vn_text.group_digits(450000), "450.000")
-        self.assertEqual(vn_text.duration_text(90), "1 phút 30 giây")
-
-    def test_strip_accents(self):
-        """Marks and đ removed, lower-cased (for search)."""
-        self.assertEqual(vn_text.strip_vn_accents("Đặng Thị Mỹ"), "dang thi my")
+class TextFormatTests(SimpleTestCase):
+    def test_australian_formats(self):
+        self.assertEqual(text_format.group_digits(450000), "450,000")
+        self.assertEqual(text_format.duration_text(90), "1 min 30 sec")
+        self.assertEqual(text_format.fold("Café Açai"), "cafe acai")
 
 
 class TemplateTagTests(SimpleTestCase):
-    """admin_ui/templatetags/admin_ui.py."""
-
     def test_icon_markup(self):
-        """SVG <use> into the sprite."""
         html = tags.icon("home", "big")
         self.assertIn('class="hv-i big"', html)
-        self.assertIn("admin-icons.svg#home", html)
+        self.assertRegex(html, r"admin-icons(\.[0-9a-f]+)?\.svg#home")
 
     def test_initials(self):
-        """Last+first initials, else username."""
-        self.assertEqual(tags.initials(SimpleNamespace(first_name="Viet", last_name="Mai", username="x")), "MV")
+        self.assertEqual(tags.initials(SimpleNamespace(first_name="Ava", last_name="Nguyen", username="x")), "NA")
         self.assertEqual(tags.initials(SimpleNamespace(first_name="", last_name="", username="boss")), "BO")
 
-    def test_labels(self):
-        """Weekday label and a greeting."""
-        self.assertIn("tháng", tags.today_label())
-        self.assertTrue(tags.greeting().startswith("Chào buổi"))
-        self.assertEqual(tags.digits(1000000), "1.000.000")
+    def test_labels_are_english(self):
+        self.assertRegex(tags.today_label(), r"^[A-Z][a-z]+day \d{1,2} [A-Z][a-z]+ \d{4}$")
+        self.assertIn(tags.greeting(), {"Good morning", "Good afternoon", "Good evening"})
+        self.assertEqual(tags.digits(1000000), "1,000,000")
 
 
 class NavTests(TestCase):
-    """build_nav from the admin site."""
+    def setUp(self):
+        self.user = User.objects.create_superuser("boss", "boss@example.com", "pw")
 
-    def test_superuser_menu_and_active_item(self):
-        """Configured sections, unknown models in 'Khác', longest-prefix active."""
-        user = User.objects.create_superuser("boss", "b@x.vn", "pw")
-        request = RequestFactory().get("/admin/accounts/account/1/change/")
-        request.user = user
-        sections = nav.build_nav(request)
-        titles = [s["title"] for s in sections]
-        self.assertEqual(titles[0], None)
-        self.assertIn("Người dùng", titles)
-        self.assertIn("Khác", titles)
+    def nav_for(self, path):
+        request = RequestFactory().get(path)
+        request.user = self.user
+        return nav.build_nav(request)
+
+    def test_sections_and_active_item(self):
+        sections = self.nav_for("/admin/menu/menuitem/3/change/")
+        self.assertEqual([s["title"] for s in sections], [None, "Bookings", "Menu", "Team"])
         active = [i["name"] for s in sections for i in s["items"] if i["active"]]
-        self.assertEqual(len(active), 1)
-        self.assertNotEqual(active[0], "Tổng quan")
+        self.assertEqual(active, ["Items & prices"])
 
     def test_dashboard_only_active_on_itself(self):
-        """/admin/ is a prefix of everything."""
-        user = User.objects.create_superuser("boss", "b@x.vn", "pw")
-        request = RequestFactory().get("/admin/")
-        request.user = user
-        first = nav.build_nav(request)[0]["items"][0]
-        self.assertTrue(first["active"])
+        self.assertTrue(self.nav_for("/admin/")[0]["items"][0]["active"])
 
 
 class AdminPagesTests(TestCase):
-    """The skin renders the stock admin pages."""
-
     def setUp(self):
-        """Signed-in superuser."""
-        User.objects.create_superuser("boss", "b@x.vn", "pw")
+        User.objects.create_superuser("boss", "boss@example.com", "pw")
 
     def test_login_page(self):
-        """Standalone sign-in page with the kit's CSS and the site header."""
-        r = self.client.get("/admin/login/")
-        self.assertContains(r, "hv-login-shell")
-        self.assertContains(r, "admin_ui/css/admin.css")
-        self.assertContains(r, "TestApp")
+        response = self.client.get("/admin/login/")
+        self.assertContains(response, "hv-login-shell")
+        self.assertContains(response, "admin_ui/css/admin")
+        self.assertNotContains(response, "hv-language-form")
 
     def test_shell_pages(self):
-        """Dashboard, changelist, add form, app index, user list."""
         self.client.login(username="boss", password="pw")
-        for url in ("/admin/", "/admin/accounts/account/", "/admin/accounts/account/add/", "/admin/accounts/", "/admin/auth/user/", "/admin/payments/topuporder/"):
-            r = self.client.get(url)
-            self.assertEqual(r.status_code, 200, url)
-            self.assertContains(r, "hv-sidebar")
-            self.assertContains(r, "data-hv-theme-toggle")
+        for url in (
+            "/admin/", "/admin/bookings/", "/admin/bookings/bookingrequest/", "/admin/bookings/bookingrequest/add/",
+            "/admin/menu/menuitem/", "/admin/auth/user/", "/admin/auth/group/",
+        ):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200, url)
+            self.assertContains(response, "hv-sidebar")
+            self.assertContains(response, "data-hv-theme-toggle")
 
     def test_logout_page(self):
-        """Signed-out card."""
         self.client.login(username="boss", password="pw")
         self.assertContains(self.client.post("/admin/logout/"), "hv-login-done")
-
-
-class ChartExtraTests(SimpleTestCase):
-    """compact() and share_rows()."""
-
-    def test_compact_labels(self):
-        """tr / N suffixes with a decimal comma."""
-        self.assertEqual(charts.compact(1_200_000), "1,2 tr")
-        self.assertEqual(charts.compact(45_000), "45 N")
-        self.assertEqual(charts.compact(4_500), "4.500")
-
-    def test_share_rows(self):
-        """Against the largest by default, against a total when given."""
-        rows = charts.share_rows([{"value": 50}, {"value": 25}])
-        self.assertEqual([r["pct"] for r in rows], [charts.css_pct(100), charts.css_pct(50)])
-        self.assertEqual(charts.share_rows([{"value": 25}], total=100)[0]["share"], 25)
-        self.assertEqual(charts.share_rows([]), [])

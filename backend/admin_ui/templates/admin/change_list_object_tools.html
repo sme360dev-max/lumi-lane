@@ -11,7 +11,7 @@
   {% if has_add_permission %}
   <li>
     {% url cl.opts|admin_urlname:'add' as add_url %}
-    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">{% if cl.opts.model_name == 'bookingrequest' %}{% if LANGUAGE_CODE == 'vi' %}Thêm yêu cầu đặt bàn{% else %}Add booking request{% endif %}{% else %}{% if LANGUAGE_CODE == 'vi' %}Thêm {{ cl.opts.verbose_name }}{% else %}Add {{ cl.opts.verbose_name }}{% endif %}{% endif %}</a>
+    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">{% if cl.model_admin.add_label %}{{ cl.model_admin.add_label }}{% else %}Add {{ cl.opts.verbose_name }}{% endif %}</a>
   </li>
   {% endif %}
 {% endblock %}

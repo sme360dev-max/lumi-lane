@@ -11,10 +11,10 @@
   column of links on the right that took a quarter of the screen from the
   records. Each option's value is the address of the filtered list, and
   admin.js goes there on change. Without the script the select still shows
-  which filter is on; the "Xoá bộ lọc" link beside the bar resets them.
+  which filter is on; the "Clear all filters" link beside the bar resets them.
 {% endcomment %}
 <div class="hv-filter" data-filter-title="{{ title }}">
-  <select data-hv-filter-select data-hv-select-label="{{ title|capfirst }}" aria-label="Lọc theo {{ title }}">
+  <select data-hv-filter-select data-hv-select-label="{{ title|capfirst }}" aria-label="Filter by {{ title }}">
     {% for choice in choices %}
       <option value="{{ choice.query_string|iriencode }}"{% if choice.selected %} selected{% endif %}>{{ choice.display }}</option>
     {% endfor %}

@@ -1,9 +1,9 @@
 {% extends "admin/base_site.html" %}
-{% load admin_ui i18n %}
+{% load admin_ui %}
 
 {% block bodyclass %}{{ block.super }} dashboard hv-dash{% endblock %}
 {% block breadcrumbs %}
-  <div class="breadcrumbs"><span>{% if LANGUAGE_CODE == 'vi' %}Tổng quan{% else %}Overview{% endif %}</span></div>
+  <div class="breadcrumbs"><span>Overview</span></div>
 {% endblock %}
 {% block content_title %}{% endblock %}
 
@@ -12,46 +12,86 @@
 <div class="hv-page">
   <header class="hv-hero">
     <div class="hv-hero-text">
-      <p class="hv-eyebrow">{% today_label %}</p>
+      <p class="hv-eyebrow">{% today_label %} · Adelaide</p>
       <h1>{% greeting %}, {% firstof user.first_name user.get_username %}</h1>
-      {% if LANGUAGE_CODE == 'vi' %}
-        <p class="hv-lead">Chào mừng trở lại. Quản lý yêu cầu đặt bàn và tài khoản nhân viên tại đây.</p>
-      {% else %}
-        <p class="hv-lead">Welcome back. Manage table requests and staff access from one place.</p>
-      {% endif %}
+      <p class="hv-lead">Table requests, the menu and your team, all in one place.</p>
     </div>
     <div class="hv-hero-actions">
-      <a class="hv-btn hv-btn-primary" href="{% url 'admin:bookings_bookingrequest_changelist' %}">
-        {% icon 'calendar' %}{% if LANGUAGE_CODE == 'vi' %}Xem yêu cầu đặt bàn{% else %}View booking requests{% endif %}
-      </a>
+      {% if perms.bookings.view_bookingrequest %}
+        <a class="hv-btn hv-btn-primary" href="{% url 'admin:bookings_bookingrequest_changelist' %}?status=new">
+          {% icon 'calendar' %}New requests
+        </a>
+      {% endif %}
+      {% if perms.menu.view_menuitem %}
+        <a class="hv-btn hv-btn-ghost" href="{% url 'admin:menu_menuitem_changelist' %}">{% icon 'bowl' %}Menu &amp; prices</a>
+      {% endif %}
     </div>
   </header>
 
-  <section class="hv-stats hv-dash-stats" aria-label="{% if LANGUAGE_CODE == 'vi' %}Tóm tắt đặt bàn{% else %}Booking summary{% endif %}">
+  <section class="hv-stats hv-dash-stats" aria-label="At a glance">
     <article class="hv-stat">
-      <p class="hv-stat-label">{% icon 'hourglass' %}{% if LANGUAGE_CODE == 'vi' %}Chờ xử lý{% else %}Awaiting response{% endif %}</p>
+      <p class="hv-stat-label">{% icon 'hourglass' %}Awaiting response</p>
       <p class="hv-stat-value">{{ counts.new }}</p>
-      <p class="hv-stat-note">{% if LANGUAGE_CODE == 'vi' %}Yêu cầu mới{% else %}New requests{% endif %}</p>
+      <p class="hv-stat-note">New table requests</p>
     </article>
     <article class="hv-stat">
-      <p class="hv-stat-label">{% icon 'calendar' %}{% if LANGUAGE_CODE == 'vi' %}Hôm nay{% else %}Today{% endif %}</p>
+      <p class="hv-stat-label">{% icon 'calendar' %}Today</p>
       <p class="hv-stat-value">{{ counts.today }}</p>
-      <p class="hv-stat-note">{% if LANGUAGE_CODE == 'vi' %}Lượt đặt chưa hủy{% else %}Active reservations{% endif %}</p>
+      <p class="hv-stat-note">Reservations, not cancelled</p>
     </article>
     <article class="hv-stat{% if counts.email_issues %} hv-stat-alert{% endif %}">
-      <p class="hv-stat-label">{% icon 'mail' %}{% if LANGUAGE_CODE == 'vi' %}Email lỗi{% else %}Email issues{% endif %}</p>
+      <p class="hv-stat-label">{% icon 'mail' %}Email issues</p>
       <p class="hv-stat-value">{{ counts.email_issues }}</p>
-      <p class="hv-stat-note">{% if LANGUAGE_CODE == 'vi' %}Cần gửi lại thông báo{% else %}Notifications to retry{% endif %}</p>
+      <p class="hv-stat-note">Notifications to retry</p>
+    </article>
+    <article class="hv-stat">
+      <p class="hv-stat-label">{% icon 'bowl' %}Sold out</p>
+      <p class="hv-stat-value">{{ counts.sold_out }}</p>
+      <p class="hv-stat-note">Menu items hidden from the website</p>
     </article>
   </section>
 
-  <section class="hv-card hv-dash-shortcut">
-    <div class="hv-dash-shortcut-icon">{% icon 'clipboard' %}</div>
-    <div>
-      <h2>{% if LANGUAGE_CODE == 'vi' %}Yêu cầu đặt bàn{% else %}Table requests{% endif %}</h2>
-      <p>{% if LANGUAGE_CODE == 'vi' %}Xem thông tin khách, cập nhật trạng thái và gửi lại email nếu thông báo bị lỗi.{% else %}Review guest details, update reservation status, and retry failed email notifications.{% endif %}</p>
-    </div>
-    <a class="hv-btn hv-btn-ghost" href="{% url 'admin:bookings_bookingrequest_changelist' %}">{% if LANGUAGE_CODE == 'vi' %}Mở danh sách{% else %}Open list{% endif %}{% icon 'arrow-right' %}</a>
-  </section>
+  <div class="hv-dash-grid">
+    <section class="hv-dash-panel" aria-labelledby="hv-upcoming-title">
+      <header>
+        <h2 id="hv-upcoming-title">Coming up</h2>
+        {% if perms.bookings.view_bookingrequest %}<a href="{% url 'admin:bookings_bookingrequest_changelist' %}">All requests</a>{% endif %}
+      </header>
+      {% if counts.upcoming and perms.bookings.view_bookingrequest %}
+        <ul class="hv-upcoming">
+          {% for booking in counts.upcoming %}
+            <li>
+              <span class="hv-upcoming-date"><b>{{ booking.date|date:"j" }}</b><small>{{ booking.date|date:"M" }}</small></span>
+              <span class="hv-upcoming-who">
+                <a href="{% url 'admin:bookings_bookingrequest_change' booking.pk %}">{{ booking.name }}</a>
+                <span>{{ booking.date|date:"l" }}, {{ booking.time|time:"g:i A" }} · {{ booking.guests }} guest{{ booking.guests|pluralize }}</span>
+              </span>
+              <span class="hv-chip {% if booking.status == 'new' %}hv-chip-pending{% else %}hv-chip-approved{% endif %}">{{ booking.get_status_display }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="hv-empty-note">No upcoming reservations yet.</p>
+      {% endif %}
+    </section>
+
+    <section class="hv-dash-panel" aria-labelledby="hv-shortcuts-title">
+      <header><h2 id="hv-shortcuts-title">Shortcuts</h2></header>
+      <ul class="hv-shortcuts">
+        {% if perms.bookings.add_bookingrequest %}
+          <li><a href="{% url 'admin:bookings_bookingrequest_add' %}">{% icon 'plus' %}<span><strong>Add a phone booking</strong><small>Record a reservation taken by phone</small></span></a></li>
+        {% endif %}
+        {% if perms.menu.change_menuitem %}
+          <li><a href="{% url 'admin:menu_menuitem_changelist' %}">{% icon 'tag' %}<span><strong>Change prices</strong><small>Edit prices or mark items sold out</small></span></a></li>
+        {% endif %}
+        {% if perms.auth.view_user %}
+          <li><a href="{% url 'admin:auth_user_changelist' %}">{% icon 'users' %}<span><strong>Staff accounts</strong><small>Who can sign in, and their roles</small></span></a></li>
+        {% endif %}
+        {% if perms.auth.view_group %}
+          <li><a href="{% url 'admin:auth_group_changelist' %}">{% icon 'shield-check' %}<span><strong>Roles &amp; permissions</strong><small>What each role can see and change</small></span></a></li>
+        {% endif %}
+      </ul>
+    </section>
+  </div>
 </div>
 {% endblock %}

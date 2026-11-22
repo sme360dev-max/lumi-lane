@@ -5,8 +5,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.text import slugify
 
-from config.labels import label as L
-
 PRICE = {"max_digits": 8, "decimal_places": 2, "validators": [MinValueValidator(Decimal("0"))]}
 
 
@@ -14,28 +12,25 @@ class MenuCategory(models.Model):
     """One tab on the website menu page (Brunch, Açai, Coffee & Drinks, Bar)."""
 
     class PriceStyle(models.TextChoices):
-        DOLLAR = "dollar", L("$25.9 — with $, no trailing zeros", "$25.9 — có dấu $, bỏ số 0 thừa")
-        FIXED = "fixed", L("4.20 — always two decimals", "4.20 — luôn 2 chữ số thập phân")
+        DOLLAR = "dollar", "$25.9 — with $, no trailing zeros"
+        FIXED = "fixed", "4.20 — always two decimals"
 
     slug = models.SlugField(
-        L("Tab code", "Mã tab"), max_length=40, unique=True,
-        help_text=L(
-            "Used in the link, e.g. /menu/#bar. Lowercase letters, digits and hyphens only.",
-            "Dùng trong đường dẫn, ví dụ /menu/#bar. Chỉ chữ thường, số và dấu gạch ngang.",
-        ),
+        "Tab code", max_length=40, unique=True,
+        help_text="Used in the link, e.g. /menu/#bar. Lowercase letters, digits and hyphens only.",
     )
-    name = models.CharField(L("Tab name", "Tên tab"), max_length=60)
+    name = models.CharField("Tab name", max_length=60)
     price_style = models.CharField(
-        L("Price format", "Kiểu hiển thị giá"), max_length=10, choices=PriceStyle.choices, default=PriceStyle.DOLLAR
+        "Price format", max_length=10, choices=PriceStyle.choices, default=PriceStyle.DOLLAR
     )
-    order = models.PositiveSmallIntegerField(L("Order", "Thứ tự"), default=0)
-    is_active = models.BooleanField(L("Shown on website", "Hiển thị trên website"), default=True)
-    updated_at = models.DateTimeField(L("Updated", "Cập nhật lúc"), auto_now=True)
+    order = models.PositiveSmallIntegerField("Order", default=0)
+    is_active = models.BooleanField("Shown on website", default=True)
+    updated_at = models.DateTimeField("Updated", auto_now=True)
 
     class Meta:
         ordering = ("order", "id")
-        verbose_name = L("Menu category", "Danh mục menu")
-        verbose_name_plural = L("Menu categories", "Danh mục menu")
+        verbose_name = "Menu category"
+        verbose_name_plural = "Menu categories"
 
     def __str__(self):
         return self.name
@@ -54,78 +49,72 @@ class MenuSection(models.Model):
     """A titled block inside a tab (All Day, Sweet, Red, Cocktails...)."""
 
     class Kind(models.TextChoices):
-        STANDARD = "standard", L("Item list with prices", "Danh sách món có giá")
-        ACAI = "acai", L("Item list priced by a shared table (Açai)", "Danh sách món dùng bảng giá chung (Açai)")
-        WINE = "wine", L("Wine list — glass / bottle", "Rượu vang — giá ly / chai")
-        PRICING = "pricing", L("Price table by size / service", "Bảng giá theo size / hình thức")
-        NOTICE = "notice", L("Notice (no items)", "Ghi chú (không có món)")
+        STANDARD = "standard", "Item list with prices"
+        ACAI = "acai", "Item list priced by a shared table (Açai)"
+        WINE = "wine", "Wine list — glass / bottle"
+        PRICING = "pricing", "Price table by size / service"
+        NOTICE = "notice", "Notice (no items)"
 
     LIST_KINDS = (Kind.STANDARD, Kind.ACAI, Kind.WINE)
 
     category = models.ForeignKey(
-        MenuCategory, verbose_name=L("Category", "Danh mục"), on_delete=models.CASCADE, related_name="sections"
+        MenuCategory, verbose_name="Category", on_delete=models.CASCADE, related_name="sections"
     )
-    kind = models.CharField(L("Section type", "Loại nhóm"), max_length=10, choices=Kind.choices, default=Kind.STANDARD)
-    title = models.CharField(L("Title", "Tiêu đề"), max_length=120, blank=True)
+    kind = models.CharField("Section type", max_length=10, choices=Kind.choices, default=Kind.STANDARD)
+    title = models.CharField("Title", max_length=120, blank=True)
     note = models.TextField(
-        L("Note", "Ghi chú"), blank=True,
-        help_text=L(
-            "Italic line under the title. For a Notice section this is the text shown.",
-            "Dòng chữ nghiêng dưới tiêu đề. Với nhóm Ghi chú, đây là nội dung hiển thị.",
-        ),
+        "Note", blank=True,
+        help_text="Italic line under the title. For a Notice section this is the text shown.",
     )
-    order = models.PositiveSmallIntegerField(L("Order", "Thứ tự"), default=0)
-    is_active = models.BooleanField(L("Shown", "Hiển thị"), default=True)
-    updated_at = models.DateTimeField(L("Updated", "Cập nhật lúc"), auto_now=True)
+    order = models.PositiveSmallIntegerField("Order", default=0)
+    is_active = models.BooleanField("Shown", default=True)
+    updated_at = models.DateTimeField("Updated", auto_now=True)
 
     class Meta:
         ordering = ("category__order", "order", "id")
-        verbose_name = L("Menu section", "Nhóm món")
-        verbose_name_plural = L("Menu sections", "Nhóm món")
+        verbose_name = "Menu section"
+        verbose_name_plural = "Menu sections"
 
     def __str__(self):
         return f"{self.category.name} · {self.title or self.get_kind_display()}"
 
     def clean(self):
         if self.kind != self.Kind.PRICING and not self.title.strip():
-            raise ValidationError({"title": L("Enter a title for this section.", "Vui lòng nhập tiêu đề cho nhóm này.")})
+            raise ValidationError({"title": "Enter a title for this section."})
         if self.kind == self.Kind.NOTICE and not self.note.strip():
-            raise ValidationError({"note": L("A notice needs some text.", "Nhóm Ghi chú cần có nội dung.")})
+            raise ValidationError({"note": "A notice needs some text."})
 
 
 class MenuItem(models.Model):
     section = models.ForeignKey(
-        MenuSection, verbose_name=L("Section", "Nhóm món"), on_delete=models.CASCADE, related_name="items"
+        MenuSection, verbose_name="Section", on_delete=models.CASCADE, related_name="items"
     )
     slug = models.SlugField(
-        L("Item code", "Mã món"), max_length=100, unique=True, blank=True,
-        help_text=L(
-            "Leave blank to create it from the name. No need to change it when renaming.",
-            "Để trống để tự tạo từ tên món. Không cần đổi khi sửa tên.",
-        ),
+        "Item code", max_length=100, unique=True, blank=True,
+        help_text="Leave blank to create it from the name. No need to change it when renaming.",
     )
-    name = models.CharField(L("Name", "Tên món"), max_length=120)
-    description = models.TextField(L("Description", "Mô tả"), blank=True)
-    price = models.DecimalField(L("Price (AUD)", "Giá (AUD)"), null=True, blank=True, **PRICE)
+    name = models.CharField("Name", max_length=120)
+    description = models.TextField("Description", blank=True)
+    price = models.DecimalField("Price (AUD)", null=True, blank=True, **PRICE)
     region = models.CharField(
-        L("Region", "Vùng / xuất xứ"), max_length=120, blank=True, help_text=L("Wine only.", "Chỉ dùng cho rượu vang.")
+        "Region", max_length=120, blank=True, help_text="Wine only."
     )
     glass_price = models.DecimalField(
-        L("Glass (AUD)", "Giá ly (AUD)"), null=True, blank=True,
-        help_text=L("Leave blank if not sold by the glass.", "Để trống nếu không bán theo ly."), **PRICE,
+        "Glass (AUD)", null=True, blank=True,
+        help_text="Leave blank if not sold by the glass.", **PRICE,
     )
     bottle_price = models.DecimalField(
-        L("Bottle (AUD)", "Giá chai (AUD)"), null=True, blank=True,
-        help_text=L("Leave blank if not sold by the bottle.", "Để trống nếu không bán theo chai."), **PRICE,
+        "Bottle (AUD)", null=True, blank=True,
+        help_text="Leave blank if not sold by the bottle.", **PRICE,
     )
-    order = models.PositiveSmallIntegerField(L("Order", "Thứ tự"), default=0)
-    is_available = models.BooleanField(L("Available", "Đang bán"), default=True)
-    updated_at = models.DateTimeField(L("Updated", "Cập nhật lúc"), auto_now=True)
+    order = models.PositiveSmallIntegerField("Order", default=0)
+    is_available = models.BooleanField("Available", default=True)
+    updated_at = models.DateTimeField("Updated", auto_now=True)
 
     class Meta:
         ordering = ("section__category__order", "section__order", "order", "id")
-        verbose_name = L("Menu item", "Món")
-        verbose_name_plural = L("Menu items", "Món ăn & đồ uống")
+        verbose_name = "Menu item"
+        verbose_name_plural = "Menu items"
 
     def __str__(self):
         return self.name
@@ -136,18 +125,13 @@ class MenuItem(models.Model):
             return
         kind = section.kind
         if kind not in MenuSection.LIST_KINDS:
-            raise ValidationError({"section": L(
-                "This section does not hold items. Pick an item list.",
-                "Nhóm này không chứa món. Chọn một nhóm danh sách món.",
-            )})
+            raise ValidationError({"section": "This section does not hold items. Pick an item list."})
         if kind == MenuSection.Kind.STANDARD and self.price is None:
-            raise ValidationError({"price": L("Enter a price.", "Vui lòng nhập giá.")})
+            raise ValidationError({"price": "Enter a price."})
         if kind == MenuSection.Kind.WINE and self.glass_price is None and self.bottle_price is None:
-            raise ValidationError({"glass_price": L(
-                "A wine needs a glass or a bottle price.", "Rượu vang cần ít nhất giá ly hoặc giá chai."
-            )})
+            raise ValidationError({"glass_price": "A wine needs a glass or a bottle price."})
         if kind == MenuSection.Kind.ACAI and not self.description.strip():
-            raise ValidationError({"description": L("Açai items need a description.", "Món Açai cần có mô tả.")})
+            raise ValidationError({"description": "Açai items need a description."})
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -163,18 +147,18 @@ class PriceOption(models.Model):
     """One row of a pricing table, e.g. Takeaway / Small / $16.9."""
 
     section = models.ForeignKey(
-        MenuSection, verbose_name=L("Price table", "Bảng giá"), on_delete=models.CASCADE, related_name="price_rows"
+        MenuSection, verbose_name="Price table", on_delete=models.CASCADE, related_name="price_rows"
     )
-    group = models.CharField(L("Group", "Nhóm"), max_length=60, help_text=L("e.g. Takeaway, Dine In.", "Ví dụ: Takeaway, Dine In."))
-    label = models.CharField(L("Option", "Lựa chọn"), max_length=60, help_text=L("e.g. Small, Large, Bowl.", "Ví dụ: Small, Large, Bowl."))
-    price = models.DecimalField(L("Price (AUD)", "Giá (AUD)"), **PRICE)
-    order = models.PositiveSmallIntegerField(L("Order", "Thứ tự"), default=0)
-    updated_at = models.DateTimeField(L("Updated", "Cập nhật lúc"), auto_now=True)
+    group = models.CharField("Group", max_length=60, help_text="e.g. Takeaway, Dine In.")
+    label = models.CharField("Option", max_length=60, help_text="e.g. Small, Large, Bowl.")
+    price = models.DecimalField("Price (AUD)", **PRICE)
+    order = models.PositiveSmallIntegerField("Order", default=0)
+    updated_at = models.DateTimeField("Updated", auto_now=True)
 
     class Meta:
         ordering = ("order", "id")
-        verbose_name = L("Price row", "Dòng giá")
-        verbose_name_plural = L("Price table", "Bảng giá")
+        verbose_name = "Price row"
+        verbose_name_plural = "Price table"
 
     def __str__(self):
         return f"{self.group} · {self.label}"

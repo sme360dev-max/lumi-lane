@@ -65,7 +65,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Without `DATABASE_URL`, Django uses `backend/db.sqlite3`. Local email uses Django's console backend, so it prints a preview in the terminal and never contacts Brevo. The API health check is [http://127.0.0.1:8000/health/](http://127.0.0.1:8000/health/) and the admin is [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/).
+`backend/.env` (local) and `backend/.env.prod` (production) follow `backend/.env.example` line for line. Django reads `.env`; set `DJANGO_ENV_FILE=.env.prod` (or add `env=prod` to a make command, e.g. `make superuser env=prod`) to run a command with the production file. With `DATABASE_URL` empty, Django uses `backend/db.sqlite3`. Local email uses Django's console backend, so it prints a preview in the terminal and never contacts Brevo. The API health check is [http://127.0.0.1:8000/health/](http://127.0.0.1:8000/health/) and the admin is [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/).
 
 ### Website
 
@@ -115,7 +115,13 @@ Add the deployed Pages origin to `CORS_ALLOWED_ORIGINS` and `CSRF_TRUSTED_ORIGIN
 
 ### 4. Admin account
 
-After deployment, run Django's `createsuperuser` management command from a trusted local checkout with `DATABASE_URL` temporarily set to the same Supabase connection string, then sign in at `https://your-service.onrender.com/admin/`. Never commit that URL. The admin can search requests, update their reservation status, see whether the email notification was sent, and retry failed email notifications.
+After deployment, fill in `backend/.env.prod` (including `DATABASE_URL`) and run `make superuser env=prod` from a trusted local checkout, then sign in at `https://your-service.onrender.com/admin/`. Never commit that file.
+
+The admin is English (Australia) only and shows Adelaide time. Besides table requests and the menu, **Team** holds staff accounts and roles:
+
+- Four ready-made roles are created on the first `migrate`: **Manager**, **Front of house**, **Menu editor** and **View only**. They are only created when missing, so edits made in the admin are kept.
+- Permissions are shown as a table of areas (Table requests, Menu items & prices, Staff accounts…) by action (View, Add, Edit, Delete) instead of Django's raw permission names.
+- A team member needs **Can sign in to the admin** ticked plus at least one role. **Owner (full access)** is the superuser flag.
 
 ## Keeping the Render free service responsive
 

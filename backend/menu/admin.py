@@ -3,8 +3,6 @@ from django.contrib import admin
 from django.db import models
 from django.db.models import Count
 
-from config.labels import label as L
-
 from .models import MenuCategory, MenuItem, MenuSection, PriceOption
 
 SHORT_TEXT = {models.TextField: {"widget": forms.Textarea(attrs={"rows": 2, "cols": 52})}}
@@ -25,7 +23,7 @@ class MenuCategoryAdmin(admin.ModelAdmin):
     fields = ("name", "slug", "price_style", "order", "is_active")
     inlines = (SectionInline,)
 
-    @admin.display(description=L("Sections", "Số nhóm"), ordering="_sections")
+    @admin.display(description="Sections", ordering="_sections")
     def section_count(self, obj):
         return obj._sections
 
@@ -78,11 +76,11 @@ class MenuSectionAdmin(admin.ModelAdmin):
     formfield_overrides = SHORT_TEXT
     list_per_page = 100
 
-    @admin.display(description=L("Section", "Nhóm"), ordering="title")
+    @admin.display(description="Section", ordering="title")
     def section_title(self, obj):
         return obj.title or obj.get_kind_display()
 
-    @admin.display(description=L("Items", "Số món"), ordering="_items")
+    @admin.display(description="Items", ordering="_items")
     def item_count(self, obj):
         return obj._items
 
@@ -103,13 +101,15 @@ class MenuItemAdmin(admin.ModelAdmin):
     list_filter = ("section__category", "section", "is_available")
     list_select_related = ("section__category",)
     search_fields = ("name", "description", "region")
-    list_per_page = 200
+    list_per_page = 25
+    list_title = "Menu items & prices"
+    add_label = "Add menu item"
     formfield_overrides = {models.TextField: {"widget": forms.Textarea(attrs={"rows": 3, "cols": 60})}}
     readonly_fields = ("updated_at",)
 
     def get_fieldsets(self, request, obj=None):
         return (
             (None, {"fields": ("section", "name", "description")}),
-            (L("Price", "Giá"), {"fields": ("price", ("glass_price", "bottle_price"), "region")}),
-            (L("Display", "Hiển thị"), {"fields": ("is_available", "order", "slug", "updated_at")}),
+            ("Price", {"fields": ("price", ("glass_price", "bottle_price"), "region")}),
+            ("Display", {"fields": ("is_available", "order", "slug", "updated_at")}),
         )

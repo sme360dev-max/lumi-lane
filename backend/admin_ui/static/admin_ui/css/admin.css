@@ -16,144 +16,144 @@
    palette without each rule being rewritten.
 
    The @import has to be the first rule in the file. */
-@import url("fonts-be-vietnam-pro.css");
+@import url("fonts.css");
 
-/* Tokens. Brand values from docs/brand.md; the rest is derived from them.
+/* Tokens. Brand values from the Lumi Lane website (olive, ember, shell, cocoa, cream); the rest is derived from them.
    Selectors carry the attribute so they outrank Django's own
    `html[data-theme="light"], :root` block, which would otherwise win. */
 :root[data-theme="light"],
 :root:not([data-theme]) {
     color-scheme: light;
 
-    --hv-ink: #2d231f;
+    --hv-ink: #1c1814;
     --hv-paper: #ffffff;
-    --hv-bone: #fbf6ef;
-    --hv-lavender: #e8b47b;
-    --hv-mist: #aaa096;
-    --hv-purple: #a64f35;
-    --hv-logo: #a64f35;
+    --hv-bone: #faeddd;
+    --hv-lavender: #dacdb5;
+    --hv-mist: #a39a8c;
+    --hv-purple: #c45441;
+    --hv-logo: #c45441;
 
-    --hv-bg: #f6f2eb;
-    --hv-surface: #fffdf9;
-    --hv-surface-2: #faf6f0;
-    --hv-surface-3: #eee7dc;
-    --hv-field-bg: #fffefa;
-    --hv-line: #e8dfd3;
-    --hv-line-strong: #d4c8ba;
-    --hv-text: #2d231f;
-    --hv-text-2: #574a42;
-    --hv-muted: #796d63;
+    --hv-bg: #f6efe4;
+    --hv-surface: #fffcf7;
+    --hv-surface-2: #faf4ea;
+    --hv-surface-3: #f0e6d6;
+    --hv-field-bg: #fffefb;
+    --hv-line: #eadfcd;
+    --hv-line-strong: #d9cab2;
+    --hv-text: #1c1814;
+    --hv-text-2: #4a4038;
+    --hv-muted: #7a6e61;
 
-    --hv-accent: #a64f35;
-    --hv-accent-hover: #8f412d;
+    --hv-accent: #c45441;
+    --hv-accent-hover: #a9432f;
     --hv-accent-ink: #ffffff;
-    --hv-accent-soft: #f7e9df;
-    --hv-accent-text: #8f412d;
-    --hv-focus: rgba(166, 79, 53, 0.26);
+    --hv-accent-soft: #f8e5df;
+    --hv-accent-text: #a9432f;
+    --hv-focus: rgba(196, 84, 65, 0.26);
 
-    --hv-good-bg: #e7efe0;
-    --hv-good-fg: #3c5731;
-    --hv-warn-bg: #f8edd6;
-    --hv-warn-fg: #85570c;
-    --hv-warn-line: #ead19a;
-    --hv-bad-bg: #f7e4e0;
-    --hv-bad-fg: #a1372d;
-    --hv-info-bg: #f0e8df;
-    --hv-info-fg: #665044;
-    --hv-live-bg: #dff0ea;
-    --hv-live-fg: #1c6450;
-    --hv-quiet-bg: #efeef4;
-    --hv-quiet-fg: #5f5b6c;
-    --hv-danger: #a8392f;
-    --hv-danger-hover: #91302a;
-    --hv-danger-ink: #fdf6f4;
+    --hv-good-bg: #e5ecdc;
+    --hv-good-fg: #3b5130;
+    --hv-warn-bg: #f7ead1;
+    --hv-warn-fg: #875811;
+    --hv-warn-line: #e8cf9c;
+    --hv-bad-bg: #f8e0da;
+    --hv-bad-fg: #a2362a;
+    --hv-info-bg: #ece8dd;
+    --hv-info-fg: #4f5646;
+    --hv-live-bg: #dfece4;
+    --hv-live-fg: #2d5f45;
+    --hv-quiet-bg: #efece4;
+    --hv-quiet-fg: #5b5a4f;
+    --hv-danger: #b23b2c;
+    --hv-danger-hover: #962f22;
+    --hv-danger-ink: #fff7f5;
 
-    --hv-chart: #a64f35;
-    --hv-chart-zero: #e1d8ce;
-    --hv-chart-rule: #e9e0d7;
+    --hv-chart: #c45441;
+    --hv-chart-zero: #e6dccb;
+    --hv-chart-rule: #ece3d4;
 
-    --hv-sidebar: #2d231f;
-    --hv-sidebar-2: #3a2e28;
-    --hv-sidebar-text: #f8f2e9;
-    --hv-sidebar-muted: #b5a397;
-    --hv-sidebar-active: #e8b47b;
-    --hv-sidebar-line: rgba(248, 242, 233, 0.1);
-    --hv-sidebar-badge-bg: rgba(232, 180, 123, 0.18);
-    --hv-sidebar-badge-fg: #f0c792;
+    --hv-sidebar: #2c342a;
+    --hv-sidebar-2: #374034;
+    --hv-sidebar-text: #f4ecdf;
+    --hv-sidebar-muted: #b4b8a3;
+    --hv-sidebar-active: #f1c3b6;
+    --hv-sidebar-line: rgba(244, 236, 223, 0.1);
+    --hv-sidebar-badge-bg: rgba(196, 84, 65, 0.32);
+    --hv-sidebar-badge-fg: #ffd9cf;
 
-    --hv-scrim: rgba(45, 35, 31, 0.48);
-    --hv-topbar-bg: rgba(246, 242, 235, 0.88);
-    --hv-shadow-sm: 0 1px 2px rgba(45, 35, 31, 0.05);
-    --hv-shadow: 0 1px 2px rgba(45, 35, 31, 0.04), 0 8px 24px -14px rgba(45, 35, 31, 0.18);
-    --hv-shadow-lg: 0 28px 64px -24px rgba(45, 35, 31, 0.32), 0 2px 6px rgba(45, 35, 31, 0.06);
-    --hv-glow: radial-gradient(1200px 420px at 85% -10%, rgba(232, 180, 123, 0.25), transparent 60%);
+    --hv-scrim: rgba(28, 24, 20, 0.5);
+    --hv-topbar-bg: rgba(246, 239, 228, 0.86);
+    --hv-shadow-sm: 0 1px 2px rgba(28, 24, 20, 0.05);
+    --hv-shadow: 0 1px 2px rgba(28, 24, 20, 0.04), 0 10px 28px -16px rgba(44, 52, 42, 0.22);
+    --hv-shadow-lg: 0 28px 64px -24px rgba(28, 24, 20, 0.34), 0 2px 6px rgba(28, 24, 20, 0.06);
+    --hv-glow: radial-gradient(1100px 420px at 88% -12%, rgba(196, 84, 65, 0.11), transparent 62%), radial-gradient(900px 380px at -10% 110%, rgba(44, 52, 42, 0.07), transparent 60%);
 }
 
 :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --hv-ink: #2d231f;
+    --hv-ink: #1c1814;
     --hv-paper: #ffffff;
-    --hv-bone: #fbf6ef;
-    --hv-lavender: #e8b47b;
-    --hv-mist: #aaa096;
-    --hv-purple: #a64f35;
-    --hv-logo: #a64f35;
+    --hv-bone: #faeddd;
+    --hv-lavender: #dacdb5;
+    --hv-mist: #a39a8c;
+    --hv-purple: #e07a65;
+    --hv-logo: #c45441;
 
-    --hv-bg: #171310;
-    --hv-surface: #211b17;
-    --hv-surface-2: #29211c;
-    --hv-surface-3: #342921;
-    --hv-field-bg: #1c1714;
-    --hv-line: #3a3029;
-    --hv-line-strong: #51443a;
-    --hv-text: #f4eee6;
-    --hv-text-2: #c9bdb1;
-    --hv-muted: #a5988d;
+    --hv-bg: #131611;
+    --hv-surface: #1a1e18;
+    --hv-surface-2: #20251e;
+    --hv-surface-3: #2a3027;
+    --hv-field-bg: #161a14;
+    --hv-line: #2f352c;
+    --hv-line-strong: #434b3f;
+    --hv-text: #f4ecdf;
+    --hv-text-2: #cfc5b4;
+    --hv-muted: #a39a8b;
 
-    --hv-accent: #e7a579;
-    --hv-accent-hover: #f0b48a;
-    --hv-accent-ink: #2d231f;
-    --hv-accent-soft: rgba(231, 165, 121, 0.13);
-    --hv-accent-text: #efb58e;
-    --hv-focus: rgba(231, 165, 121, 0.3);
+    --hv-accent: #e07a65;
+    --hv-accent-hover: #ea8f7b;
+    --hv-accent-ink: #1c1814;
+    --hv-accent-soft: rgba(224, 122, 101, 0.14);
+    --hv-accent-text: #efa08f;
+    --hv-focus: rgba(224, 122, 101, 0.32);
 
-    --hv-good-bg: rgba(150, 190, 126, 0.15);
-    --hv-good-fg: #b6d3a3;
-    --hv-warn-bg: rgba(232, 172, 74, 0.14);
+    --hv-good-bg: rgba(150, 184, 120, 0.15);
+    --hv-good-fg: #b9d3a0;
+    --hv-warn-bg: rgba(226, 172, 80, 0.14);
     --hv-warn-fg: #ebc37c;
-    --hv-warn-line: rgba(232, 172, 74, 0.34);
-    --hv-bad-bg: rgba(232, 112, 96, 0.15);
-    --hv-bad-fg: #f0a196;
-    --hv-info-bg: rgba(190, 154, 122, 0.14);
-    --hv-info-fg: #d4b99f;
-    --hv-live-bg: rgba(94, 192, 160, 0.14);
-    --hv-live-fg: #8ad2b9;
-    --hv-quiet-bg: rgba(255, 255, 255, 0.06);
-    --hv-quiet-fg: #aaa6b6;
+    --hv-warn-line: rgba(226, 172, 80, 0.34);
+    --hv-bad-bg: rgba(224, 112, 96, 0.16);
+    --hv-bad-fg: #f3a597;
+    --hv-info-bg: rgba(218, 205, 181, 0.1);
+    --hv-info-fg: #d8ccb6;
+    --hv-live-bg: rgba(110, 180, 140, 0.14);
+    --hv-live-fg: #9bd0b2;
+    --hv-quiet-bg: rgba(244, 236, 223, 0.06);
+    --hv-quiet-fg: #b9b3a6;
     --hv-danger: #e07d70;
     --hv-danger-hover: #ea9084;
     --hv-danger-ink: #1c0a08;
 
-    --hv-chart: #e7a579;
-    --hv-chart-zero: #2a2536;
-    --hv-chart-rule: #221e2d;
+    --hv-chart: #e07a65;
+    --hv-chart-zero: #2a3027;
+    --hv-chart-rule: #232820;
 
-    --hv-sidebar: #120f0d;
-    --hv-sidebar-2: #211a16;
-    --hv-sidebar-text: #eee5db;
-    --hv-sidebar-muted: #a39487;
-    --hv-sidebar-active: #e7a579;
-    --hv-sidebar-line: rgba(238, 229, 219, 0.08);
-    --hv-sidebar-badge-bg: rgba(233, 182, 92, 0.16);
-    --hv-sidebar-badge-fg: #f1cd8b;
+    --hv-sidebar: #0e110d;
+    --hv-sidebar-2: #1b2019;
+    --hv-sidebar-text: #efe7da;
+    --hv-sidebar-muted: #9da290;
+    --hv-sidebar-active: #efa08f;
+    --hv-sidebar-line: rgba(239, 231, 218, 0.08);
+    --hv-sidebar-badge-bg: rgba(224, 122, 101, 0.22);
+    --hv-sidebar-badge-fg: #ffc9bd;
 
     --hv-scrim: rgba(0, 0, 0, 0.6);
-    --hv-topbar-bg: rgba(23, 19, 16, 0.88);
+    --hv-topbar-bg: rgba(19, 22, 17, 0.86);
     --hv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --hv-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 10px 28px -16px rgba(0, 0, 0, 0.6);
     --hv-shadow-lg: 0 28px 64px -20px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.3);
-    --hv-glow: radial-gradient(1200px 420px at 85% -10%, rgba(166, 79, 53, 0.22), transparent 60%);
+    --hv-glow: radial-gradient(1100px 420px at 88% -12%, rgba(196, 84, 65, 0.16), transparent 62%);
 }
 
 /* Django's own variable names, pointed at the tokens above, in both themes. */
@@ -198,7 +198,8 @@
     --object-tools-fg: var(--hv-accent-ink);
     --object-tools-bg: var(--hv-accent);
     --object-tools-hover-bg: var(--hv-accent-hover);
-    --font-family-primary: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-family-display: "Playfair Display", Georgia, "Times New Roman", serif;
+    --font-family-primary: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --font-family-monospace: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
 
     --hv-field-width: 34rem;
@@ -224,8 +225,7 @@ html {
     box-sizing: border-box;
 }
 
-/* Base. Vietnamese stacks up to three marks on one letter, so lines get more
-   air than Latin text would need. */
+/* Base. */
 html,
 body {
     height: auto;
@@ -1683,7 +1683,7 @@ textarea.hv-field {
     background: color-mix(in srgb, var(--hv-bad-bg) 45%, transparent);
 }
 
-/* Save bar: sticks to the bottom of the screen so "Lưu" is never a scroll away. */
+/* Save bar: sticks to the bottom of the screen so "Save" is never a scroll away. */
 .hv-admin .submit-row {
     position: sticky;
     bottom: 0.75rem;
@@ -6392,7 +6392,7 @@ body.hv-login-single {
     text-decoration: underline;
 }
 
-/* Hồ sơ của tôi: signed-in devices and backup codes. */
+/* My profile: signed-in devices and backup codes. */
 .hv-devices {
     margin: 0;
     padding: 0;
@@ -7472,7 +7472,7 @@ body.hv-login-single {
     }
 
     /* The save bar stops floating over the form and becomes a tidy grid:
-       Lưu across the top, the two other saves side by side, delete last. */
+       Save across the top, the two other saves side by side, delete last. */
     .hv-admin .submit-row {
         position: static;
         display: grid;

@@ -13,14 +13,11 @@ from django.utils.html import format_html
 from django.templatetags.static import static
 
 from admin_ui.nav import build_nav
-from admin_ui.vn_text import group_digits
+from admin_ui.text_format import group_digits
 
 register = template.Library()
 
 ICON_SPRITE = "admin_ui/img/admin-icons.svg"
-
-WEEKDAYS = ("Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ nhật")
-
 
 @register.simple_tag(takes_context=True)
 def admin_nav(context):
@@ -63,54 +60,45 @@ def initials(user):
 
 @register.filter
 def digits(value):
-    """450000 as 450.000, for numbers set in running text."""
+    """450000 as 450,000, for numbers set in running text."""
     return group_digits(value)
 
 
-@register.simple_tag(takes_context=True)
-def today_label(context):
-    """Today in the selected admin language."""
+@register.simple_tag
+def today_label():
+    """Today at the venue (Adelaide), e.g. "Sunday 22 November 2026"."""
     today = timezone.localdate()
-    language = getattr(context.get("request"), "LANGUAGE_CODE", "en-au")
-    if not language.startswith("vi"):
-        return today.strftime("%A, %d %B %Y").replace(", 0", ", ")
-    return f"{WEEKDAYS[today.weekday()]}, {today.day} tháng {today.month}, {today.year}"
+    return f"{today:%A} {today.day} {today:%B %Y}"
 
 
-@register.simple_tag(takes_context=True)
-def greeting(context):
-    """A greeting based on the venue's local time and selected language."""
+@register.simple_tag
+def greeting():
+    """A greeting based on the venue's local time (Adelaide)."""
     hour = timezone.localtime().hour
-    language = getattr(context.get("request"), "LANGUAGE_CODE", "en-au")
-    if not language.startswith("vi"):
-        if hour < 12:
-            return "Good morning"
-        if hour < 17:
-            return "Good afternoon"
-        return "Good evening"
-    if hour < 11:
-        return "Chào buổi sáng"
-    if hour < 14:
-        return "Chào buổi trưa"
-    if hour < 18:
-        return "Chào buổi chiều"
-    return "Chào buổi tối"
+    if hour < 12:
+        return "Good morning"
+    if hour < 17:
+        return "Good afternoon"
+    return "Good evening"
 
 
 @register.simple_tag
 def booking_dashboard_counts():
-    """A few useful totals without rendering the full list of admin tables."""
+    """A few useful totals and the next reservations, without loading the full lists."""
     try:
         from bookings.models import BookingRequest
+        from menu.models import MenuItem
 
         today = timezone.localdate()
+        active = BookingRequest.objects.exclude(status=BookingRequest.Status.CANCELLED)
         return {
             "new": BookingRequest.objects.filter(status=BookingRequest.Status.NEW).count(),
-            "today": BookingRequest.objects.filter(date=today).exclude(status=BookingRequest.Status.CANCELLED).count(),
+            "today": active.filter(date=today).count(),
             "email_issues": BookingRequest.objects.filter(
                 notification_status=BookingRequest.NotificationStatus.FAILED
             ).count(),
+            "sold_out": MenuItem.objects.filter(is_available=False).count(),
+            "upcoming": list(active.filter(date__gte=today).order_by("date", "time")[:6]),
         }
     except Exception:
-        return {"new": 0, "today": 0, "email_issues": 0}
-
+        return {"new": 0, "today": 0, "email_issues": 0, "sold_out": 0, "upcoming": []}

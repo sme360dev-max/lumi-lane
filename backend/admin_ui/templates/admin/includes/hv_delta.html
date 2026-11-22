@@ -6,4 +6,4 @@
    ==   @ copyright: (c) 2026 Henvo. All rights reserved.          ==
    ==================================================================
 {% endcomment %}
-{% load admin_ui %}{% if value %}<span class="hv-delta hv-delta-{{ value.direction }}{% if inverse %} is-inverse{% endif %}" title="So với {{ against }}">{% if value.direction == "up" %}{% icon 'trend-up' %}{% elif value.direction == "down" %}{% icon 'trend-down' %}{% endif %}{{ value.pct }}%</span>{% endif %}
+{% load admin_ui %}{% if value %}<span class="hv-delta hv-delta-{{ value.direction }}{% if inverse %} is-inverse{% endif %}" title="Compared with {{ against }}">{% if value.direction == "up" %}{% icon 'trend-up' %}{% elif value.direction == "down" %}{% icon 'trend-down' %}{% endif %}{{ value.pct }}%</span>{% endif %}

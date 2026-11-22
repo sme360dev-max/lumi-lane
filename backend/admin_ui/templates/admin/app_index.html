@@ -18,8 +18,8 @@
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
-  <a href="{% url 'admin:index' %}">{% if LANGUAGE_CODE == 'vi' %}Tổng quan{% else %}Overview{% endif %}</a>
-  &rsaquo; {% for app in app_list %}{% if app.app_label == 'bookings' %}{% if LANGUAGE_CODE == 'vi' %}Đặt bàn{% else %}Bookings{% endif %}{% else %}{{ app.name }}{% endif %}{% endfor %}
+  <a href="{% url 'admin:index' %}">Overview</a>
+  &rsaquo; {% for app in app_list %}{% if app.app_label == 'bookings' %}Bookings{% else %}{{ app.name }}{% endif %}{% endfor %}
 </div>
 {% endblock %}
 
@@ -29,13 +29,13 @@
     <div class="hv-tiles">
       {% for model in app.models %}
         <article class="hv-tile">
-          <h2>{% if model.admin_url %}<a href="{{ model.admin_url }}">{% if model.object_name == 'BookingRequest' %}{% if LANGUAGE_CODE == 'vi' %}Yêu cầu đặt bàn{% else %}Table requests{% endif %}{% else %}{{ model.name }}{% endif %}</a>{% else %}{{ model.name }}{% endif %}</h2>
+          <h2>{% if model.admin_url %}<a href="{{ model.admin_url }}">{% if model.object_name == 'BookingRequest' %}Table requests{% else %}{{ model.name }}{% endif %}</a>{% else %}{{ model.name }}{% endif %}</h2>
           <div class="hv-tile-actions">
             {% if model.admin_url %}
-              <a class="hv-btn hv-btn-ghost hv-btn-sm" href="{{ model.admin_url }}">{% icon 'list' %}{% if LANGUAGE_CODE == 'vi' %}{% if model.view_only %}Xem{% else %}Mở danh sách{% endif %}{% else %}{% if model.view_only %}View{% else %}Open list{% endif %}{% endif %}</a>
+              <a class="hv-btn hv-btn-ghost hv-btn-sm" href="{{ model.admin_url }}">{% icon 'list' %}{% if model.view_only %}View{% else %}Open list{% endif %}</a>
             {% endif %}
             {% if model.add_url %}
-              <a class="hv-btn hv-btn-ghost hv-btn-sm" href="{{ model.add_url }}">{% icon 'plus' %}{% if LANGUAGE_CODE == 'vi' %}Thêm{% else %}Add{% endif %}</a>
+              <a class="hv-btn hv-btn-ghost hv-btn-sm" href="{{ model.add_url }}">{% icon 'plus' %}Add</a>
             {% endif %}
           </div>
         </article>

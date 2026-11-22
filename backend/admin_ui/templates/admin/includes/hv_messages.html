@@ -12,7 +12,7 @@
       <li class="hv-message{% if message.tags %} {{ message.tags }}{% endif %}">
         {% if message.level_tag == "error" %}{% icon 'alert' %}{% elif message.level_tag == "warning" %}{% icon 'alert' %}{% elif message.level_tag == "success" %}{% icon 'check-circle' %}{% else %}{% icon 'info' %}{% endif %}
         <span>{{ message|capfirst }}</span>
-        <button type="button" class="hv-message-close" data-hv-dismiss aria-label="{% if LANGUAGE_CODE == 'vi' %}Đóng{% else %}Dismiss{% endif %}">{% icon 'x' %}</button>
+        <button type="button" class="hv-message-close" data-hv-dismiss aria-label="Dismiss">{% icon 'x' %}</button>
       </li>
     {% endfor %}
   </ul>

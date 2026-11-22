@@ -9,17 +9,17 @@ r"""
 
 import math
 
-from admin_ui.vn_text import group_digits
+from admin_ui.text_format import group_digits
 
-WEEKDAY_SHORT = ("T2", "T3", "T4", "T5", "T6", "T7", "CN")
+WEEKDAY_SHORT = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 
 def css_pct(value):
     """
     A percentage for a style attribute, as a string with a full stop.
 
-    A float handed to the template is localised on Vietnamese admin pages and
-    comes out as "12,5", which CSS reads as two values and drops the rule.
+    A float handed to a template can be localised (e.g. "12,5" in some
+    locales), which CSS reads as two values and drops the rule.
     """
     return f"{max(0.0, min(float(value), 100.0)):.2f}"
 
@@ -48,13 +48,11 @@ def nice_ceiling(value):
 
 
 def compact(value):
-    """Short labels for axis ticks: 1.200.000 becomes 1,2 tr; 4.500 becomes 4,5 N."""
+    """Short labels for axis ticks: 1,200,000 becomes 1.2M; 45,000 becomes 45k."""
     if value >= 1_000_000:
-        text = f"{value / 1_000_000:.1f}".rstrip("0").rstrip(".")
-        return f"{text.replace('.', ',')} tr"
+        return f"{value / 1_000_000:.1f}".rstrip("0").rstrip(".") + "M"
     if value >= 10_000:
-        text = f"{value / 1_000:.1f}".rstrip("0").rstrip(".")
-        return f"{text.replace('.', ',')} N"
+        return f"{value / 1_000:.1f}".rstrip("0").rstrip(".") + "k"
     return group_digits(value)
 
 

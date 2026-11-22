@@ -1,20 +1,5 @@
 from django.conf import settings
 from django.http import HttpResponse
-from django.middleware.locale import LocaleMiddleware
-from django.utils import translation
-
-
-class DefaultEnglishLocaleMiddleware(LocaleMiddleware):
-    """Use the explicit language cookie, otherwise always default to English."""
-
-    def process_request(self, request):
-        language = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, settings.LANGUAGE_CODE)
-        try:
-            language = translation.get_supported_language_variant(language)
-        except LookupError:
-            language = settings.LANGUAGE_CODE
-        translation.activate(language)
-        request.LANGUAGE_CODE = language
 
 
 class CorsMiddleware:

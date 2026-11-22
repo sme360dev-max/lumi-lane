@@ -41,12 +41,11 @@
     }
 
     function fold(text) {
-        // Accent-insensitive matching, so "duyet" finds "Duyệt KYC".
+        // Accent-insensitive matching, so "cafe" finds "Café".
         return (text || "")
             .toLowerCase()
             .normalize("NFD")
-            .replace(/[̀-ͯ]/g, "")
-            .replace(/đ/g, "d");
+            .replace(/[̀-ͯ]/g, "");
     }
 
     /* Theme: one button, two states. The reader's choice is remembered; with
@@ -100,8 +99,7 @@
                 collapse.setAttribute("title", label);
                 var text = collapse.querySelector(".hv-nav-text");
                 if (text) {
-                    text.textContent = collapsed ? (document.documentElement.lang.indexOf("vi") === 0 ? "Mở rộng" : "Expand") :
-                        (document.documentElement.lang.indexOf("vi") === 0 ? "Thu gọn" : "Collapse");
+                    text.textContent = collapsed ? "Expand" : "Collapse";
                 }
             });
         }
@@ -331,7 +329,7 @@
         state.value.textContent = optionLabel(option) || "—";
         state.trigger.disabled = state.select.disabled;
         var first = state.select.options[0];
-        // A filter showing anything but its first choice ("Tất cả") is in use.
+        // A filter showing anything but its first choice ("All") is in use.
         state.wrap.classList.toggle("is-set", Boolean(option && first && option !== first));
     }
 
@@ -365,8 +363,8 @@
             search = document.createElement("input");
             search.type = "search";
             search.className = "hv-select-search";
-            search.placeholder = "Tìm trong danh sách…";
-            search.setAttribute("aria-label", "Tìm trong danh sách");
+            search.placeholder = "Search the list…";
+            search.setAttribute("aria-label", "Search the list");
             search.setAttribute("autocomplete", "off");
             pop.appendChild(search);
         }
@@ -640,14 +638,14 @@
         var bar = document.createElement("div");
         bar.className = "hv-tabs";
         bar.setAttribute("role", "tablist");
-        bar.setAttribute("aria-label", "Các phần của bản ghi");
+        bar.setAttribute("aria-label", "Record sections");
         var tabs = [];
 
         panels.forEach(function (panel, index) {
             var heading = panel.querySelector("h2");
             var name = heading ? heading.textContent.trim() : "";
             if (!name) {
-                name = index === 0 ? "Thông tin chung" : "Phần " + (index + 1);
+                name = index === 0 ? "General" : "Section " + (index + 1);
             }
             if (!panel.id) {
                 panel.id = "hv-panel-" + index;
@@ -665,7 +663,7 @@
             tab.textContent = name;
             if (panel.querySelector(".errorlist, .errors")) {
                 tab.classList.add("has-error");
-                tab.insertAdjacentHTML("beforeend", '<span class="hv-tab-dot" aria-label="có lỗi"></span>');
+                tab.insertAdjacentHTML("beforeend", '<span class="hv-tab-dot" aria-label="has errors"></span>');
             }
             // Saved records only: a stacked inline is one block per record, a
             // tabular one is one table whose rows are the records.
@@ -746,7 +744,7 @@
         frame.className = "hv-tabs-frame";
         var prev = document.createElement("button");
         var next = document.createElement("button");
-        [[prev, "is-prev", "Các phần phía trước", -1], [next, "is-next", "Các phần phía sau", 1]].forEach(function (spec) {
+        [[prev, "is-prev", "Earlier sections", -1], [next, "is-next", "Later sections", 1]].forEach(function (spec) {
             var button = spec[0];
             button.type = "button";
             button.className = "hv-tabs-arrow " + spec[1];
@@ -906,7 +904,10 @@
         if (!match) {
             return "";
         }
-        var text = "Ngày " + Number(match[3]) + " tháng " + Number(match[2]) + " năm " + match[1];
+        var date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+        var text = date.toLocaleDateString("en-AU", {
+            weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC"
+        });
         if (match[4]) {
             text += ", " + match[4] + ":" + match[5];
         }
@@ -968,7 +969,7 @@
         lightbox.className = "hv-lightbox";
         lightbox.setAttribute("role", "dialog");
         lightbox.setAttribute("aria-modal", "true");
-        lightbox.setAttribute("aria-label", caption || "Xem tệp");
+        lightbox.setAttribute("aria-label", caption || "View file");
 
         var image = document.createElement("img");
         image.src = source;
@@ -977,7 +978,7 @@
         var close = document.createElement("button");
         close.type = "button";
         close.className = "hv-lightbox-close";
-        close.setAttribute("aria-label", "Đóng");
+        close.setAttribute("aria-label", "Close");
         close.textContent = "×";
 
         var label = document.createElement("p");
@@ -1012,7 +1013,7 @@
     /* The status card on the overview. Asked from the browser so a slow worker
        ping never holds up the page; the endpoint lists only what failed when
        anything does, so everything it does not name is up. */
-    var HEALTH_LABELS = { healthy: "Hoạt động", unhealthy: "Có sự cố" };
+    var HEALTH_LABELS = { healthy: "Operational", unhealthy: "Problem" };
 
     function wireHealth() {
         var card = document.querySelector("[data-hv-health]");
@@ -1030,12 +1031,12 @@
             row.setAttribute("data-state", state);
             var note = row.querySelector("em");
             if (note) {
-                note.textContent = detail || HEALTH_LABELS[state] || "Không rõ";
+                note.textContent = detail || HEALTH_LABELS[state] || "Unknown";
             }
         }
 
         function check() {
-            stamp.textContent = "Đang kiểm tra…";
+            stamp.textContent = "Checking…";
             card.querySelectorAll("[data-hv-health-item]").forEach(function (row) {
                 row.setAttribute("data-state", "checking");
             });
@@ -1051,7 +1052,7 @@
                     card.querySelectorAll("[data-hv-health-item]").forEach(function (row) {
                         var name = row.getAttribute("data-hv-health-item");
                         if (failed[name]) {
-                            var reason = failed[name].error === "no_workers" ? "Không có worker nào chạy" : "Có sự cố";
+                            var reason = failed[name].error === "no_workers" ? "No workers running" : "Problem";
                             paint(name, "unhealthy", reason);
                         } else if (components[name] && components[name].response_time_ms !== undefined) {
                             paint(name, "healthy", Math.round(components[name].response_time_ms) + " ms");
@@ -1060,14 +1061,14 @@
                         }
                     });
                     var now = new Date();
-                    stamp.textContent = "Kiểm tra lúc " + String(now.getHours()).padStart(2, "0") + ":" +
+                    stamp.textContent = "Checked at " + String(now.getHours()).padStart(2, "0") + ":" +
                         String(now.getMinutes()).padStart(2, "0");
                 })
                 .catch(function () {
                     card.querySelectorAll("[data-hv-health-item]").forEach(function (row) {
-                        paint(row.getAttribute("data-hv-health-item"), "unknown", "Không hỏi được");
+                        paint(row.getAttribute("data-hv-health-item"), "unknown", "Could not check");
                     });
-                    stamp.textContent = "Không kết nối được tới máy chủ";
+                    stamp.textContent = "Could not reach the server";
                 });
         }
 
@@ -1089,10 +1090,9 @@
         if (reveal) {
             reveal.addEventListener("click", function () {
                 var shown = password.type === "text";
-                var vi = document.documentElement.lang.indexOf("vi") === 0;
                 password.type = shown ? "password" : "text";
                 reveal.setAttribute("aria-pressed", shown ? "false" : "true");
-                reveal.setAttribute("aria-label", shown ? (vi ? "Hiện mật khẩu" : "Show password") : (vi ? "Ẩn mật khẩu" : "Hide password"));
+                reveal.setAttribute("aria-label", shown ? "Show password" : "Hide password");
                 password.focus();
             });
         }

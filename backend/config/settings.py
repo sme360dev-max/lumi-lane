@@ -4,7 +4,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+
+# Local development reads backend/.env. To run a command against production (for example
+# createsuperuser on Supabase), set DJANGO_ENV_FILE=.env.prod. Both files follow .env.example
+# line for line. Variables already set in the environment (Render) always win.
+ENV_FILE = BASE_DIR / os.getenv("DJANGO_ENV_FILE", ".env")
+load_dotenv(ENV_FILE)
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "local-only-insecure-key-change-before-deploy")
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() in {"1", "true", "yes"}
@@ -26,13 +31,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "bookings",
     "menu",
+    "staff",  # last: fills preset roles once every app's permissions exist
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "config.middleware.DefaultEnglishLocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -48,7 +53,6 @@ TEMPLATES = [{
     "APP_DIRS": True,
     "OPTIONS": {"context_processors": [
         "django.template.context_processors.request",
-        "django.template.context_processors.i18n",
         "django.contrib.auth.context_processors.auth",
         "django.contrib.messages.context_processors.messages",
     ]},
@@ -81,11 +85,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+# English (Australia) only. The venue is in Lightsview, SA: all dates and times are Adelaide time
+# (ACST/ACDT, daylight saving handled automatically).
 LANGUAGE_CODE = "en-au"
-LANGUAGES = [
-    ("en-au", "English"),
-    ("vi", "Tiếng Việt"),
-]
+LANGUAGES = [("en-au", "English")]
 TIME_ZONE = "Australia/Adelaide"
 USE_I18N = True
 USE_TZ = True

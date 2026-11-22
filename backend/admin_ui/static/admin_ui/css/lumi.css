@@ -1,0 +1,620 @@
+/* ==================================================================
+   Lumi Lane layer, loaded after admin.css.
+   Brand colours and type from the venue website (olive, ember, shell,
+   cocoa, cream; Playfair Display for titles, Archivo for text), the
+   overview panels, the staff profile, roles and permission matrix.
+   ================================================================== */
+
+/* Titles in the brand serif. */
+.hv-admin #content > h1,
+.hv-admin .hv-hero h1,
+.hv-admin .hv-login-card h1,
+.hv-admin .hv-login-copy h2,
+.hv-admin .hv-profile h1,
+.hv-admin .hv-dash-panel h2 {
+    font-family: var(--font-family-display);
+    font-weight: 700;
+    letter-spacing: -0.005em;
+}
+
+.hv-admin #content > h1 {
+    font-size: 1.9rem;
+    line-height: 1.15;
+}
+
+.hv-brand-text strong {
+    font-family: var(--font-family-display);
+    font-size: 1.02rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* Sidebar: olive, with an ember marker on the open page. */
+.hv-sidebar {
+    background:
+        radial-gradient(420px 260px at 0% 100%, rgba(196, 84, 65, 0.16), transparent 70%),
+        var(--hv-sidebar);
+}
+
+.hv-nav-link.is-active {
+    background: rgba(244, 236, 223, 0.09);
+    color: #fff;
+}
+
+.hv-nav-link.is-active::before {
+    background: var(--hv-accent);
+}
+
+/* Overview banner: olive into cocoa with a warm ember glow. */
+.hv-hero {
+    background:
+        url("../img/contours.svg") right -4rem bottom -9rem / 34rem no-repeat,
+        linear-gradient(130deg, #1f251d 0%, #2c342a 48%, #4a3a2c 100%);
+    color: var(--hv-bone);
+}
+
+.hv-hero::after {
+    background: radial-gradient(circle, rgba(196, 84, 65, 0.34), transparent 65%);
+}
+
+.hv-admin .hv-hero h1 {
+    font-size: 2.15rem;
+    color: #faeddd;
+}
+
+.hv-hero .hv-eyebrow {
+    color: #dacdb5;
+    letter-spacing: 0.18em;
+}
+
+.hv-hero .hv-lead {
+    color: rgba(250, 237, 221, 0.78);
+}
+
+.hv-admin .hv-hero .hv-btn-primary,
+.hv-admin .hv-hero a.hv-btn-primary {
+    border-color: var(--hv-accent);
+    background: var(--hv-accent);
+    color: #fff;
+}
+
+.hv-admin .hv-hero .hv-btn-primary:hover,
+.hv-admin .hv-hero a.hv-btn-primary:hover {
+    background: #a9432f;
+    color: #fff;
+}
+
+.hv-admin .hv-hero a.hv-btn-ghost {
+    border-color: rgba(250, 237, 221, 0.32);
+    background: rgba(250, 237, 221, 0.06);
+    color: #faeddd;
+}
+
+.hv-admin .hv-hero a.hv-btn-ghost:hover {
+    background: rgba(250, 237, 221, 0.14);
+    color: #fff;
+}
+
+.hv-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Sign-in: the venue photo under an olive wash. */
+.hv-login-art {
+    background: #2c342a;
+}
+
+.hv-login-art::before {
+    background:
+        linear-gradient(90deg, rgba(31, 37, 29, 0.95) 0%, rgba(44, 52, 42, 0.74) 44%, rgba(44, 52, 42, 0.2) 76%),
+        linear-gradient(180deg, rgba(31, 37, 29, 0.5) 0%, transparent 30%, transparent 56%, rgba(28, 24, 20, 0.92) 100%);
+}
+
+.hv-login-copy h2 {
+    font-size: 2.1rem;
+    line-height: 1.12;
+    color: #faeddd;
+}
+
+/* Overview: four figures, then upcoming reservations beside shortcuts. */
+.hv-dash .hv-stats {
+    grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+}
+
+@media (min-width: 1180px) {
+    .hv-dash .hv-stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.hv-dash-stats .hv-stat {
+    min-height: 0;
+}
+
+.hv-stat-value {
+    font-family: var(--font-family-display);
+}
+
+.hv-dash-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 1100px) {
+    .hv-dash-grid {
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+        align-items: start;
+    }
+}
+
+.hv-dash-panel {
+    padding: 1.2rem 1.35rem 1.3rem;
+    border: 1px solid var(--hv-line);
+    border-radius: var(--hv-radius);
+    background: var(--hv-surface);
+    box-shadow: var(--hv-shadow);
+}
+
+.hv-dash-panel > header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+}
+
+.hv-dash-panel h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.hv-dash-panel > header a {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.hv-upcoming {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hv-upcoming li {
+    display: grid;
+    grid-template-columns: 3.6rem minmax(0, 1fr) auto;
+    gap: 0.9rem;
+    align-items: center;
+    padding: 0.7rem 0;
+    border-top: 1px solid var(--hv-line);
+}
+
+.hv-upcoming li:first-child {
+    border-top: 0;
+}
+
+.hv-upcoming-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.35rem 0;
+    border-radius: var(--hv-radius-sm);
+    background: var(--hv-accent-soft);
+    color: var(--hv-accent-text);
+    line-height: 1.15;
+}
+
+.hv-upcoming-date b {
+    font-family: var(--font-family-display);
+    font-size: 1.3rem;
+}
+
+.hv-upcoming-date small {
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.hv-upcoming-who a {
+    display: block;
+    color: var(--hv-text);
+    font-weight: 600;
+}
+
+.hv-upcoming-who span {
+    color: var(--hv-muted);
+    font-size: 0.8rem;
+}
+
+.hv-empty-note {
+    margin: 0.5rem 0 0;
+    color: var(--hv-muted);
+}
+
+.hv-shortcuts {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hv-shortcuts a {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--hv-line);
+    border-radius: var(--hv-radius-sm);
+    background: var(--hv-surface-2);
+    color: var(--hv-text);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.hv-shortcuts a:hover {
+    border-color: var(--hv-accent);
+    background: var(--hv-accent-soft);
+    color: var(--hv-text);
+}
+
+.hv-shortcuts .hv-i {
+    width: 1.3rem;
+    height: 1.3rem;
+    color: var(--hv-accent);
+}
+
+.hv-shortcuts strong {
+    display: block;
+    font-size: 0.88rem;
+}
+
+.hv-shortcuts small {
+    color: var(--hv-muted);
+    font-size: 0.78rem;
+}
+
+/* Staff profile header on the account page. */
+.hv-profile {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem 1.25rem;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--hv-line);
+    border-radius: 1.1rem;
+    background:
+        radial-gradient(520px 200px at 100% 0%, var(--hv-accent-soft), transparent 70%),
+        var(--hv-surface);
+    box-shadow: var(--hv-shadow);
+}
+
+@media (min-width: 900px) {
+    .hv-profile {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+}
+
+.hv-profile-avatar {
+    display: grid;
+    place-items: center;
+    width: 4.25rem;
+    height: 4.25rem;
+    border-radius: 50%;
+    background: linear-gradient(140deg, #2c342a, #4a5745);
+    color: #faeddd;
+    font-family: var(--font-family-display);
+    font-size: 1.45rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 4px var(--hv-surface), 0 0 0 5px var(--hv-line-strong);
+}
+
+.hv-profile h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1.15;
+}
+
+.hv-profile-sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.25rem 0 0;
+    color: var(--hv-muted);
+}
+
+.hv-profile-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.7rem 0 0;
+}
+
+.hv-profile-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0;
+    grid-column: 1 / -1;
+}
+
+@media (min-width: 900px) {
+    .hv-profile-facts {
+        grid-column: auto;
+    }
+}
+
+.hv-profile-facts > div {
+    min-width: 9.5rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--hv-line);
+    border-radius: var(--hv-radius-sm);
+    background: var(--hv-surface-2);
+}
+
+.hv-profile-facts dt {
+    color: var(--hv-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.hv-profile-facts dd {
+    margin: 0.15rem 0 0;
+    font-weight: 600;
+}
+
+.hv-profile-facts small {
+    display: block;
+    color: var(--hv-muted);
+    font-size: 0.74rem;
+    font-weight: 400;
+}
+
+.hv-profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    grid-column: 1 / -1;
+}
+
+/* Roles as cards. */
+.hv-roles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.6rem;
+    max-width: 60rem;
+}
+
+.hv-role {
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid var(--hv-line);
+    border-radius: var(--hv-radius-sm);
+    background: var(--hv-surface-2);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hv-role:hover {
+    border-color: var(--hv-line-strong);
+}
+
+.hv-role:has(input:checked) {
+    border-color: var(--hv-accent);
+    background: var(--hv-accent-soft);
+    box-shadow: inset 0 0 0 1px var(--hv-accent);
+}
+
+.hv-role input {
+    margin: 0.2rem 0 0;
+    accent-color: var(--hv-accent);
+}
+
+.hv-role-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.hv-role-name {
+    color: var(--hv-text);
+    font-weight: 650;
+}
+
+.hv-role-text {
+    color: var(--hv-text-2);
+    font-size: 0.8rem;
+    line-height: 1.45;
+}
+
+.hv-role-count {
+    color: var(--hv-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* Permission matrix: areas down, actions across. */
+.hv-perm {
+    max-width: 54rem;
+    overflow-x: auto;
+    border: 1px solid var(--hv-line);
+    border-radius: var(--hv-radius-sm);
+    background: var(--hv-surface);
+}
+
+.hv-admin table.hv-perm-table {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-collapse: collapse;
+    background: transparent;
+    box-shadow: none;
+}
+
+.hv-admin .hv-perm-table th,
+.hv-admin .hv-perm-table td {
+    padding: 0.55rem 0.7rem;
+    border: 0;
+    border-top: 1px solid var(--hv-line);
+    background: transparent;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.hv-admin .hv-perm-table thead th {
+    position: static;
+    border-top: 0;
+    background: var(--hv-surface-2);
+    color: var(--hv-muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.hv-admin .hv-perm-table .hv-perm-area {
+    width: 48%;
+    text-align: left;
+}
+
+.hv-admin .hv-perm-table .hv-perm-section th {
+    padding-top: 0.85rem;
+    background: var(--hv-surface-2);
+    color: var(--hv-accent-text);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.hv-perm-name {
+    display: block;
+    color: var(--hv-text);
+    font-weight: 600;
+}
+
+.hv-perm-help {
+    display: block;
+    color: var(--hv-muted);
+    font-size: 0.76rem;
+    font-weight: 400;
+}
+
+.hv-perm-check {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.hv-perm-check:hover {
+    background: var(--hv-accent-soft);
+}
+
+.hv-perm-check input {
+    width: 1.05rem;
+    height: 1.05rem;
+    margin: 0;
+    accent-color: var(--hv-accent);
+    cursor: pointer;
+}
+
+.hv-perm-none {
+    color: var(--hv-line-strong);
+}
+
+.hv-admin .hv-perm-table tbody tr[data-hv-perm-row]:hover th,
+.hv-admin .hv-perm-table tbody tr[data-hv-perm-row]:hover td {
+    background: var(--hv-surface-2);
+}
+
+/* Layout fixes inside Django's form rows. */
+.hv-admin .hv-roles label.hv-role {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    margin: 0;
+    padding: 0.85rem 0.95rem;
+    font-weight: 400;
+}
+
+.hv-admin .hv-perm {
+    width: 100%;
+    max-width: 50rem;
+}
+
+.hv-admin table.hv-perm-table {
+    table-layout: fixed;
+    min-width: 34rem;
+}
+
+.hv-admin .hv-perm-table thead th:not(.hv-perm-area) {
+    width: 4.6rem;
+}
+
+.hv-admin .hv-perm-table .hv-perm-area {
+    width: auto;
+}
+
+/* Django's aligned forms give every label a 13rem column; not these. */
+.hv-admin .aligned .hv-roles label.hv-role {
+    min-width: 0;
+}
+
+.hv-admin .aligned .hv-perm label.hv-perm-check {
+    width: 2rem;
+    min-width: 0;
+    padding: 0;
+}
+
+/* Price boxes in the menu list: sized for a price, not a sentence. */
+.hv-admin #result_list input[type="number"] {
+    width: 6.5rem;
+    min-width: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Lists on the overview: no bullets, and links that keep their card colours. */
+.hv-admin ul.hv-upcoming,
+.hv-admin ul.hv-shortcuts {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hv-admin ul.hv-upcoming > li,
+.hv-admin ul.hv-shortcuts > li {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+.hv-admin ul.hv-shortcuts > li::before,
+.hv-admin ul.hv-upcoming > li::before {
+    content: none;
+}
+
+.hv-admin .hv-shortcuts a,
+.hv-admin .hv-shortcuts a:visited {
+    background: var(--hv-surface-2);
+    color: var(--hv-text);
+}
+
+.hv-admin .hv-shortcuts a:hover,
+.hv-admin .hv-shortcuts a:focus-visible {
+    border-color: var(--hv-accent);
+    background: var(--hv-accent-soft);
+    color: var(--hv-text);
+}

@@ -36,13 +36,13 @@ def _send_booking_notification(booking_id):
             raise RuntimeError("BOOKING_NOTIFICATION_EMAIL is not configured")
         booking = BookingRequest.objects.get(pk=booking_id)
         message = EmailMessage(
-            subject=f"Yêu cầu đặt bàn mới — {booking.name}",
+            subject=f"New table request — {booking.name}",
             body=(
-                "Có yêu cầu đặt bàn mới trên website Lumi Lane.\n\n"
-                f"Tên: {booking.name}\nEmail: {booking.email}\nĐiện thoại: {booking.phone}\n"
-                f"Số khách: {booking.guests}\nNgày: {booking.date:%d/%m/%Y}\nGiờ: {booking.time:%H:%M}\n"
-                f"Yêu cầu đặc biệt: {booking.notes or 'Không có'}\n\n"
-                f"Mở trang quản trị để xử lý: {settings.PUBLIC_BACKEND_URL}/admin/bookings/bookingrequest/"
+                "A new table request came in through the Lumi Lane website.\n\n"
+                f"Name: {booking.name}\nEmail: {booking.email}\nPhone: {booking.phone}\n"
+                f"Guests: {booking.guests}\nDate: {booking.date:%A %d/%m/%Y}\nTime: {booking.time:%I:%M %p}\n"
+                f"Special requests: {booking.notes or 'None'}\n\n"
+                f"Open the admin to confirm it: {settings.PUBLIC_BACKEND_URL}/admin/bookings/bookingrequest/{booking.pk}/change/"
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[settings.BOOKING_NOTIFICATION_EMAIL],
@@ -63,53 +63,53 @@ def booking_create(request):
     try:
         payload = json.loads(request.body or b"{}")
     except (json.JSONDecodeError, UnicodeDecodeError):
-        return JsonResponse({"error": "Dữ liệu gửi lên không hợp lệ."}, status=400)
+        return JsonResponse({"error": "The request could not be read."}, status=400)
     if not isinstance(payload, dict):
-        return JsonResponse({"error": "Dữ liệu gửi lên không hợp lệ."}, status=400)
+        return JsonResponse({"error": "The request could not be read."}, status=400)
     if payload.get("website"):
-        return JsonResponse({"message": "Yêu cầu đã được ghi nhận."}, status=201)
+        return JsonResponse({"message": "Your request has been received."}, status=201)
 
     request_id = payload.get("requestId")
     try:
         request_id = UUID(str(request_id)) if request_id else None
     except (ValueError, TypeError, AttributeError):
-        return JsonResponse({"error": "Mã yêu cầu không hợp lệ."}, status=400)
+        return JsonResponse({"error": "Invalid request id."}, status=400)
 
     data = {key: str(payload.get(key, "")).strip() for key in ("name", "email", "phone", "guests", "date", "time", "notes")}
     errors = {}
     if not data["name"] or len(data["name"]) > 120:
-        errors["name"] = "Vui lòng nhập tên (tối đa 120 ký tự)."
+        errors["name"] = "Please tell us your name (up to 120 characters)."
     try:
         validate_email(data["email"])
         if len(data["email"]) > 254:
-            raise ValidationError("Email quá dài")
+            raise ValidationError("Email is too long")
     except ValidationError:
-        errors["email"] = "Vui lòng nhập email hợp lệ."
+        errors["email"] = "Enter a valid email address."
     if sum(ch.isdigit() for ch in data["phone"]) < 8 or len(data["phone"]) > 40:
-        errors["phone"] = "Vui lòng nhập số điện thoại hợp lệ."
+        errors["phone"] = "Enter a valid contact number."
     try:
         guests = int(data["guests"])
         if not 1 <= guests <= 30:
             raise ValueError
     except ValueError:
-        errors["guests"] = "Số khách phải từ 1 đến 30."
+        errors["guests"] = "Enter between 1 and 30 guests. For larger groups, please call us."
         guests = 0
     try:
         booking_date = date.fromisoformat(data["date"])
         if booking_date < timezone.localdate():
             raise ValueError
     except ValueError:
-        errors["date"] = "Vui lòng chọn ngày hôm nay hoặc một ngày trong tương lai."
+        errors["date"] = "Choose today or a later date."
         booking_date = None
     try:
         booking_time = time.fromisoformat(data["time"])
     except ValueError:
-        errors["time"] = "Vui lòng nhập giờ hợp lệ."
+        errors["time"] = "Enter a time such as 10:30 AM."
         booking_time = None
     if len(data["notes"]) > 2000:
-        errors["notes"] = "Yêu cầu đặc biệt tối đa 2.000 ký tự."
+        errors["notes"] = "Special requests can be up to 2,000 characters."
     if errors:
-        return JsonResponse({"error": "Vui lòng kiểm tra thông tin.", "errors": errors}, status=400)
+        return JsonResponse({"error": "Please check the highlighted details.", "errors": errors}, status=400)
 
     if not settings.BOOKING_NOTIFICATION_EMAIL:
         logger.error("BOOKING_NOTIFICATION_EMAIL is not configured")
@@ -129,6 +129,6 @@ def booking_create(request):
             transaction.on_commit(lambda: _send_booking_notification(booking.pk))
 
     return JsonResponse(
-        {"message": "Cảm ơn bạn. Yêu cầu đặt bàn đã được gửi; quán sẽ liên hệ xác nhận.", "requestId": str(booking.request_id)},
+        {"message": "Thank you. Your table request has been sent; the team will contact you to confirm.", "requestId": str(booking.request_id)},
         status=201 if created else 200,
     )

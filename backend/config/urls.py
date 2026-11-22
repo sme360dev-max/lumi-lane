@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 from django.views.generic import RedirectView
 
 from bookings.views import booking_create, health
@@ -12,7 +12,6 @@ admin.site.index_template = "admin/index.html"
 
 urlpatterns = [
     path("", RedirectView.as_view(url="/admin/", permanent=False), name="home"),
-    path("i18n/", include("django.conf.urls.i18n")),
     path("admin/", admin.site.urls),
     path("health/", health, name="health"),
     path("api/bookings/", booking_create, name="booking-create"),

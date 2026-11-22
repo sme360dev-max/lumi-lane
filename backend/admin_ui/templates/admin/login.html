@@ -1,5 +1,4 @@
 {% load i18n static admin_ui %}<!DOCTYPE html>
-{% get_current_language as LANGUAGE_CODE %}
 {% comment %}
    ==================================================================
    ==   @ Henvo                                                    ==
@@ -13,15 +12,16 @@
   or breadcrumb to show someone who is not signed in yet, and blanking a dozen
   blocks of the shell would be harder to read than this page.
 {% endcomment %}
-<html lang="{{ LANGUAGE_CODE|default:'en-au' }}" data-theme="light">
+<html lang="en-AU" data-theme="light">
 <head>
 <meta charset="utf-8">
-<title>{% if form.errors %}{% if LANGUAGE_CODE == 'vi' %}Lỗi: {% else %}Error: {% endif %}{% endif %}{% if LANGUAGE_CODE == 'vi' %}Đăng nhập{% else %}Sign in{% endif %} · {{ site_title|default:"Admin" }}</title>
+<title>{% if form.errors %}Error: {% endif %}Sign in · {{ site_title|default:"Admin" }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="NONE,NOARCHIVE">
 <script src="{% static 'admin_ui/js/admin-theme.js' %}"></script>
 <link rel="icon" type="image/svg+xml" href="{% static 'admin_ui/img/favicon.svg' %}">
 <link rel="stylesheet" href="{% static 'admin_ui/css/admin.css' %}">
+<link rel="stylesheet" href="{% static 'admin_ui/css/lumi.css' %}">
 <script src="{% static 'admin_ui/js/admin.js' %}" defer></script>
 </head>
 <body class="hv-admin hv-login">
@@ -29,21 +29,23 @@
 <div class="hv-login-shell">
   <section class="hv-login-art" aria-hidden="true">
 
+    <img class="hv-login-photo" src="{% static 'admin_ui/img/login-storefront.webp' %}" alt="">
+
     <div class="hv-login-brand">
       <img src="{% static 'admin_ui/img/logo-light.svg' %}" alt="">
     </div>
 
     <div class="hv-login-copy">
-      <p class="hv-login-eyebrow">{% if LANGUAGE_CODE == 'vi' %}Lumi Lane · Lightsview{% else %}Lumi Lane · Lightsview{% endif %}</p>
-      <h2>{% if LANGUAGE_CODE == 'vi' %}Không gian quản lý đặt bàn và vận hành quán.{% else %}A calmer way to manage bookings and venue operations.{% endif %}</h2>
+      <p class="hv-login-eyebrow">Lumi Lane · Lightsview</p>
+      <h2>A calmer way to manage bookings and venue operations.</h2>
       
     </div>
 
     <div class="hv-login-bottom">
       <ul class="hv-login-points">
-        <li>{% icon 'shield-check' %}<span>{% if LANGUAGE_CODE == 'vi' %}Xử lý yêu cầu{% else %}Review requests{% endif %}</span></li>
-        <li>{% icon 'users' %}<span>{% if LANGUAGE_CODE == 'vi' %}Tài khoản nhân viên{% else %}Staff accounts{% endif %}</span></li>
-        <li>{% icon 'mail' %}<span>{% if LANGUAGE_CODE == 'vi' %}Thông báo email{% else %}Email notifications{% endif %}</span></li>
+        <li>{% icon 'shield-check' %}<span>Review requests</span></li>
+        <li>{% icon 'users' %}<span>Staff accounts</span></li>
+        <li>{% icon 'mail' %}<span>Email notifications</span></li>
       </ul>
     </div>
   </section>
@@ -53,22 +55,14 @@
       <img class="hv-login-mobile-logo hv-show-light" src="{% static 'admin_ui/img/logo.svg' %}" alt="{{ site_header|default:"Admin" }}">
       <img class="hv-login-mobile-logo hv-show-dark" src="{% static 'admin_ui/img/logo-light.svg' %}" alt="{{ site_header|default:"Admin" }}">
       <button type="button" class="hv-icon-btn hv-theme-toggle" data-hv-theme-toggle
-              aria-label="{% if LANGUAGE_CODE == 'vi' %}Chuyển giao diện sáng hoặc tối{% else %}Toggle light or dark theme{% endif %}" title="{% if LANGUAGE_CODE == 'vi' %}Chuyển giao diện sáng / tối{% else %}Toggle theme{% endif %}">
+              aria-label="Toggle light or dark theme" title="Toggle theme">
         {% icon 'moon' 'hv-show-light' %}{% icon 'sun' 'hv-show-dark' %}
       </button>
-      <form class="hv-language-form" action="{% url 'set_language' %}" method="post">
-        {% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <label class="hv-sr-only" for="hv-login-language">Language</label>
-        <select id="hv-login-language" name="language" aria-label="Language" onchange="this.form.submit()">
-          <option value="en-au"{% if LANGUAGE_CODE == 'en-au' %} selected{% endif %}>EN</option>
-          <option value="vi"{% if LANGUAGE_CODE == 'vi' %} selected{% endif %}>VI</option>
-        </select>
-      </form>
     </div>
 
     <div class="hv-login-card">
       <p class="hv-login-kicker">{{ site_header|default:"Admin" }}</p>
-      <h1>{% if LANGUAGE_CODE == 'vi' %}Đăng nhập{% else %}Welcome back{% endif %}</h1>
+      <h1>Welcome back</h1>
       {% comment %}
         One slot of fixed height under the title: the lead line, or what went
         wrong in its place. A wrong password never moves the form.
@@ -78,7 +72,7 @@
           {% if user.is_authenticated %}
             <div class="hv-alert hv-alert-warn" role="alert">
               {% icon 'alert' %}
-              <span>{% if LANGUAGE_CODE == 'vi' %}Bạn đang đăng nhập là <strong>{{ username }}</strong> nhưng tài khoản này không mở được trang vừa yêu cầu. Đăng nhập bằng tài khoản khác?{% else %}You are signed in as <strong>{{ username }}</strong>, but this account cannot open the requested page. Sign in with another account?{% endif %}</span>
+              <span>You are signed in as <strong>{{ username }}</strong>, but this account cannot open the requested page. Sign in with another account?</span>
             </div>
           {% endif %}
 
@@ -93,17 +87,17 @@
               <div class="hv-alert hv-alert-bad" role="alert">{% icon 'alert' %}<span>{{ error }}</span></div>
             {% endfor %}
           {% elif form.errors %}
-            <div class="hv-alert hv-alert-bad" role="alert">{% icon 'alert' %}<span>{% if LANGUAGE_CODE == 'vi' %}Kiểm tra lại các ô bên dưới.{% else %}Check the details below and try again.{% endif %}</span></div>
+            <div class="hv-alert hv-alert-bad" role="alert">{% icon 'alert' %}<span>Check the details below and try again.</span></div>
           {% endif %}
         {% else %}
-          <p class="hv-login-lead">{% if LANGUAGE_CODE == 'vi' %}Đăng nhập dành cho đội ngũ quản trị Lumi Lane.{% else %}Sign in to manage Lumi Lane bookings and staff access.{% endif %}</p>
+          <p class="hv-login-lead">Sign in to manage Lumi Lane bookings and staff access.</p>
         {% endif %}
       </div>
 
       <form action="{{ app_path }}" method="post" id="login-form" class="hv-login-form" novalidate>
         {% csrf_token %}
         <div class="hv-login-field">
-          <label for="{{ form.username.id_for_label }}">{% if LANGUAGE_CODE == 'vi' %}Tên đăng nhập{% else %}Username{% endif %}</label>
+          <label for="{{ form.username.id_for_label }}">Username</label>
           <span class="hv-input-icon">
             {% icon 'user' %}
             <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
@@ -114,15 +108,15 @@
         </div>
 
         <div class="hv-login-field">
-          <label for="{{ form.password.id_for_label }}">{% if LANGUAGE_CODE == 'vi' %}Mật khẩu{% else %}Password{% endif %}</label>
+          <label for="{{ form.password.id_for_label }}">Password</label>
           <span class="hv-input-icon">
             {% icon 'key' %}
             <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
                    autocomplete="current-password" required data-hv-password{% if form.errors %} aria-invalid="true"{% endif %}>
-            <span class="hv-caps" data-hv-caps role="status" title="{% if LANGUAGE_CODE == 'vi' %}Phím Caps Lock đang bật.{% else %}Caps Lock is on.{% endif %}" hidden>
-              {% icon 'alert' %} {% if LANGUAGE_CODE == 'vi' %}Caps Lock đang bật{% else %}Caps Lock is on{% endif %}
+            <span class="hv-caps" data-hv-caps role="status" title="Caps Lock is on." hidden>
+              {% icon 'alert' %} Caps Lock is on
             </span>
-            <button type="button" class="hv-reveal" data-hv-reveal aria-label="{% if LANGUAGE_CODE == 'vi' %}Hiện mật khẩu{% else %}Show password{% endif %}" aria-pressed="false">
+            <button type="button" class="hv-reveal" data-hv-reveal aria-label="Show password" aria-pressed="false">
               {% icon 'eye' %}
             </button>
           </span>
@@ -132,11 +126,11 @@
         <input type="hidden" name="next" value="{{ next }}">
 
         <button type="submit" class="hv-btn hv-btn-primary hv-btn-block">
-          {% if LANGUAGE_CODE == 'vi' %}Đăng nhập{% else %}Sign in{% endif %} {% icon 'arrow-right' %}
+          Sign in {% icon 'arrow-right' %}
         </button>
       </form>
 
-      <p class="hv-login-help">{% if LANGUAGE_CODE == 'vi' %}Quên mật khẩu? Liên hệ quản trị viên để đặt lại.{% else %}Forgot your password? Contact your administrator to reset it.{% endif %}</p>
+      <p class="hv-login-help">Forgot your password? Contact your administrator to reset it.</p>
     </div>
 
     <p class="hv-login-foot">© {% now "Y" %} {{ site_header|default:"Admin" }}</p>

@@ -14,8 +14,7 @@ from django.urls import NoReverseMatch, reverse
 # Each names the permission its own view checks, so the menu never offers a
 # door that answers 403. "superuser": True hides it from everyone else.
 DESKS = {
-    "dashboard": {"label": {"en": "Overview", "vi": "Tổng quan"}, "icon": "home", "url": "admin:index", "perm": None},
-    # "reports": {"label": "Báo cáo", "icon": "chart", "url": "reports", "perm": "orders.view_order"},
+    "dashboard": {"label": "Overview", "icon": "home", "url": "admin:index", "perm": None},
 }
 
 # The sidebar, top to bottom, grouped by the JOB a staff member is doing,
@@ -23,15 +22,12 @@ DESKS = {
 # Every model registered on the admin should appear exactly once.
 SECTIONS = (
     (None, ("desk:dashboard",)),
-    ({"en": "Bookings", "vi": "Đặt bàn"}, ("bookings.bookingrequest",)),
-    ({"en": "Menu", "vi": "Thực đơn"}, ("menu.menuitem", "menu.menusection", "menu.menucategory")),
-    ({"en": "Administration", "vi": "Quản trị viên"}, (
-        "auth.user",
-        "auth.group",
-    )),
+    ("Bookings", ("bookings.bookingrequest",)),
+    ("Menu", ("menu.menuitem", "menu.menusection", "menu.menucategory")),
+    ("Team", ("auth.user", "auth.group")),
 )
 
-# One icon per model, from static/admin_ui/img/admin-icons.svg (ids listed in CLAUDE.md).
+# One icon per model, from static/admin_ui/img/admin-icons.svg.
 MODEL_ICONS = {
     "bookings.bookingrequest": "calendar",
     "menu.menuitem": "bowl",
@@ -41,14 +37,14 @@ MODEL_ICONS = {
     "auth.group": "users",
 }
 
-# Shorter names where verbose_name_plural does not fit the 15rem rail.
+# Shorter names where verbose_name_plural does not fit the rail.
 MODEL_LABELS = {
-    "bookings.bookingrequest": {"en": "Table requests", "vi": "Yêu cầu đặt bàn"},
-    "menu.menuitem": {"en": "Items & prices", "vi": "Món & giá"},
-    "menu.menusection": {"en": "Sections", "vi": "Nhóm món"},
-    "menu.menucategory": {"en": "Menu tabs", "vi": "Tab menu"},
-    "auth.user": {"en": "Staff users", "vi": "Người dùng"},
-    "auth.group": {"en": "Permission groups", "vi": "Nhóm quyền"},
+    "bookings.bookingrequest": "Table requests",
+    "menu.menuitem": "Items & prices",
+    "menu.menusection": "Sections",
+    "menu.menucategory": "Menu tabs",
+    "auth.user": "Staff accounts",
+    "auth.group": "Roles & permissions",
 }
 
 # model key -> badge key; counts come from badge_counts().
@@ -83,7 +79,7 @@ def _model_entries(request) -> dict:
     return entries
 
 
-def _desk_entry(key, user, language):
+def _desk_entry(key, user):
     """A desk the user may open, or None."""
     desk = DESKS[key]
     if desk["perm"] and not user.has_perm(desk["perm"]):
@@ -94,29 +90,22 @@ def _desk_entry(key, user, language):
         url = reverse(desk["url"])
     except NoReverseMatch:
         return None
-    return {"name": _localized(desk["label"], language), "url": url, "icon": desk["icon"], "badge_key": desk.get("badge")}
-
-
-def _localized(value, language):
-    if isinstance(value, dict):
-        return value["vi" if language.startswith("vi") else "en"]
-    return value
+    return {"name": desk["label"], "url": url, "icon": desk["icon"], "badge_key": desk.get("badge")}
 
 
 def build_nav(request) -> list:
     """Sections with the items this user may open; empty sections are dropped."""
     user = request.user
-    language = getattr(request, "LANGUAGE_CODE", "en-au")
     entries = _model_entries(request)
     sections = []
     for section_label, keys in SECTIONS:
         items = []
         for key in keys:
             if key.startswith("desk:"):
-                item = _desk_entry(key[5:], user, language)
+                item = _desk_entry(key[5:], user)
             elif key in entries:
                 item = {
-                    "name": _localized(MODEL_LABELS.get(key, entries[key]["name"]), language),
+                    "name": MODEL_LABELS.get(key, entries[key]["name"]),
                     "url": entries[key]["url"],
                     "icon": MODEL_ICONS.get(key, "dot"),
                     "badge_key": MODEL_BADGES.get(key),
@@ -126,7 +115,7 @@ def build_nav(request) -> list:
             if item:
                 items.append(item)
         if items:
-            sections.append({"title": _localized(section_label, language), "items": items})
+            sections.append({"title": section_label, "items": items})
 
     # Models registered but missing from SECTIONS still get a menu entry, so
     # nothing silently disappears; add them to SECTIONS to place them properly.
@@ -137,7 +126,7 @@ def build_nav(request) -> list:
         if key not in listed
     ]
     if leftovers:
-        sections.append({"title": "Other" if not language.startswith("vi") else "Khác", "items": leftovers})
+        sections.append({"title": "Other", "items": leftovers})
 
     _mark_active(sections, request.path)
     wanted = {i["badge_key"] for s in sections for i in s["items"] if i["badge_key"]}
