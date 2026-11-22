@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { PageShell } from '@/components/layout/PageShell';
 import { MENU_PAGE } from '@/data/content';
 import { MENU } from '@/data/menu';
-import { MenuTabs } from '@/features/menu/MenuTabs';
+import { LiveMenu } from '@/features/menu/LiveMenu';
 
 export const metadata: Metadata = {
   title: 'Menu',
@@ -20,7 +20,7 @@ export default function MenuPage() {
           <p className="mx-auto mt-6 max-w-[44ch] text-sm leading-relaxed text-cocoa/65">{MENU_PAGE.intro}</p>
         </PageHeader>
 
-        <MenuTabs categories={MENU} />
+        <LiveMenu initial={MENU} />
 
         <section aria-labelledby="menu-cta" className="mt-28 border-t border-cocoa/10 pt-20 text-center">
           <h2

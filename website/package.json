@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/fetch-menu.mjs",
     "build": "next build",
+    "menu:pull": "node scripts/fetch-menu.mjs",
     "start": "serve out -l 3000",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

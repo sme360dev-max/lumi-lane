@@ -17,6 +17,14 @@ function watchConsole(page: Page) {
   return errors;
 }
 
+// The menu page loads the live menu from Django; answer with the built-in snapshot so these
+// tests never depend on a running backend (or log a failed request as a console error).
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/menu/', (route) =>
+    route.fulfill({ json: { categories: MENU }, headers: { 'access-control-allow-origin': '*' } }),
+  );
+});
+
 const noHorizontalOverflow = async (page: Page) =>
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),

@@ -1,4 +1,5 @@
-export type CategoryId = 'brunch' | 'acai' | 'coffee' | 'bar';
+/** Tab id from Django admin (Menu tabs → Tab code), e.g. 'brunch'. Also the /menu/#hash. */
+export type CategoryId = string;
 
 interface ItemBase {
   /** Stable, unique id: `<category>-<slug>`. */

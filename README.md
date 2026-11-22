@@ -21,6 +21,17 @@ flowchart LR
 
 The current website accepts **table reservation requests**. Django saves each request in Supabase and sends a notification to the venue through Brevo's HTTPS API. A saved request is not an automatically confirmed reservation; staff confirm it from the admin page or by contacting the guest.
 
+## Menu (managed on the server)
+
+The menu (tabs, sections, items, prices, wine glass/bottle prices, the açai price table) lives in Django: **Admin → Menu → Items & prices** is the everyday screen, with prices and availability editable straight from the list. `GET /api/menu/` serves it as JSON (cached 60 s). Unticking *Available* hides an item; a section whose items are all unavailable is hidden too.
+
+The website shows it in two layers:
+
+1. `npm run build` first runs `scripts/fetch-menu.mjs`, which copies `/api/menu/` into `website/src/data/menu-snapshot.json`; the static `/menu/` HTML is built from that file. If the API cannot be reached, the build keeps the existing snapshot. Run `npm run menu:pull` to refresh it by hand, and commit it when it changes.
+2. In the browser, `/menu/` then loads the live menu from the API and swaps it in, so a price change shows within about a minute without rebuilding. If the API is asleep or down, visitors keep seeing the built-in menu.
+
+A new database gets the original menu from the `menu.0002_seed_menu` migration (data in `backend/menu/data/initial_menu.json`). Prices print per tab: *$25.9* style (Brunch, Açai) or *4.20* style (Coffee & Drinks, Bar), set on each menu tab.
+
 ## Local development
 
 Requirements: Node.js 20.19+ and Python 3.12.

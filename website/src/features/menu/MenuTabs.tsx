@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import type { CategoryId, MenuCategory } from '@/types/menu';
 import { MenuColumn } from './MenuColumn';
 
@@ -8,23 +8,23 @@ interface MenuTabsProps {
   categories: MenuCategory[];
 }
 
-const isCategory = (ids: CategoryId[], v: string): v is CategoryId => (ids as string[]).includes(v);
-
 /**
  * Category tabs (WAI-ARIA tabs pattern). The selected tab is mirrored in the URL hash
  * (/menu/#bar) so categories can be linked, refreshed and navigated with back/forward.
  * All panels are rendered in the static HTML; inactive ones are `hidden`.
+ * Categories can change after load (live menu from the API), so ids are not assumed fixed.
  */
 export function MenuTabs({ categories }: MenuTabsProps) {
-  const ids = categories.map((c) => c.id);
-  const [active, setActive] = useState<CategoryId>(ids[0] ?? 'brunch');
+  const idsKey = categories.map((c) => c.id).join('\n');
+  const ids = useMemo(() => (idsKey ? idsKey.split('\n') : []), [idsKey]);
+  const [selected, setActive] = useState<CategoryId>(ids[0] ?? '');
+  const active = ids.includes(selected) ? selected : (ids[0] ?? '');
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const fromHash = useCallback(() => {
     const h = decodeURIComponent(window.location.hash.slice(1));
-    return isCategory(ids, h) ? h : (ids[0] ?? 'brunch');
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- ids is derived from static data
-  }, []);
+    return ids.includes(h) ? h : (ids[0] ?? '');
+  }, [ids]);
 
   useEffect(() => {
     const sync = () => setActive(fromHash());

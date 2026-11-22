@@ -24,6 +24,7 @@ DESKS = {
 SECTIONS = (
     (None, ("desk:dashboard",)),
     ({"en": "Bookings", "vi": "Đặt bàn"}, ("bookings.bookingrequest",)),
+    ({"en": "Menu", "vi": "Thực đơn"}, ("menu.menuitem", "menu.menusection", "menu.menucategory")),
     ({"en": "Administration", "vi": "Quản trị viên"}, (
         "auth.user",
         "auth.group",
@@ -33,6 +34,9 @@ SECTIONS = (
 # One icon per model, from static/admin_ui/img/admin-icons.svg (ids listed in CLAUDE.md).
 MODEL_ICONS = {
     "bookings.bookingrequest": "calendar",
+    "menu.menuitem": "bowl",
+    "menu.menusection": "list",
+    "menu.menucategory": "layers",
     "auth.user": "shield-user",
     "auth.group": "users",
 }
@@ -40,6 +44,9 @@ MODEL_ICONS = {
 # Shorter names where verbose_name_plural does not fit the 15rem rail.
 MODEL_LABELS = {
     "bookings.bookingrequest": {"en": "Table requests", "vi": "Yêu cầu đặt bàn"},
+    "menu.menuitem": {"en": "Items & prices", "vi": "Món & giá"},
+    "menu.menusection": {"en": "Sections", "vi": "Nhóm món"},
+    "menu.menucategory": {"en": "Menu tabs", "vi": "Tab menu"},
     "auth.user": {"en": "Staff users", "vi": "Người dùng"},
     "auth.group": {"en": "Permission groups", "vi": "Nhóm quyền"},
 }

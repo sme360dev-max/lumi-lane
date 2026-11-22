@@ -3,7 +3,15 @@ import { MenuItemRow } from './MenuItems';
 
 const heading = 'text-[11px] font-semibold uppercase tracking-[0.3em] text-cocoa';
 
-export function MenuColumn({ column }: { column: Column }) {
+/** Layout per column type; the API sends content only. */
+const LAYOUT: Record<Column['kind'], string | undefined> = {
+  list: undefined,
+  notice: 'md:col-span-2',
+  pricing: 'md:pt-1',
+};
+
+export function MenuColumn({ column: data }: { column: Column }) {
+  const column = { ...data, className: data.className ?? LAYOUT[data.kind] } as Column;
   if (column.kind === 'notice') {
     return (
       <div className={column.className}>
