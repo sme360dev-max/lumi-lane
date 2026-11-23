@@ -15,7 +15,7 @@ test('loyalty and header account access work without nav overlap', async ({ page
   const nav = page.getByRole('navigation', { name: 'Primary' });
   await nav.getByRole('link', { name: 'Loyalty' }).click();
   await expect(page).toHaveURL(/\/loyalty\/$/);
-  await expect(page.getByRole('heading', { name: 'The Stamp Ritual' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Lumi Lane Coffee Club' })).toBeVisible();
   await expect(page.getByText('This is a demo only.', { exact: false })).toBeVisible();
   for (const link of ['Login', 'Sign Up']) {
     await expect(page.getByRole('main').getByRole('link', { name: link })).toBeVisible();

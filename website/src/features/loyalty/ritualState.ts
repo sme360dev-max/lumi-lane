@@ -36,7 +36,7 @@ export type Action =
         | 'example';
     };
 
-const welcome = 'Simulate a coffee purchase to get your first demo stamp.';
+const welcome = 'Your demo receipt will appear here.';
 export const initialRitual: RitualState = { stamps: 0, phase: 'loading', notice: welcome };
 
 export const isPressing = (state: RitualState) => state.phase === 'pressing' || state.phase === 'settling';
@@ -111,14 +111,14 @@ export function ritualReducer(state: RitualState, action: Action): RitualState {
     }
     case 'reset':
       return canCancel(state)
-        ? { stamps: 0, phase: 'idle', notice: 'Demo card reset. Start with a simulated coffee purchase.' }
+        ? { stamps: 0, phase: 'idle', notice: 'Demo card reset. Try a demo purchase to start again.' }
         : state;
     case 'example':
       return canLoadExample(state)
         ? {
             stamps: STAMP_TARGET - 1,
             phase: 'idle',
-            notice: 'Example loaded at 7 of 8 stamps. Simulate one more purchase to try the unlock.',
+            notice: 'Example loaded at 7 of 8 stamps. Try one more demo purchase to see the reward unlock.',
           }
         : state;
   }

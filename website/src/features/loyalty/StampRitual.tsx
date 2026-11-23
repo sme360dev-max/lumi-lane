@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { buttonClass } from '@/components/ui/Button';
+import { LOYALTY } from '@/data/loyalty';
 import { CoffeeMark, Imprint, RubberStamp } from './StampArtwork';
 import { RewardTicket } from './RewardTicket';
 import {
@@ -191,7 +192,7 @@ export function StampRitual() {
 
       <section className={styles.controls} aria-labelledby="stamp-controls">
         <div className={styles.controlsHeading}>
-          <h2 id="stamp-controls">Try the stamp</h2>
+          <h2 id="stamp-controls">Try the Demo</h2>
           <div
             ref={restingStamp}
             className={styles.restingStamp}
@@ -202,6 +203,21 @@ export function StampRitual() {
             <RubberStamp id={`${id}-rest`} />
           </div>
         </div>
+        <p className={styles.demoGuide}>{LOYALTY.demoGuide}</p>
+        <button
+          ref={purchase}
+          type="button"
+          className={buttonClass({ size: 'sm', className: styles.purchase })}
+          disabled={!stamping && !canPurchase(state)}
+          aria-disabled={stamping || undefined}
+          onClick={() => {
+            if (!canPurchase(state)) return;
+            setConfirmReset(false);
+            dispatch({ type: 'purchase' });
+          }}
+        >
+          {LOYALTY.demoAction}
+        </button>
         <div className={styles.receipt}>
           <div className={styles.receiptHeading}>
             <span>Demo receipt</span>
@@ -215,20 +231,6 @@ export function StampRitual() {
             {state.notice}
           </p>
         </div>
-        <button
-          ref={purchase}
-          type="button"
-          className={buttonClass({ size: 'sm', className: styles.purchase })}
-          disabled={!stamping && !canPurchase(state)}
-          aria-disabled={stamping || undefined}
-          onClick={() => {
-            if (!canPurchase(state)) return;
-            setConfirmReset(false);
-            dispatch({ type: 'purchase' });
-          }}
-        >
-          Simulate Coffee Purchase
-        </button>
         <div className={styles.demoControls}>
           <button
             type="button"
