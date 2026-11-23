@@ -3,13 +3,16 @@ export interface NavItem {
   label: string;
 }
 
-/** Bottom pill navigation, in the original order. Menu is rendered as the mega-menu trigger. */
+/** Original destinations shared with the footer. */
 export const PRIMARY_NAV: NavItem[] = [
   { href: '/about/', label: 'About' },
   { href: '/menu/', label: 'Menu' },
   { href: '/visit/', label: 'Visit Us' },
   { href: '/book/', label: 'Book a Table' },
 ];
+
+/** The bottom pill adds Loyalty while keeping the original footer links. */
+export const PILL_NAV: NavItem[] = [...PRIMARY_NAV, { href: '/loyalty/', label: 'Loyalty' }];
 
 /** Mega menu columns: number, two-line title and the menu tab they open. */
 export const MEGA_COLUMNS = [

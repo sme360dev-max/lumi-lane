@@ -4,6 +4,8 @@ import { PrimaryNav } from '@/components/navigation/PrimaryNav';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { BUSINESS, SITE_URL } from '@/data/business';
+import { MENU } from '@/data/menu';
+import { CartProvider } from '@/features/cart/CartProvider';
 import '@/styles/globals.css';
 
 const DESCRIPTION =
@@ -92,10 +94,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           Skip to content
         </a>
-        <SiteHeader />
-        {children}
-        <SiteFooter />
-        <PrimaryNav />
+        <CartProvider initialMenu={MENU}>
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+          <PrimaryNav />
+        </CartProvider>
       </body>
     </html>
   );

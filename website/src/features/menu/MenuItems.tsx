@@ -1,4 +1,5 @@
 import type { AcaiItem, MenuItem, StandardItem, WineItem } from '@/types/menu';
+import { OrderControl } from './OrderControl';
 
 /** Empty thumbnail slot: the original menu has no item photos (brand monogram via CSS). */
 const Thumb = () => <div className="menu-thumb self-start" aria-hidden="true" />;
@@ -32,6 +33,7 @@ function Standard({ item }: { item: StandardItem }) {
         {item.description && (
           <p className="mt-1.5 max-w-[54ch] text-[13px] leading-relaxed text-cocoa/60">{item.description}</p>
         )}
+        <OrderControl itemId={item.id} name={item.name} />
       </div>
     </li>
   );
@@ -44,6 +46,7 @@ function Acai({ item }: { item: AcaiItem }) {
       <div className="min-w-0 flex-1">
         <h4 className="font-serif text-[19px] font-medium text-cocoa">{item.name}</h4>
         <p className="mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-cocoa/60">{item.description}</p>
+        <OrderControl itemId={item.id} name={item.name} />
       </div>
     </li>
   );
@@ -66,6 +69,7 @@ function Wine({ item }: { item: WineItem }) {
       <span className="w-14 text-right text-sm tabular-nums text-cocoa/85" data-price>
         <Cell value={item.bottle} label="Bottle" />
       </span>
+      <OrderControl itemId={item.id} name={item.name} className="col-span-3 col-start-2 min-w-0" />
     </li>
   );
 }

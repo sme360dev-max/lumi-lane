@@ -44,6 +44,12 @@ test('booking: validation errors, API submission, and request summary', async ({
   await page.getByLabel('Special Requests').fill('High chair please');
   await page.getByRole('button', { name: 'Request a Table' }).click();
 
+  if (!process.env.NEXT_PUBLIC_API_BASE_URL) {
+    await expect(page.getByText('Online booking is not configured yet. Please call us to book.')).toBeVisible();
+    expect(requests).toHaveLength(0);
+    return;
+  }
+
   const summary = page.getByTestId('booking-summary');
   await expect(summary.getByRole('heading', { name: 'We have your request.' })).toBeFocused();
   await expect(summary.getByText('Your request has been sent to Lumi Lane. The team will contact you to confirm your table.')).toBeVisible();

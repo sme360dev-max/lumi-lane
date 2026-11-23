@@ -108,7 +108,7 @@ export function MenuTabs({ categories }: MenuTabsProps) {
             aria-labelledby={`tab-${c.id}`}
             hidden={c.id !== active}
             tabIndex={0}
-            className="grid gap-x-16 gap-y-16 focus:outline-none md:grid-cols-2"
+            className={c.id === active ? 'grid gap-x-16 gap-y-16 focus:outline-none md:grid-cols-2' : 'hidden'}
           >
             {c.columns.map((col, i) => (
               <MenuColumn key={i} column={col} />

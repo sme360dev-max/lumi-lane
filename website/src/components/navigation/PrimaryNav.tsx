@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { PRIMARY_NAV } from '@/data/navigation';
+import { PILL_NAV } from '@/data/navigation';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { MegaMenu } from './MegaMenu';
 import { isActive, navLinkClass } from './navStyles';
@@ -49,10 +49,10 @@ export function PrimaryNav() {
     <>
       <nav
         aria-label="Primary"
-        className="fixed bottom-6 left-1/2 z-50 max-w-[calc(100vw-1.5rem)] -translate-x-1/2 rounded-full border-none bg-gradient-to-r from-red-500 via-orange-400 to-purple-400 px-4 py-3 sm:bottom-10 sm:px-6"
+        className="fixed bottom-6 left-1/2 z-50 max-w-[calc(100vw-1.5rem)] -translate-x-1/2 rounded-full border-none bg-gradient-to-r from-red-500 via-orange-400 to-purple-400 px-3 py-3 sm:bottom-10 sm:px-6"
       >
-        <ul className="flex items-center gap-4 sm:gap-8">
-          {PRIMARY_NAV.map((item) => {
+        <ul className="flex items-center gap-2 min-[375px]:gap-3 sm:gap-8">
+          {PILL_NAV.map((item) => {
             const active = isActive(pathname, item.href);
             if (item.href === '/menu/') {
               return (

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import type { MenuCategory } from '@/types/menu';
+import { useEffect } from 'react';
+import { useCart } from '@/features/cart/CartProvider';
 import { isMenu } from './menuData';
 import { MenuTabs } from './MenuTabs';
 
@@ -12,8 +12,8 @@ const TIMEOUT_MS = 60_000;
  * Shows the menu baked into the static page at once, then swaps in the live menu from Django
  * when it arrives. If the API is asleep, down or returns something unexpected, the built-in menu stays.
  */
-export function LiveMenu({ initial }: { initial: MenuCategory[] }) {
-  const [categories, setCategories] = useState(initial);
+export function LiveMenu() {
+  const { menu, replaceMenu } = useCart();
 
   useEffect(() => {
     const api = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '');
@@ -24,7 +24,7 @@ export function LiveMenu({ initial }: { initial: MenuCategory[] }) {
       .then((response) => (response.ok ? response.json() : null))
       .then((data: unknown) => {
         const live = (data as { categories?: unknown } | null)?.categories;
-        if (isMenu(live)) setCategories(live);
+        if (!controller.signal.aborted && isMenu(live)) replaceMenu(live);
       })
       .catch(() => {
         // Keep the built-in menu.
@@ -34,7 +34,7 @@ export function LiveMenu({ initial }: { initial: MenuCategory[] }) {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, []);
+  }, [replaceMenu]);
 
-  return <MenuTabs categories={categories} />;
+  return <MenuTabs categories={menu} />;
 }

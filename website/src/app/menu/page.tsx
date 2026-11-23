@@ -3,7 +3,6 @@ import { ButtonLink } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageShell } from '@/components/layout/PageShell';
 import { MENU_PAGE } from '@/data/content';
-import { MENU } from '@/data/menu';
 import { LiveMenu } from '@/features/menu/LiveMenu';
 
 export const metadata: Metadata = {
@@ -20,7 +19,7 @@ export default function MenuPage() {
           <p className="mx-auto mt-6 max-w-[44ch] text-sm leading-relaxed text-cocoa/65">{MENU_PAGE.intro}</p>
         </PageHeader>
 
-        <LiveMenu initial={MENU} />
+        <LiveMenu />
 
         <section aria-labelledby="menu-cta" className="mt-28 border-t border-cocoa/10 pt-20 text-center">
           <h2

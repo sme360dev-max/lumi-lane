@@ -1,0 +1,27 @@
+.drawer[open] {
+  animation: enter 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.drawer::backdrop {
+  background: rgb(28 24 20 / 35%);
+  animation: backdrop 240ms ease-out both;
+}
+
+@keyframes enter {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes backdrop {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer[open],
+  .drawer::backdrop {
+    animation: none;
+  }
+}
