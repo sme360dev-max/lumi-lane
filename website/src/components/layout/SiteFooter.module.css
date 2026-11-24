@@ -1,95 +1,133 @@
-/* Receipt footer: "the bill at the end of the meal". Paper, leaders and stamp motion come from
-   features/booking/Booking.module.css; this file only adds the footer-specific layout and entrance. */
+/* "The long table" footer. Only transform / opacity / clip-path are animated, all slow and calm. */
 
-.receipt {
+/* ---- top band: dishes gliding along the table edge ---- */
+.band {
   position: relative;
-  width: 100%;
-  max-width: 35rem; /* ~560px */
-  margin-inline: auto;
+  overflow: hidden;
+  padding-block: 1.25rem 1.5rem;
+  --dish: 5rem;
+}
+@media (min-width: 768px) {
+  .band {
+    --dish: 8.75rem; /* 140px */
+  }
 }
 
-/* Entrance: hidden only once JS has armed it, so the receipt never vanishes without script. */
-.receipt[data-armed] {
+/* The table edge: one terracotta hairline the plates rest on. */
+.band::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(1.25rem + var(--dish) * 0.62);
+  height: 1px;
+  background: #c45441;
+}
+
+.track {
+  position: relative;
+  display: flex;
+  width: max-content;
+  animation: glide 52s linear infinite;
+  animation-play-state: paused;
+  will-change: transform;
+}
+.band[data-running] .track {
+  animation-play-state: running;
+}
+
+/* Two identical runs: moving by exactly one run (-50%) loops seamlessly. */
+@keyframes glide {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.run {
+  display: flex;
+  flex: none;
+  gap: calc(var(--dish) * 0.9);
+  padding-right: calc(var(--dish) * 0.9);
+}
+
+.dish {
+  flex: none;
+  width: var(--dish);
+  height: var(--dish);
+  rotate: var(--tilt, 0deg);
+}
+.dish img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 0.32));
+}
+
+/* ---- reveals (armed by JS, so nothing stays hidden without script) ---- */
+.line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em; /* keep descenders inside the mask */
+}
+.lineInner {
+  display: block;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--delay, 0ms);
+}
+[data-armed]:not([data-in]) .lineInner {
+  transform: translate3d(0, 105%, 0);
+}
+
+.col {
   transition:
     opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
     transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--delay, 0ms);
 }
-.receipt[data-armed]:not([data-in]) {
+[data-armed]:not([data-in]) .col {
   opacity: 0;
-  transform: translate3d(0, 40px, 0);
+  transform: translate3d(0, 14px, 0);
 }
 
-.section + .section {
-  margin-top: 1.5rem;
+/* Dot leaders draw left → right with the hours column. */
+.leader {
+  flex: 1 1 1.5rem;
+  min-width: 1.5rem;
+  align-self: center;
+  height: 2px;
+  background-image: radial-gradient(circle, rgb(218 205 181 / 0.5) 0.9px, transparent 1.2px);
+  background-size: 6px 2px;
+  background-repeat: repeat-x;
+  transform-origin: left center;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--delay, 0ms) + 250ms);
 }
-
-.sectionTitle {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgb(28 24 20 / 0.55);
-  border-bottom: 1px solid rgb(28 24 20 / 0.12);
-  padding-bottom: 0.45rem;
-  margin-bottom: 0.2rem;
-}
-
-/* One bill line: label, dot leader, value. Wraps the value under the label at 320px. */
-.line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  column-gap: 0.5rem;
-  min-height: 2.25rem;
-  padding-block: 0.3rem;
-  font-size: 14px;
-  line-height: 1.45;
-}
-.line > :last-child {
-  margin-left: auto;
-  text-align: right;
-}
-
-/* A full-row link (Explore items): the whole line is the target. */
-.lineLink {
-  min-height: 2.75rem;
-  color: inherit;
-  text-decoration: none;
-  transition: color 240ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.lineLink:hover {
-  color: #c45441;
-}
-
-/* The stamp lands on the torn-off stub, clear of the bill lines and the closing line. */
-.stampSpot {
-  position: absolute;
-  right: 0.25rem;
-  bottom: -0.5rem;
-  width: 5.5rem;
-  pointer-events: none;
-}
-@media (min-width: 400px) {
-  .stampSpot {
-    right: 0.5rem;
-    bottom: -0.75rem;
-    width: 7rem;
-  }
-}
-@media (min-width: 640px) {
-  .stampSpot {
-    right: 1.75rem;
-    bottom: -1.25rem;
-    width: 8.5rem;
-  }
+[data-armed]:not([data-in]) .leader {
+  transform: scaleX(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .receipt[data-armed] {
-    transition: none;
+  /* Static, evenly spaced row: one run, no movement. */
+  .track {
+    width: 100%;
+    animation: none;
   }
-  .receipt[data-armed]:not([data-in]) {
-    opacity: 1;
-    transform: none;
+  .run {
+    flex: 1;
+    justify-content: space-evenly;
+    gap: 0;
+    padding-right: 0;
+  }
+  .run + .run {
+    display: none;
+  }
+  .lineInner,
+  .col,
+  .leader {
+    transition: none;
   }
 }

@@ -1,222 +1,235 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
+import { useEffect, useRef } from 'react';
 import { InkStamp } from '@/components/brand/InkStamp';
+import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
 import { BUSINESS } from '@/data/business';
 import { PILL_NAV } from '@/data/navigation';
-import slip from '@/features/booking/Booking.module.css';
 import styles from './SiteFooter.module.css';
 import { SocialIcon } from './SocialIcon';
+
+const DISHES = [
+  { name: 'coffee', tilt: -4 },
+  { name: 'burger', tilt: 3 },
+  { name: 'mezze', tilt: -2 },
+  { name: 'choco', tilt: 5 },
+  { name: 'food', tilt: -3 },
+] as const;
 
 const DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
   `${BUSINESS.address.street}, ${BUSINESS.address.line2}`,
 )}`;
 
-const inkLink =
-  'rounded-sm underline decoration-cocoa/25 underline-offset-4 transition-colors duration-200 hover:text-ember hover:decoration-ember focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff6e7]';
-const onPaperRing =
-  'focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff6e7]';
-const onOliveRing =
+const focusRing =
   'rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cream focus-visible:ring-offset-4 focus-visible:ring-offset-olive';
+const heading = 'border-b border-cream/15 pb-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-cream/70';
+const link = `${focusRing} inline-flex min-h-8 items-center text-cream/80 transition-colors duration-300 ease-lumi hover:text-cream`;
 
-/** "Monday to Saturday" → "Monday – Saturday" (display only; the data stays as published). */
-const dash = (text: string) => text.replace(/ to /g, ' – ');
+const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties;
 
-function Leader() {
-  return <span aria-hidden="true" className={`${slip.leader} self-center`} />;
+/** One run of the five cut-out dishes; rendered twice so the marquee loops without a seam. */
+function DishRun() {
+  return (
+    <div className={styles.run}>
+      {DISHES.map((d) => (
+        <div key={d.name} className={styles.dish} style={{ '--tilt': `${d.tilt}deg` } as CSSProperties}>
+          <ResponsivePicture name={d.name} widths={[480]} sizes="160px" width={1254} height={1254} alt="" />
+        </div>
+      ))}
+    </div>
+  );
 }
 
-/**
- * The bill at the end of the meal: a printed receipt on the olive back cover, itemised with the
- * venue's hours, address and pages, stamped "See you soon" once it comes into view.
- */
+/** "The long table": dishes gliding along the table edge, a sign-off, the house details and the fine print. */
 export function SiteFooter() {
-  const receiptRef = useRef<HTMLDivElement>(null);
-  const [stamped, setStamped] = useState(false);
+  const bandRef = useRef<HTMLDivElement>(null);
+  const signRef = useRef<HTMLParagraphElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const receipt = receiptRef.current;
-    if (!receipt) return;
+    if (!('IntersectionObserver' in window)) return;
+    const band = bandRef.current;
+    const reveals: HTMLElement[] = [];
+    if (signRef.current) reveals.push(signRef.current);
+    if (gridRef.current) reveals.push(gridRef.current);
+
+    // The marquee only runs while it is on screen.
+    const marquee = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) band?.setAttribute('data-running', '');
+      else band?.removeAttribute('data-running');
+    });
+    if (band) marquee.observe(band);
+
+    // One-time reveals; reduced motion keeps everything in place (the CSS drops the transitions).
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce || !('IntersectionObserver' in window)) {
-      // Static: already on the page and already stamped.
-      receipt.setAttribute('data-in', '');
-      const id = window.setTimeout(() => setStamped(true), 0);
-      return () => window.clearTimeout(id);
+    let reveal: IntersectionObserver | undefined;
+    if (!reduce) {
+      reveal = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            entry.target.setAttribute('data-in', '');
+            reveal?.unobserve(entry.target);
+          }
+        },
+        { threshold: 0.3 },
+      );
+      for (const el of reveals) {
+        el.setAttribute('data-armed', '');
+        reveal.observe(el);
+      }
     }
-    receipt.setAttribute('data-armed', '');
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        observer.disconnect();
-        receipt.setAttribute('data-in', '');
-        setStamped(true); // mounting the stamp plays its one press (delayed until the receipt settles)
-      },
-      { threshold: 0.25 },
-    );
-    observer.observe(receipt);
-    return () => observer.disconnect();
+
+    return () => {
+      marquee.disconnect();
+      reveal?.disconnect();
+      for (const el of reveals) {
+        el.removeAttribute('data-armed');
+        el.removeAttribute('data-in');
+      }
+    };
   }, []);
 
   return (
-    <footer data-site-footer className="bg-olive px-3 pb-[var(--nav-clearance)] pt-20 text-cream sm:px-6 sm:pt-24 lg:px-10">
-      <div ref={receiptRef} className={styles.receipt}>
-        <div className={slip.lift}>
-          <div className={`${slip.paper} px-5 pt-8 text-cocoa min-[400px]:px-7 sm:px-9 sm:pt-10`}>
-            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 border-b border-cocoa/15 pb-5">
-              <div className="whitespace-nowrap">
-                <p className="font-serif text-[15px] font-medium leading-none tracking-[0.32em]">LUMI LANE</p>
-                <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-cocoa/55">{BUSINESS.tagline}</p>
-              </div>
-              <p className="pt-px text-[10.5px] leading-snug text-cocoa/60 min-[400px]:text-right">
-                {BUSINESS.address.line1}
-                <br />
-                {BUSINESS.address.line2}
-              </p>
-            </div>
-
-            <div className="pb-8 pt-6">
-              <section aria-labelledby="footer-hours" className={styles.section}>
-                <h2 id="footer-hours" className={styles.sectionTitle}>
-                  Opening Hours
-                </h2>
-                <dl>
-                  {BUSINESS.hours.map((h) => (
-                    <div key={h.label} className={styles.line}>
-                      <dt>{dash(h.label)}</dt>
-                      <Leader />
-                      <dd className="tabular-nums">{dash(h.time)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
-
-              <section aria-labelledby="footer-visit" className={styles.section}>
-                <h2 id="footer-visit" className={styles.sectionTitle}>
-                  Visit
-                </h2>
-                <dl>
-                  <div className={styles.line}>
-                    <dt>Address</dt>
-                    <Leader />
-                    <dd>
-                      <address className="not-italic">
-                        {BUSINESS.address.line1}
-                        <br />
-                        {BUSINESS.address.line2}
-                      </address>
-                    </dd>
-                  </div>
-                  <div className={styles.line}>
-                    <dt>Phone</dt>
-                    <Leader />
-                    <dd>
-                      <a href={BUSINESS.phone.href} className={`${inkLink} tabular-nums`}>
-                        {BUSINESS.phone.display}
-                      </a>
-                    </dd>
-                  </div>
-                  <div className={styles.line}>
-                    <dt>Directions</dt>
-                    <Leader />
-                    <dd>
-                      <a href={DIRECTIONS_URL} target="_blank" rel="noopener noreferrer" className={inkLink}>
-                        Get directions<span className="sr-only"> (opens in a new tab)</span>
-                      </a>
-                    </dd>
-                  </div>
-                </dl>
-              </section>
-
-              <nav aria-labelledby="footer-explore" className={styles.section}>
-                <h2 id="footer-explore" className={styles.sectionTitle}>
-                  Explore
-                </h2>
-                <ul>
-                  {PILL_NAV.map((item, i) => (
-                    <li key={item.href}>
-                      <Link href={item.href} className={`${styles.line} ${styles.lineLink} rounded-sm ${onPaperRing}`}>
-                        <span>{item.label}</span>
-                        <Leader />
-                        <span aria-hidden="true" className="tabular-nums text-cocoa/50">
-                          {String(i + 1).padStart(2, '0')}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-
-              <section aria-labelledby="footer-follow" className={styles.section}>
-                <h2 id="footer-follow" className={styles.sectionTitle}>
-                  Follow
-                </h2>
-                <div className={`${styles.line} pt-2`}>
-                  <ul className="flex gap-2">
-                    {BUSINESS.social.map((s) => (
-                      <li key={s.id}>
-                        <a
-                          href={s.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={s.label}
-                          className={`grid h-11 w-11 place-items-center rounded-full border border-cocoa/35 text-cocoa transition-colors duration-200 hover:border-ember hover:text-ember [&_svg]:h-5 [&_svg]:w-5 ${onPaperRing}`}
-                        >
-                          <SocialIcon id={s.id} />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                  <Leader />
-                  <span className="text-cocoa/70">{BUSINESS.instagramHandle}</span>
-                </div>
-              </section>
-            </div>
-
-            <div className={`${slip.stub} flex items-center justify-start border-t border-dashed border-cocoa/30 sm:justify-center`}>
-              <p className="font-serif text-lg italic text-cocoa/80">Thank you for visiting.</p>
-            </div>
-          </div>
+    <footer data-site-footer className="bg-olive pb-[var(--nav-clearance)] pt-4 text-cream sm:pt-6">
+      <div ref={bandRef} className={styles.band} aria-hidden="true">
+        <div className={styles.track}>
+          <DishRun />
+          <DishRun />
         </div>
-
-        {stamped && (
-          <div className={styles.stampSpot}>
-            <InkStamp id="footer-stamp" word="See you soon" seed={5} className={`${slip.stamp} block w-full text-ember`} />
-          </div>
-        )}
       </div>
 
-      <div className="mx-auto mt-14 flex max-w-6xl flex-col gap-5 border-t border-cream/15 px-3 py-6 text-xs text-cream/60 sm:mt-16 sm:px-0 lg:flex-row lg:items-center lg:justify-between">
-        <p>
-          &copy; {new Date().getFullYear()} {BUSINESS.name}
-        </p>
-        {/* No policy pages exist yet, so they are listed, not linked. */}
-        <ul aria-label="Policies (pages coming soon)" className="flex flex-wrap gap-x-6 gap-y-2">
-          {BUSINESS.policies.map((p) => (
-            <li key={p} title="Coming soon">
-              {p}
-            </li>
-          ))}
-        </ul>
-        <a
-          href="#main"
-          className={`${onOliveRing} self-start py-1 uppercase tracking-[0.24em] text-cream/80 transition-colors duration-300 ease-lumi hover:text-cream lg:self-auto`}
+      <div className="mx-auto max-w-6xl px-6 lg:px-10">
+        <div className="mt-6 flex items-center gap-5 sm:mt-6 sm:gap-7">
+          <InkStamp id="footer-stamp" seed={5} className="h-16 w-16 shrink-0 text-cream/75 sm:h-20 sm:w-20" />
+          <p ref={signRef} className="font-serif text-[clamp(2.25rem,5vw,4.5rem)] italic leading-[1.02] text-cream">
+            <span className={styles.line}>
+              <span className={styles.lineInner}>See you at </span>
+            </span>
+            <span className={styles.line}>
+              <span className={styles.lineInner} style={delay(110)}>
+                the long table.
+              </span>
+            </span>
+          </p>
+        </div>
+
+        <div
+          ref={gridRef}
+          className="mt-9 grid gap-x-12 gap-y-9 text-sm leading-relaxed sm:mt-10 md:grid-cols-2 lg:grid-cols-[0.8fr_1.5fr_1.15fr_0.9fr] lg:gap-x-12"
         >
-          Back to top
-          <svg
-            viewBox="0 0 12 12"
-            aria-hidden="true"
-            className="ml-2 inline-block h-3 w-3 -translate-y-px"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <nav aria-label="Footer" className={styles.col} style={delay(0)}>
+            <h2 className={heading}>Explore</h2>
+            <ul className="mt-2 flex flex-col">
+              {PILL_NAV.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className={link}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <section aria-labelledby="footer-hours" className={styles.col} style={delay(90)}>
+            <h2 id="footer-hours" className={heading}>
+              Opening Hours
+            </h2>
+            <dl className="mt-4 space-y-3 text-cream/80">
+              {BUSINESS.hours.map((h) => (
+                <div key={h.label} className="flex flex-wrap items-baseline gap-x-3">
+                  <dt>{h.label}</dt>
+                  <span aria-hidden="true" className={styles.leader} />
+                  <dd className="ml-auto tabular-nums">{h.time}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+
+          <section aria-labelledby="footer-visit" className={styles.col} style={delay(180)}>
+            <h2 id="footer-visit" className={heading}>
+              Visit
+            </h2>
+            <address className="mt-4 not-italic text-cream/80">
+              {BUSINESS.address.line1}
+              <br />
+              {BUSINESS.address.line2}
+            </address>
+            <ul className="mt-2 flex flex-col">
+              <li>
+                <a href={BUSINESS.phone.href} className={`${link} tabular-nums`}>
+                  {BUSINESS.phone.display}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={DIRECTIONS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${link} underline decoration-ember underline-offset-[6px]`}
+                >
+                  Get directions<span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            </ul>
+          </section>
+
+          <section aria-labelledby="footer-follow" className={styles.col} style={delay(270)}>
+            <h2 id="footer-follow" className={heading}>
+              Follow
+            </h2>
+            <ul className="mt-4 flex flex-wrap gap-3">
+              {BUSINESS.social.map((s) => (
+                <li key={s.id}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    className="grid h-11 w-11 place-items-center rounded-full border border-cream/50 text-cream transition-colors duration-300 ease-lumi hover:border-cream hover:bg-cream hover:text-olive focus:outline-none focus-visible:ring-2 focus-visible:ring-cream focus-visible:ring-offset-2 focus-visible:ring-offset-olive [&_svg]:h-5 [&_svg]:w-5"
+                  >
+                    <SocialIcon id={s.id} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-cream/60">{BUSINESS.instagramHandle}</p>
+          </section>
+        </div>
+
+        <div className="mt-9 flex flex-col gap-4 border-t border-cream/15 py-5 text-xs text-cream/60 sm:mt-8 lg:flex-row lg:items-center lg:justify-between">
+          <p>
+            &copy; {new Date().getFullYear()} {BUSINESS.name}
+          </p>
+          {/* No policy pages exist yet, so they are listed, not linked. */}
+          <ul aria-label="Policies (pages coming soon)" className="flex flex-wrap gap-x-6 gap-y-2">
+            {BUSINESS.policies.map((p) => (
+              <li key={p} title="Coming soon">
+                {p}
+              </li>
+            ))}
+          </ul>
+          <a
+            href="#main"
+            className={`${focusRing} inline-flex min-h-9 items-center self-start uppercase tracking-[0.24em] text-cream/80 transition-colors duration-300 ease-lumi hover:text-cream lg:self-auto`}
           >
-            <path d="M6 10.5v-9M2 5.5l4-4 4 4" />
-          </svg>
-        </a>
+            Back to top
+            <svg
+              viewBox="0 0 12 12"
+              aria-hidden="true"
+              className="ml-2 inline-block h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M6 10.5v-9M2 5.5l4-4 4 4" />
+            </svg>
+          </a>
+        </div>
       </div>
     </footer>
   );

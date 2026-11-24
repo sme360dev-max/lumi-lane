@@ -54,8 +54,6 @@ export function InkStamp({ id, word, seed = 1, className }: InkStampProps) {
   // One or two worn arcs on the outer ring.
   const wornArc = round(14 + rand() * 22);
 
-  // Words longer than "Requested" are set tighter so they stay inside the band.
-  const long = (word?.length ?? 0) > 9;
   const mask = `${id}-ink`;
   const ring = `${id}-ring`;
   const band = `${id}-band`;
@@ -80,9 +78,8 @@ export function InkStamp({ id, word, seed = 1, className }: InkStampProps) {
               textAnchor="middle"
               fontFamily="Archivo, sans-serif"
               fontWeight="600"
-              fontSize={long ? 9 : 10.5}
-              letterSpacing={long ? 1.4 : 2.4}
-              {...(long ? { textLength: 98, lengthAdjust: 'spacingAndGlyphs' } : {})}
+              fontSize="10.5"
+              letterSpacing="2.4"
             >
               {word.toUpperCase()}
             </text>

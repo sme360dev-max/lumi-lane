@@ -49,9 +49,9 @@ export function PrimaryNav() {
     <>
       <nav
         aria-label="Primary"
-        className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 z-50 max-w-[calc(100vw-1.5rem)] -translate-x-1/2 rounded-full border-none bg-gradient-to-r from-red-500 via-orange-400 to-purple-400 px-3 py-3 sm:bottom-[calc(2.5rem+env(safe-area-inset-bottom,0px))] sm:px-6"
+        className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] left-1/2 z-50 max-w-[calc(100vw-1.5rem)] -translate-x-1/2 rounded-full border-none bg-gradient-to-r from-red-500 via-orange-400 to-purple-400 px-3 py-1 max-[360px]:px-2.5 sm:bottom-[calc(2.5rem+env(safe-area-inset-bottom,0px))] sm:px-6"
       >
-        <ul className="flex items-center gap-2 min-[375px]:gap-3 sm:gap-8">
+        <ul className="flex items-center gap-2 max-[360px]:gap-1.5 min-[375px]:gap-3 sm:gap-8">
           {PILL_NAV.map((item) => {
             const active = isActive(pathname, item.href);
             if (item.href === '/menu/') {
