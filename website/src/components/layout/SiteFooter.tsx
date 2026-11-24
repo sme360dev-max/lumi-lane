@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { BUSINESS } from '@/data/business';
 import { PILL_NAV } from '@/data/navigation';
-import { LongTableBand } from './LongTableBand';
+import { ShopfrontScene } from './ShopfrontScene';
 import { SocialIcon } from './SocialIcon';
 
 const DESCRIPTION = `${BUSINESS.tagline} in ${BUSINESS.address.locality}, ${BUSINESS.address.region}.`;
@@ -137,7 +137,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <LongTableBand />
+      <ShopfrontScene />
     </footer>
   );
 }
