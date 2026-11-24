@@ -44,7 +44,7 @@ export const MENU_PAGE = {
 export const MEGA = {
   eyebrow: 'Our Menu',
   title: 'Four ways to spend the day.',
-  hoursLine: 'Seven till four, every day',
+  hoursLine: 'Seven till four; eight on Sundays.',
   fullMenuLabel: 'See the full menu',
 };
 

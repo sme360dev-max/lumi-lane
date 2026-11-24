@@ -1,0 +1,95 @@
+/* Receipt footer: "the bill at the end of the meal". Paper, leaders and stamp motion come from
+   features/booking/Booking.module.css; this file only adds the footer-specific layout and entrance. */
+
+.receipt {
+  position: relative;
+  width: 100%;
+  max-width: 35rem; /* ~560px */
+  margin-inline: auto;
+}
+
+/* Entrance: hidden only once JS has armed it, so the receipt never vanishes without script. */
+.receipt[data-armed] {
+  transition:
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.receipt[data-armed]:not([data-in]) {
+  opacity: 0;
+  transform: translate3d(0, 40px, 0);
+}
+
+.section + .section {
+  margin-top: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgb(28 24 20 / 0.55);
+  border-bottom: 1px solid rgb(28 24 20 / 0.12);
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.2rem;
+}
+
+/* One bill line: label, dot leader, value. Wraps the value under the label at 320px. */
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.5rem;
+  min-height: 2.25rem;
+  padding-block: 0.3rem;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.line > :last-child {
+  margin-left: auto;
+  text-align: right;
+}
+
+/* A full-row link (Explore items): the whole line is the target. */
+.lineLink {
+  min-height: 2.75rem;
+  color: inherit;
+  text-decoration: none;
+  transition: color 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lineLink:hover {
+  color: #c45441;
+}
+
+/* The stamp lands on the torn-off stub, clear of the bill lines and the closing line. */
+.stampSpot {
+  position: absolute;
+  right: 0.25rem;
+  bottom: -0.5rem;
+  width: 5.5rem;
+  pointer-events: none;
+}
+@media (min-width: 400px) {
+  .stampSpot {
+    right: 0.5rem;
+    bottom: -0.75rem;
+    width: 7rem;
+  }
+}
+@media (min-width: 640px) {
+  .stampSpot {
+    right: 1.75rem;
+    bottom: -1.25rem;
+    width: 8.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .receipt[data-armed] {
+    transition: none;
+  }
+  .receipt[data-armed]:not([data-in]) {
+    opacity: 1;
+    transform: none;
+  }
+}
