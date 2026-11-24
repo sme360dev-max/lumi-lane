@@ -29,7 +29,13 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image' },
 };
 
-export const viewport: Viewport = { themeColor: '#FAEDDD', width: 'device-width', initialScale: 1 };
+// viewportFit "cover" exposes env(safe-area-inset-*) so the floating nav and page padding clear the iOS home bar.
+export const viewport: Viewport = {
+  themeColor: '#FAEDDD',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
 
 const jsonLd = {
   '@context': 'https://schema.org',

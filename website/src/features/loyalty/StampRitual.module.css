@@ -2,7 +2,9 @@
   --ink: #913b2e;
   --paper: #fff6e7;
   --rule: rgb(94 55 36 / 23%);
-  --grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.76' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' d='M0 0h160v160H0z' filter='url(%23grain)' opacity='.18'/%3E%3C/svg%3E");
+  --grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .22 0 0 0 0 .14 0 0 0 -2.6 1.42'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+  /* Paper tooth for the ink: mostly solid, with fine pits where the fibres did not take ink. */
+  --ink-tooth: url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 5.2 0 0 0 -1.4'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23t)'/%3E%3C/svg%3E");
   max-width: 70rem;
   margin-inline: auto;
 }
@@ -66,6 +68,22 @@
     serif;
   letter-spacing: -0.04em;
 }
+.stepFrame {
+  position: relative;
+  isolation: isolate;
+}
+.stepsStroke {
+  pointer-events: none;
+}
+/* Narrow screens: the stroke underlines the heading; the stacked steps keep their rules. */
+.stepsStrokeNarrow {
+  width: min(13.5rem, 62%);
+  height: 0.75rem;
+  margin: -0.3rem 0 0.85rem;
+}
+.stepsStrokeWide {
+  display: none;
+}
 .stepSheet {
   display: grid;
   margin: 0;
@@ -100,6 +118,9 @@
   width: 2.35rem;
   height: 2.35rem;
 }
+.stepMark span {
+  font-variant-numeric: lining-nums;
+}
 .step h3 {
   font:
     500 clamp(1.16rem, 2vw, 1.45rem)/1.2 'Playfair Display',
@@ -114,6 +135,20 @@
   line-height: 1.55;
 }
 @media (min-width: 680px) {
+  .stepsStrokeNarrow {
+    display: none;
+  }
+  /* Wide screens: one hand-drawn stroke runs behind the three step marks, left to right. */
+  .stepsStrokeWide {
+    position: absolute;
+    z-index: 1;
+    display: block;
+    top: calc(1px + 1.15rem + 1.175rem - 0.62rem);
+    left: calc(clamp(0.8rem, 2.4vw, 1.65rem) + 1.4rem);
+    /* Ends behind the third mark: (66.667% + pad + 2.6rem) - left; the padding cancels out. */
+    width: calc(66.667% + 1.2rem);
+    height: 1.4rem;
+  }
   .stepSheet {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -129,21 +164,20 @@
     align-items: start;
     gap: 0.4rem;
   }
-  .stepMark {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-  }
-}
-@media (min-width: 940px) {
   .stepContent {
-    grid-template-columns: 2.6rem minmax(0, 1fr);
-    align-items: center;
-    gap: 0.85rem;
+    gap: 0.75rem;
   }
+  /* The mark sits on paper so the stroke passes behind it, never over it. */
   .stepMark {
-    display: grid;
-    gap: 0.1rem;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    width: max-content;
+    align-items: center;
+    gap: 0.55rem;
+    padding-inline: 0.35rem 0.6rem;
+    margin-inline-start: -0.35rem;
+    background: var(--paper);
   }
 }
 .printLabel,
@@ -171,20 +205,38 @@
 .cardColumn {
   min-width: 0;
 }
+/* Card stock: the shadow lives on a static wrapper so the perforation mask on the card can't clip it. */
+.cardStock {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 1px 0 rgb(99 62 39 / 17%)) drop-shadow(0 12px 12px rgb(85 43 27 / 11%));
+}
 .paper {
+  --perf: 1.15rem; /* width of the perforated stub strip */
   position: relative;
   z-index: 1;
   isolation: isolate;
   padding: clamp(0.875rem, 3vw, 2rem);
+  padding-left: max(calc(var(--perf) + 0.35rem), clamp(0.875rem, 3vw, 2rem));
   border: 1px solid var(--rule);
-  border-radius: 0.55rem;
+  border-radius: 0.45rem;
   background: var(--paper);
-  box-shadow:
-    0 2px 0 rgb(99 62 39 / 15%),
-    0 6px 0 -2px #f3dfc6,
-    0 7px 0 -2px rgb(105 61 39 / 21%),
-    0 20px 35px -23px rgb(85 43 27 / 42%);
   transform-origin: center;
+  /* A die-cut perforation down the left stub: small round punches, evenly spaced. */
+  mask:
+    radial-gradient(circle at 50% 50%, transparent 0.15rem, #000 calc(0.15rem + 0.6px)) 0 0 / var(--perf) 0.92rem
+      no-repeat round,
+    linear-gradient(#000 0 0) var(--perf) 0 / calc(100% - var(--perf)) 100% no-repeat;
+}
+/* The tear rule beside the punches, printed in the card's ink. */
+.paper::after {
+  position: absolute;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  left: var(--perf);
+  border-left: 1px dashed rgb(145 59 46 / 22%);
+  content: '';
+  pointer-events: none;
 }
 .paper::before,
 .ticketFace::before {
@@ -193,9 +245,9 @@
   inset: 0;
   border-radius: inherit;
   background-image: var(--grain);
-  background-size: 115px;
+  background-size: 200px;
   content: '';
-  opacity: 0.48;
+  opacity: 0.26;
   pointer-events: none;
 }
 .paperHeading {
@@ -289,30 +341,146 @@
 }
 .imprint {
   position: absolute;
-  inset: 2%;
+  inset: 1%;
   opacity: 0;
-  rotate: -7deg;
+  rotate: var(--tilt, -4deg);
+  translate: var(--nudge, 0 0);
+  mix-blend-mode: multiply;
   pointer-events: none;
+  /* Ink on card stock: fibre pits plus uneven hand pressure (one side lighter), varied per slot. */
+  mask:
+    var(--ink-tooth) var(--tooth, 0 0) / 7.5rem,
+    linear-gradient(var(--press, 135deg), rgb(0 0 0 / var(--light, 62%)) 8%, #000 58%);
+  mask-composite: intersect;
 }
-.slot:nth-child(even) .imprint {
-  rotate: 6deg;
+.imprint svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* Hand-stamped placement: each slot lands a little off-square, never the same twice. */
+.slot:nth-child(1) .imprint {
+  --tilt: -8deg;
+  --nudge: -1.5% 1%;
+  --tooth: 0 0;
+  --press: 140deg;
+  --light: 58%;
+}
+.slot:nth-child(2) .imprint {
+  --tilt: 5deg;
+  --nudge: 1% -1.5%;
+  --tooth: 31px 17px;
+  --press: 250deg;
+  --light: 70%;
+}
+.slot:nth-child(3) .imprint {
+  --tilt: -3deg;
+  --nudge: 0.5% 1.5%;
+  --tooth: 63px 41px;
+  --press: 30deg;
+  --light: 55%;
+}
+.slot:nth-child(4) .imprint {
+  --tilt: 9deg;
+  --nudge: -1% 0;
+  --tooth: 12px 77px;
+  --press: 310deg;
+  --light: 74%;
+}
+.slot:nth-child(5) .imprint {
+  --tilt: -6deg;
+  --nudge: 1.5% -0.5%;
+  --tooth: 88px 9px;
+  --press: 200deg;
+  --light: 60%;
+}
+.slot:nth-child(6) .imprint {
+  --tilt: 2deg;
+  --nudge: -0.5% -1.5%;
+  --tooth: 45px 95px;
+  --press: 95deg;
+  --light: 66%;
+}
+.slot:nth-child(7) .imprint {
+  --tilt: 7deg;
+  --nudge: 1% 1%;
+  --tooth: 101px 55px;
+  --press: 170deg;
+  --light: 56%;
+}
+.slot:nth-child(8) .imprint {
+  --tilt: -10deg;
+  --nudge: -1% -0.5%;
+  --tooth: 23px 36px;
+  --press: 275deg;
+  --light: 68%;
 }
 .slot[data-filled='true'] .imprint {
-  opacity: 0.94;
+  opacity: 1;
 }
+/*
+ * The press: ink lands all at once (opacity steps up immediately), the impression is revealed
+ * through an uneven contact patch that spreads 2–3% past the rubber, then settles.
+ */
 .slot[data-struck='true'] .imprint {
-  animation: ink-spread 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: ink-press 0.4s cubic-bezier(0.2, 0.75, 0.3, 1) both;
 }
-@keyframes ink-spread {
-  from {
-    clip-path: circle(8%);
-    opacity: 0.42;
-    scale: 0.92;
+@keyframes ink-press {
+  0% {
+    opacity: 0;
+    scale: 1.035;
+    clip-path: polygon(
+      50% 17%,
+      66% 21%,
+      79% 33%,
+      84% 49%,
+      80% 65%,
+      68% 79%,
+      51% 84%,
+      34% 80%,
+      21% 68%,
+      16% 51%,
+      20% 34%,
+      33% 21%
+    );
   }
-  to {
-    clip-path: circle(72%);
-    opacity: 0.94;
+  12% {
+    opacity: 1;
+  }
+  55% {
+    scale: 1.012;
+    clip-path: polygon(
+      50% -4%,
+      79% 2%,
+      101% 21%,
+      106% 49%,
+      99% 79%,
+      79% 98%,
+      51% 105%,
+      21% 99%,
+      1% 79%,
+      -5% 51%,
+      1% 21%,
+      22% 1%
+    );
+  }
+  100% {
+    opacity: 1;
     scale: 1;
+    clip-path: polygon(
+      50% -30%,
+      95% -20%,
+      125% 10%,
+      132% 50%,
+      124% 92%,
+      92% 122%,
+      50% 132%,
+      8% 122%,
+      -24% 92%,
+      -32% 50%,
+      -24% 10%,
+      6% -22%
+    );
   }
 }
 .flyingStamp {
@@ -330,12 +498,22 @@
 }
 .flightShadow {
   position: absolute;
-  inset: auto 15% 0.04rem;
-  height: 0.45rem;
+  inset: auto 12% -0.05rem;
+  height: 0.5rem;
   border-radius: 50%;
   background: #46251a;
-  opacity: 0.22;
-  filter: blur(4px);
+  opacity: 0.18;
+  filter: blur(5px);
+}
+/* Sharp contact shadow: invisible in the air, darkest the instant the rubber meets the paper. */
+.flightShadowCore {
+  position: absolute;
+  inset: auto 19% 0.02rem;
+  height: 0.2rem;
+  border-radius: 50%;
+  background: #2e170f;
+  opacity: 0;
+  filter: blur(1px);
 }
 .textButton:focus-visible {
   outline: 2px solid var(--ink);
@@ -499,9 +677,41 @@
   margin-left: 1.1rem;
 }
 .ticketSlot {
+  position: relative;
   overflow: hidden;
   margin-top: -0.6rem;
   padding: 0 0.55rem 0.6rem;
+}
+/* The tear: a perforation runs along the card's bottom edge, then the ticket drops away below it. */
+.ticketSlot::before {
+  position: absolute;
+  z-index: 1;
+  top: calc(0.6rem - 1px);
+  left: 0.55rem;
+  right: 0.55rem;
+  height: 0.32rem;
+  background: radial-gradient(circle, rgb(145 59 46 / 55%) 0.09rem, transparent calc(0.09rem + 0.6px)) 0 50% /
+    0.78rem 100% round no-repeat;
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+}
+.ticketSlot[aria-busy='true']::before {
+  animation: perforation-run 0.6s cubic-bezier(0.25, 0.7, 0.3, 1) both;
+}
+@keyframes perforation-run {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 100% 0 0);
+  }
+  55% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    opacity: 0;
+    clip-path: inset(0 0 0 0);
+  }
 }
 .ticketAssembly {
   padding-top: 0.65rem;
@@ -519,6 +729,19 @@
 }
 .ticketScene[data-unlocking='true'] .ticketCard {
   transition: none;
+  transform-origin: 100% 0;
+  /* Torn off the card: the free corner swings level as the ticket drops away (GSAP slides it down). */
+  animation: ticket-tear 0.58s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes ticket-tear {
+  from {
+    rotate: -1.8deg;
+    translate: 0 -0.3rem;
+  }
+  to {
+    rotate: 0deg;
+    translate: 0 0;
+  }
 }
 .ticketFace {
   position: relative;
@@ -531,9 +754,15 @@
   min-height: 10rem;
   padding: clamp(0.85rem, 2vw, 1.4rem);
   border: 1px dashed var(--ink);
-  border-radius: 0.3rem;
+  border-top: 0;
+  border-radius: 0 0 0.3rem 0.3rem;
   background: #f8e5ce;
   backface-visibility: hidden;
+  /* Perforated top edge: the half-punches left behind where the ticket tore from the card. */
+  mask:
+    radial-gradient(circle at 50% 0, transparent 0.16rem, #000 calc(0.16rem + 0.6px)) 0 0 / 0.78rem 0.45rem round
+      no-repeat,
+    linear-gradient(#000 0 0) 0 0.45rem / 100% calc(100% - 0.45rem) no-repeat;
 }
 .ticketBack {
   transform: rotateY(180deg);
@@ -663,9 +892,14 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .slot[data-struck='true'] .imprint,
+  .ticketScene[data-unlocking='true'] .ticketCard,
+  .ticketSlot[aria-busy='true']::before,
   .plus,
   .counterTick {
     animation: none;
+  }
+  .stepsStroke path {
+    stroke-dashoffset: 0;
   }
   .progress > span,
   .restingStamp,

@@ -3,7 +3,8 @@
 import { useEffect, useId, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { buttonClass } from '@/components/ui/Button';
 import { LOYALTY } from '@/data/loyalty';
-import { CoffeeMark, Imprint, RubberStamp } from './StampArtwork';
+import { InkStamp } from '@/components/brand/InkStamp';
+import { CoffeeMark, RubberStamp } from './StampArtwork';
 import { RewardTicket } from './RewardTicket';
 import {
   canCancel,
@@ -109,72 +110,74 @@ export function StampRitual() {
   return (
     <div ref={stage} className={styles.experience}>
       <div className={styles.cardColumn}>
-        <div ref={paper} className={styles.paper} data-ritual-card>
-          <div className={styles.paperHeading}>
-            <div>
-              <p className={styles.wordmark}>Lumi Lane</p>
-              <h2>Coffee Club</h2>
-            </div>
-            {showTicket ? (
-              <div ref={seal} className={styles.seal}>
-                Reward
-                <br />
-                unlocked
+        <div className={styles.cardStock}>
+          <div ref={paper} className={styles.paper} data-ritual-card>
+            <div className={styles.paperHeading}>
+              <div>
+                <p className={styles.wordmark}>Lumi Lane</p>
+                <h2>Coffee Club</h2>
               </div>
-            ) : (
-              <div className={styles.cardEdition} aria-hidden="true">
-                <CoffeeMark />
-                Demo card
-              </div>
-            )}
-          </div>
-
-          <ol className={styles.ledger} aria-label="Eight demo stamp positions">
-            {slots.map((index) => {
-              const filled = index < state.stamps;
-              const active = stamping && index === activeSlot;
-              return (
-                <li
-                  key={index}
-                  data-stamp-slot
-                  data-filled={filled}
-                  data-active={active}
-                  data-struck={showFreshInk && index === state.stamps - 1}
-                  className={styles.slot}
-                >
-                  <span className="sr-only">
-                    Stamp {index + 1}, {filled ? 'filled' : active ? 'in progress' : 'empty'}
-                  </span>
-                  <span className={styles.position} aria-hidden="true">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span className={styles.imprint} aria-hidden="true">
-                    <Imprint />
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
-
-          <div className={styles.cardBottom}>
-            <div className={styles.progressLine}>
-              <p>
-                <strong key={visibleStamps} className={stampConfirmed ? styles.counterTick : undefined}>
-                  {visibleStamps}
-                </strong>
-                <span> / {STAMP_TARGET} stamps</span>
-              </p>
-              <p>{remaining ? `${remaining} ${remaining === 1 ? 'stamp' : 'stamps'} to go` : 'Card complete'}</p>
+              {showTicket ? (
+                <div ref={seal} className={styles.seal}>
+                  Reward
+                  <br />
+                  unlocked
+                </div>
+              ) : (
+                <div className={styles.cardEdition} aria-hidden="true">
+                  <CoffeeMark />
+                  Demo card
+                </div>
+              )}
             </div>
-            <div
-              className={styles.progress}
-              role="progressbar"
-              aria-label="Demo stamp progress"
-              aria-valuemin={0}
-              aria-valuemax={STAMP_TARGET}
-              aria-valuenow={visibleStamps}
-            >
-              <span style={{ width: `${(visibleStamps / STAMP_TARGET) * 100}%` }} />
+
+            <ol className={styles.ledger} aria-label="Eight demo stamp positions">
+              {slots.map((index) => {
+                const filled = index < state.stamps;
+                const active = stamping && index === activeSlot;
+                return (
+                  <li
+                    key={index}
+                    data-stamp-slot
+                    data-filled={filled}
+                    data-active={active}
+                    data-struck={showFreshInk && index === state.stamps - 1}
+                    className={styles.slot}
+                  >
+                    <span className="sr-only">
+                      Stamp {index + 1}, {filled ? 'filled' : active ? 'in progress' : 'empty'}
+                    </span>
+                    <span className={styles.position} aria-hidden="true">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span className={styles.imprint} aria-hidden="true">
+                      <InkStamp id={`${id}-ink-${index}`} seed={index + 1} />
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+
+            <div className={styles.cardBottom}>
+              <div className={styles.progressLine}>
+                <p>
+                  <strong key={visibleStamps} className={stampConfirmed ? styles.counterTick : undefined}>
+                    {visibleStamps}
+                  </strong>
+                  <span> / {STAMP_TARGET} stamps</span>
+                </p>
+                <p>{remaining ? `${remaining} ${remaining === 1 ? 'stamp' : 'stamps'} to go` : 'Card complete'}</p>
+              </div>
+              <div
+                className={styles.progress}
+                role="progressbar"
+                aria-label="Demo stamp progress"
+                aria-valuemin={0}
+                aria-valuemax={STAMP_TARGET}
+                aria-valuenow={visibleStamps}
+              >
+                <span style={{ width: `${(visibleStamps / STAMP_TARGET) * 100}%` }} />
+              </div>
             </div>
           </div>
         </div>
@@ -296,6 +299,7 @@ export function StampRitual() {
       {stamping && (
         <div ref={flyingStamp} className={styles.flyingStamp} aria-hidden="true" data-stamp-flight>
           <span className={styles.flightShadow} data-stamp-shadow />
+          <span className={styles.flightShadowCore} data-stamp-shadow-core />
           <RubberStamp id={`${id}-flight`} />
         </div>
       )}

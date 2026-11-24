@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function BookPage() {
   return (
     <PageShell>
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-6xl">
         <BookingForm />
       </div>
     </PageShell>

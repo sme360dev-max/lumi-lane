@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { CartDrawer } from '@/features/cart/CartDrawer';
 
 const accountLink =
-  'inline-flex min-h-6 items-center justify-end rounded-sm px-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cocoa transition-colors hover:text-ember focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-shell sm:min-h-11 sm:tracking-[0.2em]';
+  'inline-flex min-h-6 items-center justify-end rounded-sm px-1 font-sans text-[13px] font-normal leading-none tracking-[0.02em] text-cocoa transition-colors duration-200 hover:text-ember focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-shell sm:min-h-11';
+const signUpLink = `${accountLink} underline decoration-ember decoration-[1.5px] underline-offset-[5px]`;
 
 export function SiteHeader() {
   return (
@@ -17,12 +18,12 @@ export function SiteHeader() {
       <CartDrawer />
       <nav
         aria-label="Account"
-        className="absolute right-4 top-3 flex flex-col items-end sm:top-4 sm:flex-row sm:gap-3 lg:right-9"
+        className="absolute right-4 top-3 flex flex-col items-end gap-0.5 sm:top-4 sm:flex-row sm:items-center sm:gap-4 lg:right-9"
       >
         <Link href="/login/" className={accountLink}>
           Login
         </Link>
-        <Link href="/signup/" className={accountLink}>
+        <Link href="/signup/" className={signUpLink}>
           Sign Up
         </Link>
       </nav>

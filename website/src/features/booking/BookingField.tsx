@@ -1,7 +1,8 @@
 import type { ChangeEvent, InputHTMLAttributes } from 'react';
 
+// Bordered box on slightly lighter paper. State changes are instant (no colour animation).
 const control =
-  'mt-3 w-full appearance-none border-b bg-transparent pb-3 font-sans text-cocoa placeholder:text-cocoa/35 transition-colors duration-200 focus:border-ember focus:outline-none disabled:opacity-60';
+  'mt-2 block min-h-[48px] w-full appearance-none rounded-[5px] border bg-[#fffaf2] px-4 font-sans text-[16px] text-cocoa placeholder:text-cocoa/40 focus:border-ember focus:outline-none focus:ring-1 focus:ring-ember disabled:opacity-60';
 
 interface FieldProps {
   id: string;
@@ -16,7 +17,7 @@ interface FieldProps {
   placeholder?: string;
 }
 
-/** Underlined text field from the original form, with an accessible label and error message. */
+/** Bordered text field with a visible label above and an error message tied to it by aria-describedby. */
 export function BookingField({
   id,
   label,
@@ -40,21 +41,22 @@ export function BookingField({
     'aria-describedby': error ? errorId : undefined,
     onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value),
   };
-  const border = error ? 'border-ember' : 'border-cocoa/20';
+  const border = error ? 'border-ember' : 'border-cocoa/40 hover:border-cocoa/60';
 
   return (
     <div className={className}>
-      <label htmlFor={id} className="text-[10px] font-semibold uppercase tracking-[0.26em] text-cocoa/60">
+      <label htmlFor={id} className="block font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-cocoa/70">
         {label}
-        {optional && <span className="tracking-normal text-cocoa/40"> (optional)</span>}
+        {optional && <span className="font-normal normal-case tracking-normal text-cocoa/50"> (optional)</span>}
       </label>
       {multiline ? (
-        <textarea {...shared} rows={3} className={`${control} ${border} resize-none text-[16px] leading-relaxed`} />
+        <textarea {...shared} rows={4} className={`${control} ${border} min-h-[7.5rem] resize-y py-3 leading-relaxed`} />
       ) : (
-        <input {...shared} {...inputProps} className={`${control} ${border} text-[17px]`} />
+        <input {...shared} {...inputProps} className={`${control} ${border} py-3`} />
       )}
       {error && (
-        <p id={errorId} className="mt-2 text-[11px] text-ember">
+        <p id={errorId} className="mt-2 flex items-start gap-2 font-sans text-[13px] leading-snug text-[#a3402f]">
+          <span aria-hidden="true" className="mt-[0.42em] h-[5px] w-[5px] shrink-0 rotate-45 bg-ember" />
           {error}
         </p>
       )}

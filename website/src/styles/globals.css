@@ -4,6 +4,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Space the floating bottom nav needs: pill offset + height + breathing room + iOS home indicator. */
+:root {
+  --nav-clearance: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+}
+html {
+  /* Keyboard focus and in-page anchors never land under the fixed header or the floating nav. */
+  scroll-padding-top: 5.5rem;
+  scroll-padding-bottom: var(--nav-clearance);
+}
+
+/* ---- hand-drawn terracotta stroke (see components/brand/HandStroke) ---- */
+.hand-stroke {
+  display: block;
+  overflow: visible;
+}
+.hand-stroke path {
+  stroke-dasharray: 1 1.01;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 760ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hand-stroke[data-drawn='true'] path {
+  stroke-dashoffset: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hand-stroke path {
+    transition: none;
+  }
+}
+
 /* ---- site styles carried over from the prototype <style> block ---- */
 @keyframes pageFade {
   from {

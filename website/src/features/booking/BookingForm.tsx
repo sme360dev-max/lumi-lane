@@ -5,7 +5,10 @@ import { BUSINESS } from '@/data/business';
 import { BOOK } from '@/data/content';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ButtonLink, buttonClass } from '@/components/ui/Button';
+import { InkStamp } from '@/components/brand/InkStamp';
 import { BookingField } from './BookingField';
+import { ReservationSlip, SlipPaper, SlipRow } from './ReservationSlip';
+import slipStyles from './Booking.module.css';
 import {
   EMPTY_BOOKING,
   FIELD_ORDER,
@@ -126,17 +129,22 @@ export function BookingForm() {
         <p role="status" className="mx-auto mt-8 max-w-[44ch] font-sans text-[15px] leading-relaxed text-cocoa/70">
           Your request has been sent to Lumi Lane. The team will contact you to confirm your table.
         </p>
-        <dl className="mx-auto mt-12 max-w-md border-t border-cocoa/10 text-left">
-          {rows.map(([k, v]) => (
-            <div key={k} className="flex items-baseline justify-between gap-6 border-b border-cocoa/10 py-4">
-              <dt className="shrink-0 text-[10px] uppercase tracking-[0.24em] text-cocoa/55">{k}</dt>
-              <dd className="break-words text-right font-sans text-[15px] font-medium text-cocoa [overflow-wrap:anywhere]">
-                {v}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+        <div className="relative mx-auto mt-12 max-w-md text-left sm:mt-14">
+          <SlipPaper paperClassName={slipStyles.impact}>
+            <dl>
+              {rows.map(([k, v]) => (
+                <SlipRow key={k} definition label={k} value={v} />
+              ))}
+            </dl>
+          </SlipPaper>
+          <InkStamp
+            id="booking-stamp"
+            word="Requested"
+            seed={3}
+            className={`${slipStyles.stamp} pointer-events-none absolute -right-3 top-12 w-[6.5rem] text-ember min-[400px]:top-14 sm:-right-12 sm:w-[8.5rem]`}
+          />
+        </div>
+        <div className="mx-auto mt-12 flex max-w-xs flex-col gap-3 text-center sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4">
           <a href={BUSINESS.phone.href} className={buttonClass({ size: 'sm' })}>
             Call {BUSINESS.phone.display}
           </a>
@@ -147,7 +155,7 @@ export function BookingForm() {
             Start over
           </button>
         </div>
-        <p className="mt-10">
+        <p className="mx-auto mt-6 flex max-w-xs flex-col text-center sm:mt-10 sm:block sm:max-w-none">
           <ButtonLink href="/menu/" size="sm" variant="outline">
             See the menu
           </ButtonLink>
@@ -163,12 +171,17 @@ export function BookingForm() {
         <p className="mx-auto mt-3 max-w-[44ch] font-sans text-[13px] leading-relaxed text-cocoa/60">{BOOK.subIntro}</p>
       </PageHeader>
 
-      <form noValidate onSubmit={onSubmit} aria-label="Table request" className="mt-16 border-t border-cocoa/10 pt-14">
-        <div className="grid gap-x-12 gap-y-10 sm:grid-cols-2">
+      <form
+        noValidate
+        onSubmit={onSubmit}
+        aria-label="Table request"
+        className="mt-14 border-t border-cocoa/10 pt-12 sm:mt-16 sm:pt-14 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-14 xl:grid-cols-[minmax(0,1fr)_24rem] xl:gap-x-20"
+      >
+        <div className="grid gap-x-5 gap-y-7 sm:grid-cols-6 lg:col-start-1 lg:row-start-1">
           <BookingField
             id="book-name"
             label="Name"
-            className="sm:col-span-2"
+            className="sm:col-span-6"
             value={values.name}
             error={errors.name}
             onChange={set('name')}
@@ -178,6 +191,7 @@ export function BookingForm() {
           <BookingField
             id="book-email"
             label="Email"
+            className="sm:col-span-3"
             value={values.email}
             error={errors.email}
             onChange={set('email')}
@@ -187,6 +201,7 @@ export function BookingForm() {
           <BookingField
             id="book-phone"
             label="Phone"
+            className="sm:col-span-3"
             value={values.phone}
             error={errors.phone}
             onChange={set('phone')}
@@ -196,6 +211,7 @@ export function BookingForm() {
           <BookingField
             id="book-guests"
             label="Guests"
+            className="sm:col-span-2"
             value={values.guests}
             error={errors.guests}
             onChange={set('guests')}
@@ -205,6 +221,7 @@ export function BookingForm() {
           <BookingField
             id="book-date"
             label="Date"
+            className="sm:col-span-2"
             value={values.date}
             error={errors.date}
             onChange={set('date')}
@@ -214,7 +231,7 @@ export function BookingForm() {
           <BookingField
             id="book-time"
             label="Time"
-            className="sm:col-span-2 sm:max-w-[calc(50%-1.5rem)]"
+            className="sm:col-span-2"
             value={values.time}
             error={errors.time}
             onChange={set('time')}
@@ -226,14 +243,19 @@ export function BookingForm() {
             label="Special Requests"
             optional
             multiline
-            className="sm:col-span-2"
+            className="sm:col-span-6"
             value={values.notes}
             onChange={set('notes')}
             placeholder="Dietary requirements, allergies, high chair, accessibility, a birthday"
           />
         </div>
 
-        <div className="mt-16 text-center">
+        <ReservationSlip
+          values={values}
+          className="mx-auto mt-12 max-w-md lg:sticky lg:top-28 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:mx-0 lg:mt-0 lg:max-w-none"
+        />
+
+        <div className="mt-12 border-t border-cocoa/10 pt-8 lg:col-start-1 lg:row-start-2 lg:mt-10 lg:border-t-0 lg:pt-0">
           <button
             type="submit"
             disabled={submitting}
@@ -241,8 +263,8 @@ export function BookingForm() {
           >
             {submitting ? 'Sending…' : BOOK.submitLabel}
           </button>
-          {requestError && <p role="alert" className="mx-auto mt-5 max-w-[46ch] text-sm text-red-700">{requestError}</p>}
-          <p className="mx-auto mt-6 max-w-[46ch] font-sans text-[12px] italic text-cocoa/60">
+          {requestError && <p role="alert" className="mt-5 max-w-[52ch] text-sm text-red-700">{requestError}</p>}
+          <p className="mt-5 max-w-[52ch] font-sans text-[12.5px] italic leading-relaxed text-cocoa/65">
             Sending a request does not confirm the reservation. The team will contact you; for urgent bookings, call us on{' '}
             <a
               href={BUSINESS.phone.href}

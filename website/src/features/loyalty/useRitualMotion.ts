@@ -50,6 +50,7 @@ export function useRitualMotion(
       const contactY = target.top + target.height / 2 - frame.top - width * 0.97;
       const hoverY = contactY - 24;
       const shadow = art.querySelector('[data-stamp-shadow]');
+      const shadowCore = art.querySelector('[data-stamp-shadow-core]');
 
       if (target.top < 88 || target.bottom > window.innerHeight - 98) {
         slot.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -74,10 +75,18 @@ export function useRitualMotion(
         .to(art, { y: startY, rotate: 10, duration: 0.22, ease: 'sine.out' });
 
       if (shadow) {
+        // Visual only: a soft outer blur that widens as the rubber nears the paper, plus a sharp core
+        // that only darkens at contact. Same positions/durations as before; nothing here dispatches.
         timeline
-          .to(shadow, { opacity: 0.12, scaleX: 0.75, duration: 0.22 }, 'lift')
-          .to(shadow, { opacity: 0.42, scaleX: 1.08, duration: 0.11 }, 'contact-=0.075')
-          .to(shadow, { opacity: 0.16, scaleX: 0.8, duration: 0.19 }, 'contact+=0.09');
+          .to(shadow, { opacity: 0.1, scaleX: 0.72, duration: 0.22 }, 'lift')
+          .to(shadow, { opacity: 0.26, scaleX: 1.2, duration: 0.11 }, 'contact-=0.075')
+          .to(shadow, { opacity: 0.14, scaleX: 0.8, duration: 0.19 }, 'contact+=0.09');
+        if (shadowCore) {
+          timeline
+            .to(shadowCore, { opacity: 0.05, scaleX: 0.55, duration: 0.22 }, 'lift')
+            .to(shadowCore, { opacity: 0.62, scaleX: 1, duration: 0.11 }, 'contact-=0.075')
+            .to(shadowCore, { opacity: 0.06, scaleX: 0.6, duration: 0.19 }, 'contact+=0.09');
+        }
       }
     });
     return () => stage.revert();

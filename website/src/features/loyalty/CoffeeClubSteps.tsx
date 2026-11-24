@@ -1,14 +1,15 @@
 'use client';
 
 import { gsap } from 'gsap';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { HandStroke } from '@/components/brand/HandStroke';
 import { LOYALTY } from '@/data/loyalty';
-import { CoffeeMark, Imprint } from './StampArtwork';
+import { CoffeeMark, StampCardMark } from './StampArtwork';
 import styles from './StampRitual.module.css';
 
 const icons = {
   coffee: <CoffeeMark />,
-  stamp: <Imprint />,
+  stamp: <StampCardMark />,
   reward: (
     <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
       <path
@@ -30,7 +31,29 @@ const icons = {
 
 export function CoffeeClubSteps() {
   const sheet = useRef<HTMLOListElement>(null);
+  const [inView, setInView] = useState(false);
 
+  // Draw the connector once, the first time the sheet scrolls into view.
+  useEffect(() => {
+    const list = sheet.current;
+    if (!list) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      const draw = window.setTimeout(() => setInView(true), 0);
+      return () => window.clearTimeout(draw);
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        observer.disconnect();
+        setInView(true);
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, []);
+
+  // A quiet settle for the copy only, so the marks stay pinned to the stroke while it draws.
   useEffect(() => {
     const list = sheet.current;
     if (!list || !('IntersectionObserver' in window)) return;
@@ -42,12 +65,12 @@ export function CoffeeClubSteps() {
           if (!entry?.isIntersecting) return;
           observer.disconnect();
           context.add(() => {
-            gsap.from(list.querySelectorAll('[data-club-step-content]'), {
-              y: 8,
-              opacity: 0.62,
-              duration: 0.46,
+            gsap.from(list.querySelectorAll('[data-club-step-copy]'), {
+              y: 5,
+              opacity: 0.7,
+              duration: 0.42,
               ease: 'power2.out',
-              stagger: 0.09,
+              stagger: 0.12,
               clearProps: 'transform,opacity',
             });
           });
@@ -66,22 +89,34 @@ export function CoffeeClubSteps() {
         <h2 id="club-steps-title">How Coffee Club Works</h2>
         <p className={styles.printLabel}>Proposed rules</p>
       </div>
-      <ol ref={sheet} className={styles.stepSheet} role="list" aria-label="Three proposed Coffee Club steps">
-        {LOYALTY.steps.map(({ icon, title, description }, index) => (
-          <li key={title} className={styles.step}>
-            <div className={styles.stepContent} data-club-step-content>
-              <div className={styles.stepMark} aria-hidden="true">
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                {icons[icon]}
+      <HandStroke
+        variant="connector"
+        drawn={inView}
+        className={`text-ember ${styles.stepsStroke} ${styles.stepsStrokeNarrow}`}
+      />
+      <div className={styles.stepFrame}>
+        <HandStroke
+          variant="connector"
+          drawn={inView}
+          className={`text-ember ${styles.stepsStroke} ${styles.stepsStrokeWide}`}
+        />
+        <ol ref={sheet} className={styles.stepSheet} role="list" aria-label="Three proposed Coffee Club steps">
+          {LOYALTY.steps.map(({ icon, title, description }, index) => (
+            <li key={title} className={styles.step}>
+              <div className={styles.stepContent}>
+                <div className={styles.stepMark} aria-hidden="true">
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  {icons[icon]}
+                </div>
+                <div data-club-step-copy>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                </div>
               </div>
-              <div>
-                <h3>{title}</h3>
-                <p>{description}</p>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ol>
+            </li>
+          ))}
+        </ol>
+      </div>
     </section>
   );
 }

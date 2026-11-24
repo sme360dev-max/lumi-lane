@@ -12,20 +12,18 @@ export function CoffeeMark({ className }: { className?: string }) {
   );
 }
 
-export function Imprint() {
+/** Line icon of a stamp card (for the "Collect stamps" step). Deliberately not the ink stamp. */
+export function StampCardMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 72 72" fill="none" aria-hidden="true">
-      <circle cx="36" cy="36" r="31" stroke="currentColor" strokeWidth="1.9" strokeDasharray="37 1 53 1.2 48 .6 52" />
-      <circle cx="36" cy="36" r="27.3" stroke="currentColor" strokeWidth=".85" strokeDasharray="1.2 1.8" />
-      <path
-        d="M25 30h18v5a9 9 0 0 1-18 0v-5Zm18 2h3a3 3 0 1 1 0 6h-4M24 47h23M32 27c-3-3 3-4 0-7m6 7c-3-3 3-4 0-7"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="m16 36 2-2 2 2-2 2-2-2Zm36 0 2-2 2 2-2 2-2-2Z" fill="currentColor" />
-      <path d="M29 53h14" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+    <svg viewBox="0 0 40 40" fill="none" aria-hidden="true" className={className}>
+      <rect x="5.5" y="10" width="29" height="20" rx="2.2" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="16.5" r="2.3" fill="currentColor" />
+      <circle cx="18.7" cy="16.5" r="2.3" fill="currentColor" />
+      <circle cx="25.4" cy="16.5" r="2.3" fill="currentColor" />
+      <circle cx="12" cy="23.5" r="2.3" stroke="currentColor" strokeWidth="1.1" />
+      <circle cx="18.7" cy="23.5" r="2.3" stroke="currentColor" strokeWidth="1.1" />
+      <circle cx="25.4" cy="23.5" r="2.3" stroke="currentColor" strokeWidth="1.1" />
+      <path d="M30.6 13.5v13" stroke="currentColor" strokeWidth="1.1" strokeDasharray="1.4 1.9" strokeLinecap="round" />
     </svg>
   );
 }

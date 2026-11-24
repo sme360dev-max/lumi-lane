@@ -3,6 +3,10 @@
 import { gsap } from 'gsap';
 import { useEffect, useRef, type ReactNode } from 'react';
 
+/**
+ * Soft rise for the Home intro block only (`[data-home-reveal]` and its `[data-home-intro-part]`s).
+ * The Explore index runs its own reveals and swaps, so nothing inside it is marked here.
+ */
 export function HomeReveals({ children }: { children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
 
@@ -18,14 +22,12 @@ export function HomeReveals({ children }: { children: ReactNode }) {
             if (!isIntersecting) continue;
             observer.unobserve(target);
             const parts = target.querySelectorAll('[data-home-intro-part]');
-            const featureIndex = Number(target.getAttribute('data-home-reveal'));
             context.add(() => {
               gsap.from(parts.length ? parts : target, {
                 y: 12,
                 opacity: 0.78,
                 duration: 0.55,
                 ease: 'power2.out',
-                delay: parts.length ? 0 : featureIndex * 0.06,
                 stagger: 0.07,
                 clearProps: 'opacity,transform',
               });

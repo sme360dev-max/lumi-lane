@@ -1,0 +1,86 @@
+/* Printed reservation slip: paper, perforated top edge, side punch notches at the tear line. */
+
+.lift {
+  /* drop-shadow follows the masked paper outline (box-shadow would be clipped by the mask). */
+  filter: drop-shadow(0 1px 0 rgba(28, 24, 20, 0.07)) drop-shadow(0 14px 18px rgba(28, 24, 20, 0.09));
+}
+
+.paper {
+  --tear: 5.75rem; /* distance of the tear line from the bottom edge */
+  position: relative;
+  background-color: #fff6e7;
+  background-image:
+    radial-gradient(rgba(28, 24, 20, 0.035) 0.6px, transparent 0.8px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 40%);
+  background-size: 5px 5px, 100% 100%;
+  -webkit-mask:
+    radial-gradient(circle 5px at 50% 0, #0000 96%, #000) top / 14px 100% repeat-x,
+    radial-gradient(circle 9px at 0 calc(100% - var(--tear)), #0000 96%, #000),
+    radial-gradient(circle 9px at 100% calc(100% - var(--tear)), #0000 96%, #000);
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle 5px at 50% 0, #0000 96%, #000) top / 14px 100% repeat-x,
+    radial-gradient(circle 9px at 0 calc(100% - var(--tear)), #0000 96%, #000),
+    radial-gradient(circle 9px at 100% calc(100% - var(--tear)), #0000 96%, #000);
+  mask-composite: intersect;
+}
+
+/* The stub under the tear line: height matches --tear so the notches sit on the dashed rule. */
+.stub {
+  height: 5.75rem;
+}
+
+/* Dot leader between a row label and its value. */
+.leader {
+  flex: 1 1 1.5rem;
+  min-width: 1.5rem;
+  height: 0.8em;
+  background-image: radial-gradient(circle, rgba(28, 24, 20, 0.38) 0.8px, transparent 1.1px);
+  background-size: 6px 3px;
+  background-repeat: repeat-x;
+  background-position: left bottom;
+}
+
+/* ---- "Requested" ink stamp landing on the completed slip ---- */
+.stamp {
+  opacity: 0.9;
+  transform: rotate(-8deg);
+  transform-origin: 50% 50%;
+  animation: stampPress 380ms cubic-bezier(0.16, 0.84, 0.3, 1) 560ms both;
+}
+
+@keyframes stampPress {
+  0% {
+    opacity: 0;
+    transform: rotate(-8deg) scale(1.25);
+  }
+  55% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0.9;
+    transform: rotate(-8deg) scale(1);
+  }
+}
+
+/* The slip gives a little under the stamp at the moment of impact. */
+.impact {
+  animation: slipCompress 240ms cubic-bezier(0.22, 1, 0.36, 1) 900ms both;
+}
+
+@keyframes slipCompress {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(2px) scale(0.997);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp,
+  .impact {
+    animation: none;
+  }
+}
