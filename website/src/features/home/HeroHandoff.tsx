@@ -97,8 +97,14 @@ export function HeroHandoff({ slotRef, revealRef, sectionRef }: HeroHandoffProps
           }
         }
 
-        // Real image comes up first, then the clone lets go, so the slot never reads half-empty.
-        reveal.style.opacity = String(clamp01((p - LAND) / (FADE * 0.6)));
+        // Strict hand-over: the clone fades out on the slot first, then the real image fades in.
+        // The two are never visible at the same time.
+        const half = FADE / 2;
+        reveal.style.opacity = String(clamp01((p - LAND - half) / half));
+        if (p >= LAND + half) {
+          clone.style.visibility = 'hidden';
+          return;
+        }
         if (!from || p >= 0.999) {
           clone.style.visibility = 'hidden';
           return;
@@ -115,7 +121,7 @@ export function HeroHandoff({ slotRef, revealRef, sectionRef }: HeroHandoffProps
         const y = lerp(from.y - window.scrollY, to.top, t);
         const scale = lerp(from.w / size, 1, t);
         clone.style.transform = `translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) scale(${scale.toFixed(4)})`;
-        clone.style.opacity = String(1 - clamp01((p - LAND - FADE * 0.4) / (FADE * 0.6)));
+        clone.style.opacity = String(1 - clamp01((p - LAND) / half));
         clone.style.visibility = 'visible';
       };
 

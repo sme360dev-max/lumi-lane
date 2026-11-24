@@ -42,7 +42,7 @@ const ROWS = [
 const CUTOUT = { widths: [480, 800, 1254], width: 1254, height: 1254 } as const;
 const PHOTO = { widths: [480, 800, 1200], width: 1360, height: 972 } as const;
 
-const SLOT_SIZES = '(min-width: 1567px) 470px, (min-width: 1024px) 30vw, 1px';
+const SLOT_SIZES = '(min-width: 1440px) 560px, (min-width: 1024px) 40vw, 1px';
 const INLINE_SIZES = '(min-width: 1024px) 34vw, (min-width: 640px) 36vw, min(calc(100vw - 92px), 384px)';
 
 const MAX_DRIFT = 60; // px from rest
@@ -179,7 +179,7 @@ export function HomeIndex() {
   return (
     <section ref={sectionRef} aria-labelledby="home-explore" className={styles.section}>
       <div className={`${styles.layout} mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-14 xl:px-20`}>
-        <div>
+        <div className={styles.listCol}>
           <div className={styles.head}>
             <h2 id="home-explore" className="text-[11px] font-semibold uppercase tracking-[0.3em] text-ember">
               Explore Lumi Lane

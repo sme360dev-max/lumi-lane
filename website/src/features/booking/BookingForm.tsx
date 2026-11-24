@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { BUSINESS } from '@/data/business';
 import { BOOK } from '@/data/content';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -34,6 +34,11 @@ export function BookingForm() {
   const [requestError, setRequestError] = useState('');
   const requestId = useRef(crypto.randomUUID());
   const summaryRef = useRef<HTMLHeadingElement>(null);
+
+  // Focus the summary heading once it has actually rendered (a rAF could fire before the commit).
+  useEffect(() => {
+    if (checked) summaryRef.current?.focus();
+  }, [checked]);
 
   const set = (field: Field) => (value: string) => {
     setValues((v) => ({ ...v, [field]: value }));
@@ -85,7 +90,6 @@ export function BookingForm() {
       setValues((v) => ({ ...v, date: formatDate(date), time: formatTime(time) }));
       setChecked(true);
       window.scrollTo({ top: 0 });
-      window.requestAnimationFrame(() => summaryRef.current?.focus());
     } catch {
       setRequestError('We could not reach the booking service. Please try again or call us.');
     } finally {

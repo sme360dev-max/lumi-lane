@@ -82,7 +82,7 @@ export function AboutView() {
           />
         </AboutReveal>
         <figcaption className="mt-7 text-center font-serif text-[17px] italic text-cocoa/70 sm:text-lg">
-          {ABOUT.facts[0]?.text}
+          Lumi Lane on Fosters Rd, Lightsview.
         </figcaption>
       </figure>
 

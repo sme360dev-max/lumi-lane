@@ -245,9 +245,9 @@
   inset: 0;
   border-radius: inherit;
   background-image: var(--grain);
-  background-size: 200px;
+  background-size: 120px; /* finer tooth */
   content: '';
-  opacity: 0.26;
+  opacity: 0.13; /* noticeable only up close */
   pointer-events: none;
 }
 .paperHeading {

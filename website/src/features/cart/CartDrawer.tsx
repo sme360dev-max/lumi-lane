@@ -64,7 +64,7 @@ export function CartDrawer() {
         aria-label={`Shopping bag, ${itemCount}`}
         aria-haspopup="dialog"
         aria-controls="shopping-bag"
-        className={`absolute left-4 top-4 inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full text-cocoa transition-colors hover:text-ember lg:left-8 ${focus}`}
+        className={`absolute left-4 top-4 inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full text-cocoa transition-colors hover:text-ember group-data-[tone=dark]:text-cream group-data-[tone=dark]:hover:text-ember lg:left-8 ${focus}`}
         onClick={open}
       >
         <svg

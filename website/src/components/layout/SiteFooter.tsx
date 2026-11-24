@@ -17,7 +17,7 @@ const DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${encode
 /** The back cover of the menu: ink stamp, tagline, then the house details set like menu lines. */
 export function SiteFooter() {
   return (
-    <footer className="bg-olive px-6 pb-[var(--nav-clearance)] pt-20 text-cream sm:pt-24 lg:px-10">
+    <footer data-site-footer className="bg-olive px-6 pb-[var(--nav-clearance)] pt-20 text-cream sm:pt-24 lg:px-10">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col items-center text-center">
           <InkStamp id="footer-stamp" seed={5} className="h-24 w-24 text-cream/80 sm:h-28 sm:w-28" />

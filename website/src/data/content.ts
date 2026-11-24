@@ -64,7 +64,7 @@ export const ABOUT = {
   quote: '\u201cModern Australian, seasoned Middle Eastern, open from seven.\u201d',
   facts: [
     { term: 'Since', title: 'Lightsview, SA', text: 'A neighbourhood room on Fosters Rd.' },
-    { term: 'Kitchen', title: 'All-day brunch', text: 'Seven till four, every day of the week.' },
+    { term: 'Kitchen', title: 'All-day brunch', text: 'Seven till four; eight on Sundays.' },
     { term: 'Bar', title: 'SA wine & cocktails', text: 'Adelaide Hills, Barossa, McLaren Vale.' },
   ],
   ctaLabel: 'See the menu',

@@ -169,12 +169,17 @@
     padding-block: 6.5rem 8.5rem;
   }
 
+  /* Rows ~58% / image ~42%, filling the container. */
   .layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--slot);
-    column-gap: clamp(2.5rem, 4.5vw, 5.5rem);
-    align-items: center;
-    --slot: clamp(300px, 30vw, 470px);
+    width: 100%; /* a flex item with auto margins would otherwise shrink to its (contained) content */
+    grid-template-columns: minmax(0, 58fr) minmax(0, 42fr);
+    column-gap: clamp(2rem, 3.5vw, 4.5rem);
+    align-items: start;
+  }
+
+  .listCol {
+    container-type: inline-size;
   }
 
   .link {
@@ -187,15 +192,16 @@
     padding-top: 1.1rem;
   }
 
+  /* Brief size, capped so the longest title ("Book a Table") always fits its 58% column. */
   .title {
-    font-size: clamp(3rem, 8vw, 9rem);
+    font-size: min(clamp(3rem, 8vw, 9rem), calc(17cqi - 10px));
     line-height: 0.92;
     white-space: nowrap;
   }
 
-  /* Non-active rows dim a touch; the active row prints at full ink. */
+  /* Non-active rows dim, but stay above 3:1 as large text on the cream paper. */
   .row[data-active='false'] .title {
-    color: rgb(28 24 20 / 0.45);
+    color: rgb(28 24 20 / 0.58);
   }
 
   .desc {
@@ -206,8 +212,19 @@
     display: none;
   }
 
+  /* Sticky, vertically centred in the space between the header and the floating nav. */
   .slotCol {
-    display: block;
+    position: sticky;
+    top: 5.5rem;
+    display: flex;
+    height: calc(100svh - 5.5rem - 7.5rem);
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Square slot sized to the column and to the viewport height, with room for the 60px drift. */
+  .slotCol .slot {
+    width: min(calc(100% - 1rem), calc(100svh - 13rem - 120px));
   }
 }
 
