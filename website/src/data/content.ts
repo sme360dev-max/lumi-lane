@@ -49,26 +49,44 @@ export const MEGA = {
 };
 
 export const ABOUT = {
-  eyebrow: 'Our Story',
-  title: 'A coffee house with a long table.',
-  columns: [
-    [
-      'Lumi Lane is a modern Australian coffee house and bar in Lightsview, built around long brunches, good coffee and the kind of table you don\u2019t rush to leave.',
-      'The kitchen cooks Australian brunch with a Middle Eastern accent: labneh under poached eggs, za\u2019atar on smashed avocado, beetroot hummus beside falafel, pomegranate over crisp cauliflower. Familiar plates, seasoned the way we grew up eating.',
-    ],
-    [
-      'Coffee is the constant. Espresso from open, long blacks through the morning, matcha and iced everything when Adelaide turns warm.',
-      'By afternoon the room shifts. South Australian wine by the glass, a short cocktail list, and small plates that carry the day into evening.',
-    ],
+  /** Set in small letter-spaced caps; written in sentence case for screen readers. */
+  eyebrow: 'Lumi Lane · Lightsview, SA',
+  /** The headline, one entry per line; read as one sentence with a space between the lines. */
+  title: ['A coffee house', 'with a long table.'],
+  intro:
+    'Lumi Lane is a modern Australian coffee house and bar in Lightsview, built around long brunches, good coffee and the kind of table you don’t rush to leave.',
+  storefrontCaption: 'Lumi Lane on Fosters Rd, Lightsview.',
+  /** Cut-out dish beside the shopfront photo. */
+  pairDish: { image: 'choco', alt: 'Hot chocolate topped with marshmallows, seen from above' },
+  dayTitle: 'From seven till four',
+  daySubline: 'By afternoon the room shifts.',
+  /** Coffee, kitchen, bar: each caption is two lines lifted from the copy above. */
+  day: [
+    {
+      label: 'Coffee',
+      image: 'coffee',
+      alt: 'Latte with leaf art, seen from above',
+      lines: ['Espresso from open,', 'long blacks through the morning.'],
+    },
+    {
+      label: 'Kitchen',
+      image: 'food',
+      alt: 'Scrambled eggs on sourdough with roasted tomatoes, seen from above',
+      lines: ['All-day brunch,', 'seven till four; eight on Sundays.'],
+    },
+    {
+      label: 'Bar',
+      image: 'mezze',
+      alt: 'Mezze board with hummus, beetroot dip, olives and pita',
+      lines: ['South Australian wine by the glass,', 'a short cocktail list and small plates.'],
+    },
   ],
-  quote: '\u201cModern Australian, seasoned Middle Eastern, open from seven.\u201d',
-  facts: [
-    { term: 'Since', title: 'Lightsview, SA', text: 'A neighbourhood room on Fosters Rd.' },
-    { term: 'Kitchen', title: 'All-day brunch', text: 'Seven till four; eight on Sundays.' },
-    { term: 'Bar', title: 'SA wine & cocktails', text: 'Adelaide Hills, Barossa, McLaren Vale.' },
-  ],
+  /** Closing statement; the second line is set in italic ember. */
+  closing: ['Modern Australian,', 'seasoned Middle Eastern.'],
+  kitchen:
+    'The kitchen cooks Australian brunch with a Middle Eastern accent: labneh under poached eggs, za’atar on smashed avocado, beetroot hummus beside falafel, pomegranate over crisp cauliflower. Familiar plates, seasoned the way we grew up eating.',
   ctaLabel: 'See the menu',
-};
+} as const;
 
 export const VISIT = {
   eyebrow: 'Visit Us',

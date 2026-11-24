@@ -1,43 +1,67 @@
 import { STAMP_TARGET } from '@/features/loyalty/ritualState';
 
+/**
+ * Copy for the proposed Lumi Lane Coffee Club page. The programme is not running yet: everything
+ * here describes a proposal and a browser-only demo. Terms, rewards and redemption are unconfirmed.
+ */
 export const LOYALTY = {
-  tagline: 'Every coffee brings something good.',
-  intro: `Collect ${STAMP_TARGET} stamps to unlock one standard coffee in our proposed loyalty program.`,
-  notice: 'This is a demo only. The café is still considering the program and its redemption terms.',
-  demoAction: 'Try a Demo Purchase',
-  demoGuide: 'The demo simulates an eligible coffee purchase and adds one stamp automatically.',
-  rewardNotice: 'Demo reward — not valid for redemption',
-  steps: [
-    { icon: 'coffee', title: 'Order coffee', description: 'Enjoy an eligible coffee at Lumi Lane.' },
-    { icon: 'stamp', title: 'Collect stamps', description: 'Each eligible coffee earns one stamp.' },
-    {
-      icon: 'reward',
-      title: 'Unlock a reward',
-      description: 'Collect eight stamps to unlock a standard coffee reward.',
-    },
-  ],
+  eyebrow: 'Coffee Club · Proposed',
+  titleLines: ['Eight coffees.', "The next one's on us."],
+  disclaimer: 'A proposed programme, shown as a demo —',
+  disclaimerLink: 'try it below',
+  story: {
+    title: 'How it would work',
+    lines: ['Order a coffee.', 'Collect a stamp each time.', 'Your eighth unlocks a free coffee.'],
+    illustration:
+      'Illustration: a Coffee Club card collects eight stamps, one at a time, then a reward ticket tears off.',
+  },
+  demo: {
+    title: 'Try it yourself',
+    intro: `Each demo purchase adds one stamp. Fill all ${STAMP_TARGET} to see the reward ticket. Progress stays in this browser only.`,
+    action: 'Try a demo purchase',
+    empty: 'Your demo card is empty. Try a demo purchase to add a stamp.',
+  },
+  reward: {
+    label: 'Demo reward',
+    title: 'One standard coffee.',
+    backTitle: 'The next coffee is the reward.',
+    backCopy:
+      'In the proposal, you would show this at the counter. In the demo, redeeming clears these eight stamps and starts a fresh card in this browser.',
+    notice: 'Demo only — not valid for redemption',
+  },
+  counter: {
+    title: 'At the counter',
+    intro: 'Two ways the card could live on your phone. Neither is available yet.',
+    previewLabel: 'Preview — not yet issued',
+    phoneCaption: 'Open your card and show it to the barista.',
+    passCaption: 'Or keep it as a pass in your phone’s wallet.',
+    codeArea: 'Code area — not issued',
+  },
+  faqTitle: 'Questions',
   faq: [
     {
       question: 'How do I earn stamps?',
       answer:
-        'In the proposed program, one eligible coffee would earn one stamp. Real stamps would require an approved way to confirm purchases. The demo simulates that purchase.',
+        'In the proposed programme, one eligible coffee would earn one stamp. Real stamps would need an approved way to confirm purchases, which is not set up yet. The demo simulates that purchase.',
     },
     {
       question: 'How many stamps do I need?',
       answer: `You need ${STAMP_TARGET} stamps to unlock the demo reward. “Load 7/8 example” lets you try the final stamp straight away.`,
     },
     {
-      question: 'What reward can I unlock?',
-      answer: 'The proposed reward is one standard coffee. The café is still considering the final terms.',
+      question: 'What would the reward be?',
+      answer: 'The proposed reward is one standard coffee. Lumi Lane has not confirmed the final terms.',
     },
     {
       question: 'Do I need an account?',
       answer:
-        'You can try the demo without an account. Demo progress stays in this browser, separate from Login and Sign Up.',
+        'You can try the demo without an account. Demo progress stays in this browser and is separate from Login and Sign Up.',
     },
     {
-      question: 'Can I redeem this reward now?',
-      answer: 'The ticket is for demonstration only. “Redeem demo reward” starts a fresh demo card in your browser.',
+      question: 'Can I redeem a reward now?',
+      answer:
+        'Not yet. The reward ticket is for demonstration only; “Redeem demo reward” just starts a fresh demo card in your browser.',
     },
   ],
+  closing: 'A proposed programme. Terms to be confirmed with Lumi Lane.',
 } as const;

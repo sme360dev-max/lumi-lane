@@ -4,8 +4,9 @@ import { gsap } from 'gsap';
 import { useEffect, useRef, type ReactNode } from 'react';
 
 /**
- * Soft rise for the Home intro block only (`[data-home-reveal]` and its `[data-home-intro-part]`s).
- * The Explore index runs its own reveals and swaps, so nothing inside it is marked here.
+ * One-time soft rise for the Home sections marked `[data-home-reveal]`: their `[data-home-intro-part]`s
+ * (the intro copy, the Explore headline and the Explore links) stagger in as each section enters.
+ * The Explore trail and strip animate themselves, so they are never marked here.
  */
 export function HomeReveals({ children }: { children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
@@ -45,7 +46,7 @@ export function HomeReveals({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div ref={root} className="bg-cream/20">
+    <div ref={root}>
       {children}
     </div>
   );

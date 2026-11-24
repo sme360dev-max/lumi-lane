@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { HomeIndex } from './HomeIndex';
+import { ExploreTrail } from './ExploreTrail';
 import { HomeReveals } from './HomeReveals';
 
 const focus =
@@ -36,7 +36,7 @@ export function HomeEditorial() {
         </section>
       </div>
 
-      <HomeIndex />
+      <ExploreTrail />
     </HomeReveals>
   );
 }

@@ -1,29 +1,32 @@
 import { expect, test } from '@playwright/test';
 
-test('introduces the proposed rules before the card and answers customer questions', async ({ page }) => {
+test('introduces the proposed programme before the demo and answers customer questions', async ({ page }) => {
   await page.goto('/loyalty/');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1, name: 'Lumi Lane Coffee Club' })).toBeVisible();
-  await expect(main.getByText(/Collect 8 stamps to unlock one standard coffee/)).toBeVisible();
-  await expect(main.getByText(/This is a demo only/)).toBeVisible();
-  const explore = main.getByRole('link', { name: 'Explore Coffee Club' });
-  await explore.focus();
+  await expect(main.getByRole('heading', { level: 1, name: "Eight coffees. The next one's on us." })).toBeVisible();
+  await expect(main.getByText('Coffee Club · Proposed')).toBeVisible();
+  await expect(main.getByText(/A proposed programme, shown as a demo/)).toBeVisible();
+  const tryIt = main.getByRole('link', { name: 'try it below' });
+  await tryIt.focus();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/#how-coffee-club-works$/);
-  const guide = main.getByRole('region', { name: 'How Coffee Club Works' });
-  await expect(guide).toBeFocused();
-  await expect(guide.getByRole('listitem')).toHaveCount(3);
-  await expect(guide.getByRole('heading', { level: 3 })).toHaveText([
-    'Order coffee',
-    'Collect stamps',
-    'Unlock a reward',
+  await expect(page).toHaveURL(/#try-it$/);
+  const demo = main.getByRole('region', { name: 'Try it yourself' });
+  await expect(demo).toBeFocused();
+  const story = main.getByRole('region', { name: 'How it would work' });
+  await expect(story.getByRole('listitem')).toHaveText([
+    'Order a coffee.',
+    'Collect a stamp each time.',
+    'Your eighth unlocks a free coffee.',
   ]);
   const ordered = await main.evaluate((element) => {
-    const guide = element.querySelector('#how-coffee-club-works');
-    const card = element.querySelector('[data-ritual-card]');
-    const controls = element.querySelector('section[aria-labelledby="stamp-controls"]');
-    const reward = element.querySelector('section[aria-labelledby="reward-guide-title"]');
-    return [guide, card, controls, reward].every(
+    const sections = [
+      element.querySelector('section[aria-labelledby="loyalty-title"]'),
+      element.querySelector('section[aria-labelledby="story-title"]'),
+      element.querySelector('section[aria-labelledby="demo-title"]'),
+      element.querySelector('section[aria-labelledby="counter-title"]'),
+      element.querySelector('section[aria-labelledby="faq-title"]'),
+    ];
+    return sections.every(
       (section, index, all) =>
         section &&
         (index === 0 ||
@@ -31,16 +34,17 @@ test('introduces the proposed rules before the card and answers customer questio
     );
   });
   expect(ordered).toBe(true);
-  await expect(
-    main.getByRole('region', { name: 'Try the Demo' }).getByRole('button', { name: 'Try a Demo Purchase' }),
-  ).toBeEnabled();
+  await expect(demo.getByRole('button', { name: 'Try a demo purchase' })).toBeEnabled();
+  const counter = main.getByRole('region', { name: 'At the counter' });
+  await expect(counter.getByText('Preview — not yet issued')).toHaveCount(2);
+  await expect(counter.getByRole('img', { name: /empty code area, not issued/ })).toBeVisible();
 
   const questions = [
     ['How do I earn stamps?', 'approved way to confirm purchases'],
     ['How many stamps do I need?', 'You need 8 stamps'],
-    ['What reward can I unlock?', 'one standard coffee'],
+    ['What would the reward be?', 'one standard coffee'],
     ['Do I need an account?', 'without an account'],
-    ['Can I redeem this reward now?', 'for demonstration only'],
+    ['Can I redeem a reward now?', 'for demonstration only'],
   ] as const;
   for (const [question, answer] of questions) {
     const summary = main.locator('summary').filter({ hasText: question });
@@ -53,6 +57,7 @@ test('introduces the proposed rules before the card and answers customer questio
     await summary.press('Enter');
     await expect(details.locator('p')).toBeHidden();
   }
+  await expect(main.getByText('A proposed programme. Terms to be confirmed with Lumi Lane.')).toBeVisible();
 });
 
 test('one purchase stamps automatically, guards rapid clicks and persists progress', async ({ page }) => {
@@ -60,10 +65,12 @@ test('one purchase stamps automatically, guards rapid clicks and persists progre
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/loyalty/');
   const progress = page.getByRole('progressbar', { name: 'Demo stamp progress' });
-  const purchase = page.getByRole('button', { name: 'Try a Demo Purchase' });
+  const purchase = page.getByRole('button', { name: 'Try a demo purchase' });
   await expect(progress).toHaveAttribute('aria-valuenow', '0');
   await expect(page.getByRole('button', { name: 'Press stamp' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Undo last stamp' })).toBeDisabled();
+  // The card restores from storage after hydration; only then is the purchase button live.
+  await expect(purchase).toBeEnabled();
 
   await purchase.evaluate((button) => {
     for (let click = 0; click < 6; click++) (button as HTMLButtonElement).click();
@@ -78,6 +85,7 @@ test('one purchase stamps automatically, guards rapid clicks and persists progre
   await purchase.focus();
   await page.keyboard.press('Enter');
   await expect(progress).toHaveAttribute('aria-valuenow', '2');
+  await expect(page.locator('[data-stamp-slot][data-filled=true]')).toHaveCount(2);
   await expect(purchase).toBeFocused();
   const primary = page.getByRole('navigation', { name: 'Primary' });
   await primary.getByRole('link', { name: 'About' }).click();
@@ -88,10 +96,12 @@ test('one purchase stamps automatically, guards rapid clicks and persists progre
   await expect(progress).toHaveAttribute('aria-valuenow', '2');
   await page.getByRole('button', { name: 'Undo last stamp' }).click();
   await expect(progress).toHaveAttribute('aria-valuenow', '1');
-  await page.getByRole('button', { name: 'Reset progress' }).click();
+  const reset = page.getByRole('button', { name: 'Reset', exact: true });
+  await reset.click();
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   await expect(progress).toHaveAttribute('aria-valuenow', '1');
-  await page.getByRole('button', { name: 'Reset progress' }).click();
+  await expect(reset).toBeFocused();
+  await reset.click();
   await page.getByRole('button', { name: 'Reset demo card' }).click();
   await expect(progress).toHaveAttribute('aria-valuenow', '0');
   expect(errors).toEqual([]);
@@ -100,8 +110,8 @@ test('one purchase stamps automatically, guards rapid clicks and persists progre
 test('loads 7/8, unlocks, flips, replays and redeems a repeatable demo with reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/loyalty/');
-  const progress = page.getByRole('progressbar');
-  const purchase = page.getByRole('button', { name: 'Try a Demo Purchase' });
+  const progress = page.getByRole('progressbar', { name: 'Demo stamp progress' });
+  const purchase = page.getByRole('button', { name: 'Try a demo purchase' });
   const ticket = page.getByRole('region', { name: 'Demo reward ticket' });
   const flip = ticket.getByRole('button', { name: 'Flip reward ticket' });
   const redeem = ticket.getByRole('button', { name: 'Redeem demo reward' });
@@ -114,6 +124,7 @@ test('loads 7/8, unlocks, flips, replays and redeems a repeatable demo with redu
   await expect(flip).toBeFocused();
   await expect(progress).toHaveAttribute('aria-valuenow', '8');
   await expect(purchase).toBeDisabled();
+  await expect(ticket.getByRole('heading', { name: 'One standard coffee.' })).toBeVisible();
   await page.reload();
   await expect(flip).toBeEnabled();
   await expect(progress).toHaveAttribute('aria-valuenow', '8');
@@ -139,27 +150,29 @@ test('loads 7/8, unlocks, flips, replays and redeems a repeatable demo with redu
 
 test('undo and confirmed reset safely cancel a running stamp or unlock', async ({ page }) => {
   await page.goto('/loyalty/');
-  const progress = page.getByRole('progressbar');
-  const purchase = page.getByRole('button', { name: 'Try a Demo Purchase' });
+  const progress = page.getByRole('progressbar', { name: 'Demo stamp progress' });
+  const purchase = page.getByRole('button', { name: 'Try a demo purchase' });
   const undo = page.getByRole('button', { name: 'Undo last stamp' });
-  const flight = page.locator('[data-stamp-flight]');
+  const pressing = page.locator('[data-stamp-slot][data-active=true]');
   const reward = page.getByRole('region', { name: 'Demo reward ticket' });
 
   await page.getByRole('button', { name: 'Load 7/8 example' }).click();
   await purchase.click();
-  await expect(flight).toBeVisible();
+  await expect(pressing).toBeVisible();
   await undo.click();
-  await expect(flight).toHaveCount(0);
+  await expect(pressing).toHaveCount(0);
   await expect(progress).toHaveAttribute('aria-valuenow', '7');
+  await expect(page.locator('[data-stamp-slot][data-filled=true]')).toHaveCount(7);
 
   await purchase.click();
   await expect(reward).toHaveAttribute('aria-busy', 'true');
-  await page.getByRole('button', { name: 'Reset progress' }).click();
+  await page.getByRole('button', { name: 'Reset', exact: true }).click();
   await page.getByRole('button', { name: 'Reset demo card' }).click();
   await expect(progress).toHaveAttribute('aria-valuenow', '0');
   await expect(reward).toHaveCount(0);
 
   await purchase.click();
   await expect(progress).toHaveAttribute('aria-valuenow', '1');
+  await expect(page.locator('[data-stamp-slot][data-filled=true]')).toHaveCount(1);
   await expect(reward).toHaveCount(0);
 });

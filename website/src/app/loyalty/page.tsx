@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { buttonClass } from '@/components/ui/Button';
 import { LOYALTY } from '@/data/loyalty';
-import { CoffeeClubSteps } from '@/features/loyalty/CoffeeClubSteps';
-import { StampRitual } from '@/features/loyalty/StampRitual';
-import styles from '@/features/loyalty/StampRitual.module.css';
+import { CounterPreview } from '@/features/loyalty/CounterPreview';
+import { HeroCard } from '@/features/loyalty/HeroCard';
+import { ScrollStory } from '@/features/loyalty/ScrollStory';
+import { StampDemo } from '@/features/loyalty/StampDemo';
+import styles from '@/features/loyalty/Loyalty.module.css';
 
 export const metadata: Metadata = {
   title: 'Coffee Club · Loyalty',
@@ -13,55 +14,58 @@ export const metadata: Metadata = {
 };
 
 export default function LoyaltyPage() {
+  const [firstLine, secondLine] = LOYALTY.titleLines;
   return (
-    <main id="main" className="view-enter px-6 pb-44 pt-24 sm:pt-32 lg:px-10">
-      <div className={styles.page}>
-        <header className={styles.intro}>
-          <p className={styles.printLabel}>Lumi Lane Loyalty</p>
-          <h1>Lumi Lane Coffee Club</h1>
-          <p className={styles.tagline}>{LOYALTY.tagline}</p>
-          <p className={styles.introCopy}>{LOYALTY.intro}</p>
-          <p className={styles.introNotice}>{LOYALTY.notice}</p>
-          <a href="#how-coffee-club-works" className={buttonClass({ size: 'sm', className: styles.introAction })}>
-            Explore Coffee Club
-          </a>
-        </header>
+    // No entry transform on <main>: a transformed ancestor would break the scroll story's pin.
+    <main id="main" className={styles.page}>
+      <section className={`view-enter ${styles.hero}`} aria-labelledby="loyalty-title">
+        <div className={styles.heroCopy}>
+          <p className={styles.eyebrow}>{LOYALTY.eyebrow}</p>
+          <h1 id="loyalty-title" className={styles.title}>
+            <span>{firstLine}</span> <em>{secondLine}</em>
+          </h1>
+          <p className={styles.disclaimer}>
+            {LOYALTY.disclaimer}{' '}
+            <a href="#try-it" className={styles.inlineLink}>
+              {LOYALTY.disclaimerLink}
+            </a>
+            .
+          </p>
+        </div>
+        <HeroCard />
+      </section>
 
-        <CoffeeClubSteps />
-        <StampRitual />
+      <ScrollStory />
 
-        <section className={styles.rewardGuide} aria-labelledby="reward-guide-title">
-          <div>
-            <p className={styles.printLabel}>The proposed reward</p>
-            <h2 id="reward-guide-title">One standard coffee</h2>
-            <p className={styles.rewardCopy}>
-              A full card reveals a demo ticket. Flip it to see how redemption could work, then redeem it in the demo to
-              start a fresh card.
-            </p>
-          </div>
-          <div className={styles.faq}>
-            <h3>Coffee Club FAQ</h3>
-            {LOYALTY.faq.map(({ question, answer }) => (
-              <details key={question}>
-                <summary>{question}</summary>
-                <p>{answer}</p>
-              </details>
-            ))}
-          </div>
-        </section>
+      <StampDemo />
 
-        <nav className={styles.detailLinks} aria-label="Coffee Club links">
-          <Link className={styles.textButton} href="/menu/">
-            Explore the menu
-          </Link>
-          <Link className={styles.textButton} href="/login/">
+      <CounterPreview />
+
+      <section className={styles.faq} aria-labelledby="faq-title">
+        <h2 id="faq-title" className={styles.h2}>
+          {LOYALTY.faqTitle}
+        </h2>
+        <div className={styles.faqList}>
+          {LOYALTY.faq.map(({ question, answer }) => (
+            <details key={question} className={styles.faqItem}>
+              <summary>{question}</summary>
+              <p>{answer}</p>
+            </details>
+          ))}
+        </div>
+        <p className={styles.closing}>{LOYALTY.closing}</p>
+        <p className={styles.account}>
+          Try the demo without an account, or{' '}
+          <Link className={styles.inlineLink} href="/login/">
             Login
-          </Link>
-          <Link className={styles.textButton} href="/signup/">
+          </Link>{' '}
+          <span aria-hidden="true">·</span>{' '}
+          <Link className={styles.inlineLink} href="/signup/">
             Sign Up
           </Link>
-        </nav>
-      </div>
+          .
+        </p>
+      </section>
     </main>
   );
 }

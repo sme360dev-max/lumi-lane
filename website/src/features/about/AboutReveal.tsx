@@ -4,39 +4,46 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import styles from './About.module.css';
 
 /**
- * A printed photograph that settles onto the page the first time it scrolls into view.
- * Server HTML renders it at rest, so it is never hidden without JS; the lifted state is only
- * applied by JS while the print is still below the fold, and never under reduced motion.
+ * Gentle one-time reveal for every `.reveal` block inside. Server HTML renders everything at
+ * rest, so nothing is hidden without JS: blocks are only armed (lowered and transparent) by JS,
+ * only while they are still below the fold, and never under reduced motion.
  */
-export function AboutReveal({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function AboutReveal({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const root = ref.current;
+    if (!root || typeof IntersectionObserver === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    // Already on screen (e.g. a reload mid-page): leave it where it is rather than make it jump.
-    if (el.getBoundingClientRect().top < window.innerHeight) return;
 
-    el.dataset.state = 'lifted';
+    const blocks = Array.from(root.querySelectorAll<HTMLElement>(`.${styles.reveal}`)).filter(
+      // Already on screen (first paint, or a reload mid-page): leave it rather than make it jump.
+      (el) => el.getBoundingClientRect().top > window.innerHeight * 0.94,
+    );
+    if (!blocks.length) return;
+
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          el.dataset.state = 'settled';
-          io.disconnect();
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          (e.target as HTMLElement).dataset.state = 'shown';
+          io.unobserve(e.target);
         }
       },
-      { threshold: 0.35, rootMargin: '0px 0px -8% 0px' },
+      { threshold: 0.15, rootMargin: '0px 0px -6% 0px' },
     );
-    io.observe(el);
+    for (const el of blocks) {
+      el.dataset.state = 'armed';
+      io.observe(el);
+    }
     return () => {
       io.disconnect();
-      delete el.dataset.state;
+      for (const el of blocks) delete el.dataset.state;
     };
   }, []);
 
   return (
-    <div ref={ref} className={`${styles.print} ${className}`.trim()}>
+    <div ref={ref} className={className}>
       {children}
     </div>
   );

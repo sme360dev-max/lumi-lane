@@ -1,129 +1,62 @@
-'use client';
-
 import Link from 'next/link';
-import type { CSSProperties } from 'react';
-import { useEffect, useRef } from 'react';
-import { InkStamp } from '@/components/brand/InkStamp';
-import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
 import { BUSINESS } from '@/data/business';
 import { PILL_NAV } from '@/data/navigation';
-import styles from './SiteFooter.module.css';
+import { LongTableBand } from './LongTableBand';
 import { SocialIcon } from './SocialIcon';
 
-const DISHES = [
-  { name: 'coffee', tilt: -4 },
-  { name: 'burger', tilt: 3 },
-  { name: 'mezze', tilt: -2 },
-  { name: 'choco', tilt: 5 },
-  { name: 'food', tilt: -3 },
-] as const;
+const DESCRIPTION = `${BUSINESS.tagline} in ${BUSINESS.address.locality}, ${BUSINESS.address.region}.`;
+
+/** The footer names the loyalty programme by its club name; the pill keeps its short label. */
+const EXPLORE = PILL_NAV.map((item) => (item.href === '/loyalty/' ? { ...item, label: 'Coffee Club' } : item));
 
 const DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
   `${BUSINESS.address.street}, ${BUSINESS.address.line2}`,
 )}`;
 
 const focusRing =
-  'rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-cream focus-visible:ring-offset-4 focus-visible:ring-offset-olive';
-const heading = 'border-b border-cream/15 pb-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-cream/70';
-const link = `${focusRing} inline-flex min-h-8 items-center text-cream/80 transition-colors duration-300 ease-lumi hover:text-cream`;
+  'rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-4 focus-visible:ring-offset-shell';
+const heading = 'text-[11px] font-semibold uppercase tracking-[0.28em] text-cocoa/70';
+const link = `${focusRing} inline-flex min-h-9 items-center text-cocoa/80 underline-offset-[6px] transition-colors duration-200 hover:text-cocoa hover:underline hover:decoration-ember`;
 
-const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties;
-
-/** One run of the five cut-out dishes; rendered twice so the marquee loops without a seam. */
-function DishRun() {
+function Arrow({ className }: { className?: string }) {
   return (
-    <div className={styles.run}>
-      {DISHES.map((d) => (
-        <div key={d.name} className={styles.dish} style={{ '--tilt': `${d.tilt}deg` } as CSSProperties}>
-          <ResponsivePicture name={d.name} widths={[480]} sizes="160px" width={1254} height={1254} alt="" />
-        </div>
-      ))}
-    </div>
+    <svg
+      viewBox="0 0 16 12"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M1 6h13.5M9.5 1l5 5-5 5" />
+    </svg>
   );
 }
 
-/** "The long table": dishes gliding along the table edge, a sign-off, the house details and the fine print. */
+/** Light, editorial footer: the house, where to go next, how to find us, the fine print, then the long table. */
 export function SiteFooter() {
-  const bandRef = useRef<HTMLDivElement>(null);
-  const signRef = useRef<HTMLParagraphElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!('IntersectionObserver' in window)) return;
-    const band = bandRef.current;
-    const reveals: HTMLElement[] = [];
-    if (signRef.current) reveals.push(signRef.current);
-    if (gridRef.current) reveals.push(gridRef.current);
-
-    // The marquee only runs while it is on screen.
-    const marquee = new IntersectionObserver(([entry]) => {
-      if (entry?.isIntersecting) band?.setAttribute('data-running', '');
-      else band?.removeAttribute('data-running');
-    });
-    if (band) marquee.observe(band);
-
-    // One-time reveals; reduced motion keeps everything in place (the CSS drops the transitions).
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let reveal: IntersectionObserver | undefined;
-    if (!reduce) {
-      reveal = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (!entry.isIntersecting) continue;
-            entry.target.setAttribute('data-in', '');
-            reveal?.unobserve(entry.target);
-          }
-        },
-        { threshold: 0.3 },
-      );
-      for (const el of reveals) {
-        el.setAttribute('data-armed', '');
-        reveal.observe(el);
-      }
-    }
-
-    return () => {
-      marquee.disconnect();
-      reveal?.disconnect();
-      for (const el of reveals) {
-        el.removeAttribute('data-armed');
-        el.removeAttribute('data-in');
-      }
-    };
-  }, []);
-
   return (
-    <footer data-site-footer className="bg-olive pb-[var(--nav-clearance)] pt-4 text-cream sm:pt-6">
-      <div ref={bandRef} className={styles.band} aria-hidden="true">
-        <div className={styles.track}>
-          <DishRun />
-          <DishRun />
-        </div>
-      </div>
+    <footer className="border-t border-cocoa/15 bg-shell text-cocoa">
+      <div className="mx-auto max-w-6xl px-6 pt-16 sm:pt-20 lg:px-10">
+        <div className="grid gap-x-12 gap-y-12 text-[15px] leading-relaxed md:grid-cols-2 lg:grid-cols-[1.35fr_0.75fr_1fr] lg:gap-x-16">
+          <div className="md:col-span-2 lg:col-span-1">
+            <p className="font-serif text-lg font-medium tracking-[0.34em] text-cocoa sm:text-xl">LUMI LANE</p>
+            <p className="mt-4 max-w-xs text-cocoa/75">{DESCRIPTION}</p>
+            <Link
+              href="/book/"
+              className={`${focusRing} group mt-6 inline-flex min-h-11 items-center gap-3 font-medium text-cocoa underline-offset-[6px] hover:underline hover:decoration-ember`}
+            >
+              Book a table
+              <Arrow className="h-3 w-4 text-ember transition-transform duration-300 ease-lumi group-hover:translate-x-1 motion-reduce:transition-none" />
+            </Link>
+          </div>
 
-      <div className="mx-auto max-w-6xl px-6 lg:px-10">
-        <div className="mt-6 flex items-center gap-5 sm:mt-6 sm:gap-7">
-          <InkStamp id="footer-stamp" seed={5} className="h-16 w-16 shrink-0 text-cream/75 sm:h-20 sm:w-20" />
-          <p ref={signRef} className="font-serif text-[clamp(2.25rem,5vw,4.5rem)] italic leading-[1.02] text-cream">
-            <span className={styles.line}>
-              <span className={styles.lineInner}>See you at </span>
-            </span>
-            <span className={styles.line}>
-              <span className={styles.lineInner} style={delay(110)}>
-                the long table.
-              </span>
-            </span>
-          </p>
-        </div>
-
-        <div
-          ref={gridRef}
-          className="mt-9 grid gap-x-12 gap-y-9 text-sm leading-relaxed sm:mt-10 md:grid-cols-2 lg:grid-cols-[0.8fr_1.5fr_1.15fr_0.9fr] lg:gap-x-12"
-        >
-          <nav aria-label="Footer" className={styles.col} style={delay(0)}>
+          <nav aria-label="Footer">
             <h2 className={heading}>Explore</h2>
-            <ul className="mt-2 flex flex-col">
-              {PILL_NAV.map((item) => (
+            <ul className="mt-4 flex flex-col">
+              {EXPLORE.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={link}>
                     {item.label}
@@ -133,54 +66,35 @@ export function SiteFooter() {
             </ul>
           </nav>
 
-          <section aria-labelledby="footer-hours" className={styles.col} style={delay(90)}>
-            <h2 id="footer-hours" className={heading}>
-              Opening Hours
-            </h2>
-            <dl className="mt-4 space-y-3 text-cream/80">
-              {BUSINESS.hours.map((h) => (
-                <div key={h.label} className="flex flex-wrap items-baseline gap-x-3">
-                  <dt>{h.label}</dt>
-                  <span aria-hidden="true" className={styles.leader} />
-                  <dd className="ml-auto tabular-nums">{h.time}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-
-          <section aria-labelledby="footer-visit" className={styles.col} style={delay(180)}>
+          <section aria-labelledby="footer-visit">
             <h2 id="footer-visit" className={heading}>
               Visit
             </h2>
-            <address className="mt-4 not-italic text-cream/80">
+            <address className="mt-5 not-italic text-cocoa/80">
               {BUSINESS.address.line1}
               <br />
               {BUSINESS.address.line2}
             </address>
-            <ul className="mt-2 flex flex-col">
+            <ul aria-label="Opening hours" className="mt-4 text-cocoa/80">
+              {BUSINESS.hours.map((h) => (
+                <li key={h.label}>
+                  {h.label}, {h.time}
+                </li>
+              ))}
+            </ul>
+            <ul className="mt-3 flex flex-col">
               <li>
                 <a href={BUSINESS.phone.href} className={`${link} tabular-nums`}>
                   {BUSINESS.phone.display}
                 </a>
               </li>
               <li>
-                <a
-                  href={DIRECTIONS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${link} underline decoration-ember underline-offset-[6px]`}
-                >
+                <a href={DIRECTIONS_URL} target="_blank" rel="noopener noreferrer" className={link}>
                   Get directions<span className="sr-only"> (opens in a new tab)</span>
                 </a>
               </li>
             </ul>
-          </section>
-
-          <section aria-labelledby="footer-follow" className={styles.col} style={delay(270)}>
-            <h2 id="footer-follow" className={heading}>
-              Follow
-            </h2>
-            <ul className="mt-4 flex flex-wrap gap-3">
+            <ul aria-label="Social media" className="mt-5 flex gap-3">
               {BUSINESS.social.map((s) => (
                 <li key={s.id}>
                   <a
@@ -188,23 +102,25 @@ export function SiteFooter() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={s.label}
-                    className="grid h-11 w-11 place-items-center rounded-full border border-cream/50 text-cream transition-colors duration-300 ease-lumi hover:border-cream hover:bg-cream hover:text-olive focus:outline-none focus-visible:ring-2 focus-visible:ring-cream focus-visible:ring-offset-2 focus-visible:ring-offset-olive [&_svg]:h-5 [&_svg]:w-5"
+                    className="grid h-11 w-11 place-items-center rounded-full border border-cocoa/30 text-cocoa transition-colors duration-200 hover:border-cocoa hover:bg-cocoa hover:text-shell focus:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-shell [&_svg]:h-[18px] [&_svg]:w-[18px]"
                   >
                     <SocialIcon id={s.id} />
                   </a>
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-cream/60">{BUSINESS.instagramHandle}</p>
           </section>
         </div>
 
-        <div className="mt-9 flex flex-col gap-4 border-t border-cream/15 py-5 text-xs text-cream/60 sm:mt-8 lg:flex-row lg:items-center lg:justify-between">
-          <p>
+        <div
+          data-footer-strip
+          className="mt-14 flex flex-col gap-x-8 gap-y-3 border-t border-cocoa/15 py-6 text-[13px] text-cocoa/70 sm:mt-16 lg:flex-row lg:items-center"
+        >
+          <p className="shrink-0">
             &copy; {new Date().getFullYear()} {BUSINESS.name}
           </p>
           {/* No policy pages exist yet, so they are listed, not linked. */}
-          <ul aria-label="Policies (pages coming soon)" className="flex flex-wrap gap-x-6 gap-y-2">
+          <ul aria-label="Policies (pages coming soon)" className="flex flex-wrap gap-x-6 gap-y-1">
             {BUSINESS.policies.map((p) => (
               <li key={p} title="Coming soon">
                 {p}
@@ -213,24 +129,15 @@ export function SiteFooter() {
           </ul>
           <a
             href="#main"
-            className={`${focusRing} inline-flex min-h-9 items-center self-start uppercase tracking-[0.24em] text-cream/80 transition-colors duration-300 ease-lumi hover:text-cream lg:self-auto`}
+            className={`${focusRing} -my-2 inline-flex min-h-11 items-center gap-2 self-start text-cocoa/80 underline-offset-[6px] hover:text-cocoa hover:underline hover:decoration-ember lg:ml-auto lg:self-auto`}
           >
             Back to top
-            <svg
-              viewBox="0 0 12 12"
-              aria-hidden="true"
-              className="ml-2 inline-block h-3 w-3"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M6 10.5v-9M2 5.5l4-4 4 4" />
-            </svg>
+            <Arrow className="h-3 w-4 -rotate-90 text-ember" />
           </a>
         </div>
       </div>
+
+      <LongTableBand />
     </footer>
   );
 }

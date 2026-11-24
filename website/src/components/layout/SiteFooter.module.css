@@ -1,34 +1,33 @@
-/* "The long table" footer. Only transform / opacity / clip-path are animated, all slow and calm. */
+/* Footer: the closing "long table" illustration. Only transform is animated: one slow, linear drift. */
 
-/* ---- top band: dishes gliding along the table edge ---- */
 .band {
+  --dish: 4.5rem; /* 72px */
+  --slot: max(20vw, calc(var(--dish) * 2));
+  --rest: 1.25rem; /* how far the dishes sit down onto the table top */
   position: relative;
   overflow: hidden;
-  padding-block: 1.25rem 1.5rem;
-  --dish: 5rem;
+  padding-top: 1.5rem;
 }
 @media (min-width: 768px) {
   .band {
-    --dish: 8.75rem; /* 140px */
+    --dish: 6.75rem; /* 108px */
+    --rest: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .band {
+    --dish: 8rem; /* 128px */
   }
 }
 
-/* The table edge: one terracotta hairline the plates rest on. */
-.band::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(1.25rem + var(--dish) * 0.62);
-  height: 1px;
-  background: #c45441;
-}
-
+/* Two identical runs; each run is at least a viewport wide, so moving by one run (-50%) loops seamlessly. */
 .track {
   position: relative;
+  z-index: 1;
   display: flex;
   width: max-content;
-  animation: glide 52s linear infinite;
+  margin-bottom: calc(var(--rest) * -1);
+  animation: drift 90s linear infinite;
   animation-play-state: paused;
   will-change: transform;
 }
@@ -36,8 +35,7 @@
   animation-play-state: running;
 }
 
-/* Two identical runs: moving by exactly one run (-50%) loops seamlessly. */
-@keyframes glide {
+@keyframes drift {
   from {
     transform: translate3d(0, 0, 0);
   }
@@ -49,85 +47,71 @@
 .run {
   display: flex;
   flex: none;
-  gap: calc(var(--dish) * 0.9);
-  padding-right: calc(var(--dish) * 0.9);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .dish {
+  position: relative;
+  display: flex;
   flex: none;
-  width: var(--dish);
-  height: var(--dish);
-  rotate: var(--tilt, 0deg);
+  justify-content: center;
+  width: var(--slot);
 }
 .dish img {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: var(--dish);
+  height: var(--dish);
   object-fit: contain;
-  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 0.32));
+}
+/* A flat contact shadow where each dish meets the wood. */
+.dish::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: calc(var(--dish) * 0.78);
+  height: calc(var(--dish) * 0.09);
+  border-radius: 50%;
+  background: #b4855a;
+  transform: translate3d(-50%, 30%, 0);
 }
 
-/* ---- reveals (armed by JS, so nothing stays hidden without script) ---- */
-.line {
+/* The wood is deep enough that the floating nav rests on it and the dishes stay clear above the pill
+   (the pill's top sits about 76px from the bottom on phones and 92px from 640px up). */
+.table {
   display: block;
-  overflow: hidden;
-  padding-bottom: 0.08em; /* keep descenders inside the mask */
+  width: 100%;
+  height: 6.5rem;
 }
-.lineInner {
-  display: block;
-  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--delay, 0ms);
-}
-[data-armed]:not([data-in]) .lineInner {
-  transform: translate3d(0, 105%, 0);
-}
-
-.col {
-  transition:
-    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--delay, 0ms);
-}
-[data-armed]:not([data-in]) .col {
-  opacity: 0;
-  transform: translate3d(0, 14px, 0);
-}
-
-/* Dot leaders draw left → right with the hours column. */
-.leader {
-  flex: 1 1 1.5rem;
-  min-width: 1.5rem;
-  align-self: center;
-  height: 2px;
-  background-image: radial-gradient(circle, rgb(218 205 181 / 0.5) 0.9px, transparent 1.2px);
-  background-size: 6px 2px;
-  background-repeat: repeat-x;
-  transform-origin: left center;
-  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc(var(--delay, 0ms) + 250ms);
-}
-[data-armed]:not([data-in]) .leader {
-  transform: scaleX(0);
+@media (min-width: 640px) {
+  .table {
+    height: 7.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Static, evenly spaced row: one run, no movement. */
+  /* One still row, evenly spaced across the width. */
   .track {
     width: 100%;
     animation: none;
+    will-change: auto;
   }
   .run {
     flex: 1;
     justify-content: space-evenly;
-    gap: 0;
-    padding-right: 0;
   }
-  .run + .run {
+  .run[data-copy] {
     display: none;
   }
-  .lineInner,
-  .col,
-  .leader {
-    transition: none;
+  .dish {
+    width: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) and (max-width: 767px) {
+  /* Five dishes have to share one phone-width row. */
+  .band {
+    --dish: min(4.5rem, 15vw);
   }
 }
