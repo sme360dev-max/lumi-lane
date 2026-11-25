@@ -742,6 +742,22 @@
   clip-path: inset(8% 31.8% 6.9% 23.45% round 5.5% / 4.8%);
   pointer-events: none;
 }
+.statusBar {
+  position: absolute;
+  z-index: 1;
+  inset: 8% 31.8% auto 23.45%;
+  aspect-ratio: 448 / 62;
+  border-radius: 12% 12% 0 0 / 85% 85% 0 0;
+  background: #f2f1f6 url('/assets/img/loyalty-iphone-status.png') center / 100% 100% no-repeat;
+  container-type: inline-size;
+}
+.statusBar span {
+  position: absolute;
+  top: 37%;
+  left: 10%;
+  font: 650 4.3cqi/1 system-ui, sans-serif;
+  color: #111;
+}
 .realScreen {
   z-index: 1;
   position: absolute;

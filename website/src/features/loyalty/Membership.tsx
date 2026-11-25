@@ -174,6 +174,7 @@ export function Membership() {
         </p>
       </div>
       <div className={styles.realPhone}>
+        <div className={styles.statusBar} aria-hidden="true"><span>9:41</span></div>
         <div ref={screen} className={styles.realScreen}>
           <div className={styles.walletHeading} aria-hidden="true" />
           <div ref={pass} className={styles.memberPass} aria-live="polite">
