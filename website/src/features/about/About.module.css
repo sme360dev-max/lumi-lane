@@ -146,12 +146,12 @@
   object-fit: cover;
 }
 
-.evening {
+.storefront {
   aspect-ratio: 4 / 3.4;
   border-radius: 10px;
 }
 
-.evening img {
+.storefront img {
   object-position: 50% 56%;
 }
 
@@ -386,7 +386,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .evening {
+  .storefront {
     aspect-ratio: 16 / 10.5;
     border-radius: 0;
   }

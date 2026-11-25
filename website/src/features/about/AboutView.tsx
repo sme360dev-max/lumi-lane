@@ -1,18 +1,18 @@
 import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
 import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
-import { ABOUT } from '@/data/content';
+import { ABOUT, VISIT } from '@/data/content';
 import styles from './About.module.css';
 import { AboutReveal } from './AboutReveal';
 
-// Stills from Lumi Lane's Instagram, cropped in CSS to suit each layout.
+// Lumi Lane's storefront photo and Instagram stills, cropped in CSS to suit each layout.
 const photos = {
-  evening: {
-    name: 'about-evening',
-    widths: [480, 720],
-    width: 720,
-    height: 1280,
-    alt: 'Lumi Lane lit up at night, with diners outside',
+  storefront: {
+    name: 'storefront',
+    widths: [480, 800, 1200],
+    width: 1360,
+    height: 972,
+    alt: VISIT.storefrontAlt,
   },
   falafel: {
     name: 'about-falafel',
@@ -44,14 +44,14 @@ const photos = {
   },
   table: {
     name: 'about-table',
-    widths: [480, 800, 1080],
+    widths: [480, 800, 1080, 1920, 2560, 3840],
     width: 1080,
     height: 1440,
     alt: 'A Lumi Lane table set with falafel, skewers and baked pasta',
   },
   brunch: {
     name: 'about-brunch',
-    widths: [480, 800, 1080],
+    widths: [480, 800, 1080, 1920, 2560, 3840],
     width: 1080,
     height: 1080,
     alt: 'A Lumi Lane team member holding a dish topped with sliced avocado',
@@ -138,9 +138,9 @@ export function AboutView() {
           <div className={`${styles.grid} ${styles.heroPhotos}`}>
             <figure className={styles.heroMain}>
               <StoryPhoto
-                photo={photos.evening}
+                photo={photos.storefront}
                 sizes="(min-width: 1044px) 70vw, 100vw"
-                className={styles.evening}
+                className={styles.storefront}
                 priority
               />
             </figure>
