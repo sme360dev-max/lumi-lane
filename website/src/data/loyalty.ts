@@ -5,8 +5,6 @@ import { STAMP_TARGET } from '@/features/loyalty/ritualState';
  * here describes a proposal and a browser-only demo. Terms, rewards and redemption are unconfirmed.
  */
 export const LOYALTY = {
-  eyebrow: 'Coffee Club · Proposed',
-  titleLines: ['Eight coffees.', "The next one's on us."],
   disclaimer: 'A proposed programme, shown as a demo. Collect eight stamps to unlock a sample coffee reward.',
   disclaimerLink: 'Try the demo',
   story: {

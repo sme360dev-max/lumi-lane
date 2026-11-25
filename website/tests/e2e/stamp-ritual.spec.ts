@@ -3,8 +3,9 @@ import { expect, test } from '@playwright/test';
 test('introduces the proposed programme before the demo and answers customer questions', async ({ page }) => {
   await page.goto('/loyalty/');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { level: 1, name: "Eight coffees. The next one's on us." })).toBeVisible();
-  await expect(main.getByText('Coffee Club · Proposed')).toBeVisible();
+  await expect(main.getByRole('heading', { level: 1, name: 'Lumi Lane Coffee Club' })).toBeVisible();
+  await main.getByRole('link', { name: 'Join the Coffee Club' }).click();
+  await expect(page).toHaveURL(/#join-club$/);
   await expect(main.getByText(/A proposed programme, shown as a demo/)).toBeVisible();
   const tryIt = main.getByRole('link', { name: 'Try the demo' });
   await tryIt.focus();

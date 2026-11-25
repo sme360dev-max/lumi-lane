@@ -84,7 +84,7 @@ export function Membership() {
   }
 
   return (
-    <section id="join-club" className={styles.membership} aria-labelledby="club-membership-title">
+    <section id="join-club" tabIndex={-1} className={styles.membership} aria-labelledby="club-membership-title">
       <div>
         <h2 id="club-membership-title" className={styles.h2}>
           {member ? 'Your Coffee Club card' : 'Join the Coffee Club'}
