@@ -8,6 +8,8 @@ type Member = { name: string; code: string };
 
 const CARD_KEY = 'lumi-lane-coffee-club-card';
 const ENROLLMENT_KEY = 'lumi-lane-coffee-club-enrollment';
+const API = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '');
+const WALLET_URL = API ? API + '/api/loyalty/wallet/' : undefined;
 const validCode = (value: unknown): value is string => typeof value === 'string' && /^89\d{10}$/.test(value);
 
 export function Membership() {
@@ -16,6 +18,8 @@ export function Membership() {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   const [pending, setPending] = useState(false);
+  const [walletAvailable, setWalletAvailable] = useState(false);
+  const [registrationId, setRegistrationId] = useState<string | null>(null);
   const busy = useRef(false);
   const barcode = useRef<SVGSVGElement>(null);
 
@@ -24,6 +28,7 @@ export function Membership() {
       try {
         const saved = JSON.parse(localStorage.getItem(CARD_KEY) ?? 'null');
         if (typeof saved?.name === 'string' && validCode(saved.code)) setMember(saved);
+        setRegistrationId(localStorage.getItem(ENROLLMENT_KEY));
       } catch {
         // Storage may be blocked or contain an invalid card.
       }
@@ -31,6 +36,16 @@ export function Membership() {
     }, 0);
     return () => window.clearTimeout(restore);
   }, []);
+
+  useEffect(() => {
+    if (!member || !WALLET_URL) return;
+    const request = new AbortController();
+    fetch(WALLET_URL, { signal: request.signal })
+      .then(async (response) => response.ok && (await response.json()).available === true)
+      .then(setWalletAvailable)
+      .catch(() => {});
+    return () => request.abort();
+  }, [member]);
 
   useEffect(() => {
     if (member && barcode.current) {
@@ -52,8 +67,7 @@ export function Membership() {
       setError('Please enter your name.');
       return;
     }
-    const api = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '');
-    if (!api) {
+    if (!API) {
       setError('Registration is temporarily unavailable.');
       return;
     }
@@ -64,7 +78,7 @@ export function Membership() {
     try {
       const registrationId = localStorage.getItem(ENROLLMENT_KEY) ?? crypto.randomUUID();
       localStorage.setItem(ENROLLMENT_KEY, registrationId);
-      const response = await fetch(api + '/api/loyalty/register/', {
+      const response = await fetch(API + '/api/loyalty/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: fullName, registrationId }),
@@ -74,6 +88,7 @@ export function Membership() {
       if (!response.ok || !validCode(data.code)) throw new Error('Registration failed');
       const card = { name: fullName, code: data.code };
       localStorage.setItem(CARD_KEY, JSON.stringify(card));
+      setRegistrationId(registrationId);
       setMember(card);
     } catch {
       setError('We couldn’t save your card. Check your connection and allow browser storage, then try again.');
@@ -110,6 +125,14 @@ export function Membership() {
               {pending ? 'Creating card…' : 'Create my card'}
             </button>
             {error && <p role="alert">{error}</p>}
+          </form>
+        )}
+        {member && walletAvailable && registrationId && WALLET_URL && (
+          <form action={WALLET_URL} method="post" className={styles.joinForm}>
+            <input type="hidden" name="registrationId" value={registrationId} />
+            <button className={styles.primary} type="submit">
+              Add to Apple Wallet
+            </button>
           </form>
         )}
         <p className={styles.memberNote}>

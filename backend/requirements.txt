@@ -4,3 +4,4 @@ whitenoise==6.9.0
 python-dotenv==1.2.2
 requests==2.33.1
 psycopg[binary]==3.3.3
+cryptography==50.0.2

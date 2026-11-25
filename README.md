@@ -117,6 +117,10 @@ Add the deployed Pages origin to `CORS_ALLOWED_ORIGINS` and `CSRF_TRUSTED_ORIGIN
 
 After deployment, fill in `backend/.env.prod` (including `DATABASE_URL`) and run `make superuser env=prod` from a trusted local checkout, then sign in at `https://your-service.onrender.com/admin/`. Never commit that file.
 
+### Apple Wallet member cards
+
+Register a Pass Type ID and issue its signing certificate in the Lumi Lane Apple Developer account. Configure the Render API with `WALLET_PASS_TYPE_ID`, `WALLET_TEAM_ID`, and secret files containing the PEM signing certificate, private key and matching Apple WWDR intermediate. Set `WALLET_CERT_FILE`, `WALLET_KEY_FILE` and `WALLET_WWDR_FILE` to their absolute paths. Set `WALLET_KEY_PASSWORD` as a secret if the key is encrypted. Enable the existing website origin in `CORS_ALLOWED_ORIGINS`. Once the API is deployed, open Coffee Club in Safari on an iPhone, register and tap **Add to Apple Wallet** to verify the signed pass. The pass identifies the member and does not carry demo stamps.
+
 The admin is English (Australia) only and shows Adelaide time. Besides table requests and the menu, **Team** holds staff accounts and roles:
 
 - Four ready-made roles are created on the first `migrate`: **Manager**, **Front of house**, **Menu editor** and **View only**. They are only created when missing, so edits made in the admin are kept.
