@@ -691,7 +691,9 @@
   margin-top: 0.5rem;
 }
 .walletButton {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
   margin-top: 1.5rem;
   padding: .7rem 1.1rem;
   border-radius: .55rem;
@@ -699,6 +701,13 @@
   color: white;
   font: 500 .95rem/1.4 var(--sans);
   cursor: not-allowed;
+}
+.walletButton::before {
+  content: '';
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: .32rem;
+  background: url('/assets/img/apple-wallet-icon.jpg') center / contain no-repeat;
 }
 .memberNote {
   margin: 1rem 0 0;
@@ -708,6 +717,8 @@
 }
 .realPhone {
   position: relative;
+  isolation: isolate;
+  background: var(--shell);
   width: min(100%, 440px);
   aspect-ratio: 410 / 476;
   justify-self: center;
