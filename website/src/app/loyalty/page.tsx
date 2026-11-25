@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
 import { LOYALTY } from '@/data/loyalty';
-import { CounterPreview } from '@/features/loyalty/CounterPreview';
 import { HeroCard } from '@/features/loyalty/HeroCard';
+import { Membership } from '@/features/loyalty/Membership';
 import { ScrollStory } from '@/features/loyalty/ScrollStory';
 import { StampDemo } from '@/features/loyalty/StampDemo';
 import styles from '@/features/loyalty/Loyalty.module.css';
@@ -29,6 +29,9 @@ export default function LoyaltyPage() {
           </div>
           <div className={styles.heroAside}>
             <p className={styles.disclaimer}>{LOYALTY.disclaimer}</p>
+            <a href="#join-club" className={styles.heroLink}>
+              Join the Coffee Club
+            </a>{' '}
             <a href="#try-it" className={styles.heroLink}>
               {LOYALTY.disclaimerLink}
               <span aria-hidden="true">↓</span>
@@ -53,9 +56,9 @@ export default function LoyaltyPage() {
 
       <ScrollStory />
 
-      <StampDemo />
+      <Membership />
 
-      <CounterPreview />
+      <StampDemo />
 
       <section className={styles.faq} aria-labelledby="faq-title">
         <div>

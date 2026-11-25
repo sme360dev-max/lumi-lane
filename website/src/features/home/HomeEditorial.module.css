@@ -1,0 +1,17 @@
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 480;
+  font-display: swap;
+  src: url('/fonts/Fraunces-story.woff2') format('woff2');
+  /* Google Fonts subset for the English story headline. */
+  unicode-range: U+20, U+2E, U+61-62, U+65, U+67-69, U+6C, U+6E-6F, U+74, U+77;
+}
+
+.storyEmphasis {
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+  font-size: 0.94em;
+  font-style: normal;
+  font-weight: 480;
+  letter-spacing: -0.035em;
+}

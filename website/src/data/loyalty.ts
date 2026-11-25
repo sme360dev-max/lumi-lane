@@ -29,14 +29,6 @@ export const LOYALTY = {
       'In the proposal, you would show this at the counter. In the demo, redeeming clears these eight stamps and starts a fresh card in this browser.',
     notice: 'Demo only — not valid for redemption',
   },
-  counter: {
-    title: 'At the counter',
-    intro: 'Two ways the card could live on your phone. Neither is available yet.',
-    previewLabel: 'Preview — not yet issued',
-    phoneCaption: 'Open your card and show it to the barista.',
-    passCaption: 'Or keep it as a pass in your phone’s wallet.',
-    codeArea: 'Code area — not issued',
-  },
   faqTitle: 'Questions',
   faq: [
     {
