@@ -4,7 +4,7 @@ test('introduces the proposed programme before the demo and answers customer que
   await page.goto('/loyalty/');
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1, name: 'Lumi Lane Coffee Club' })).toBeVisible();
-  await main.getByRole('link', { name: 'Join the Coffee Club' }).click();
+  await main.getByRole('link', { name: 'Preview the member card' }).click();
   await expect(page).toHaveURL(/#join-club$/);
   await expect(main.getByText(/A proposed programme, shown as a demo/)).toBeVisible();
   const tryIt = main.getByRole('link', { name: 'Try the demo' });
@@ -36,9 +36,11 @@ test('introduces the proposed programme before the demo and answers customer que
   });
   expect(ordered).toBe(true);
   await expect(demo.getByRole('button', { name: 'Try a demo purchase' })).toBeEnabled();
-  const membership = main.getByRole('region', { name: 'Join the Coffee Club' });
-  await expect(membership.getByLabel('Full name')).toBeVisible();
-  await expect(membership.getByRole('button', { name: 'Create my card' })).toBeEnabled();
+  const membership = main.getByRole('region', { name: 'Preview your Coffee Club card' });
+  await membership.getByLabel('Full name').fill('Sample Member');
+  await membership.getByRole('button', { name: 'Preview my card' }).click();
+  await expect(membership.getByText('Sample Member', { exact: true })).toBeVisible();
+  await expect(membership.getByRole('img', { name: 'Sample Coffee Club barcode' })).toBeVisible();
 
   const questions = [
     ['How do I earn stamps?', 'approved way to confirm purchases'],

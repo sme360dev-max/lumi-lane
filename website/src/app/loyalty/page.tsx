@@ -22,9 +22,9 @@ export default function LoyaltyPage() {
           <h1 id="loyalty-title" className={styles.title}>
             Lumi Lane <span>Coffee Club</span>
           </h1>
-          <p className={styles.heroIntro}>Get a digital member card with your own barcode.</p>
+          <p className={styles.heroIntro}>See how your digital member card and barcode will look.</p>
           <a href="#join-club" className={`${styles.primary} ${styles.heroJoin}`}>
-            Join the Coffee Club
+            Preview the member card
           </a>
           <div className={styles.heroDemo}>
             <p className={styles.disclaimer}>{LOYALTY.disclaimer}</p>
