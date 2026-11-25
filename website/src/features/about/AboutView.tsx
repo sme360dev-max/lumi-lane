@@ -51,10 +51,10 @@ const photos = {
     alt: 'An overhead view of mezze, brunch plates, coffee and pastries at Lumi Lane',
   },
   brunch: {
-    name: 'about-brunch',
-    widths: [480, 800, 1080, 1920, 2560, 3840],
-    width: 1080,
-    height: 1080,
+    name: 'about-brunch-plate',
+    widths: [...photoWidths, 1920, 2560, 3840],
+    width: 1440,
+    height: 1440,
     alt: 'A Lumi Lane team member holding a dish topped with sliced avocado',
   },
 } as const;
@@ -213,7 +213,12 @@ export function AboutView() {
         </div>
 
         <article className={`${styles.chapter} ${styles.neighbourhood}`} aria-labelledby="about-neighbourhood">
-          <StoryPhoto photo={photos.brunch} sizes="100vw" className={styles.brunch} drift={30} />
+          <StoryPhoto
+            photo={photos.brunch}
+            sizes="(min-width: 1440px) 1440px, 100vw"
+            className={styles.brunch}
+            drift={30}
+          />
           <div className={`${styles.container} ${styles.chapterPhoto}`}>
             <ChapterHeading id="about-neighbourhood" title="A place to stay a little longer.">
               We’re on Fosters Road in Lightsview. Drop by for a coffee, meet someone for brunch or bring the whole

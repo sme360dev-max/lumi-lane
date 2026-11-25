@@ -245,12 +245,13 @@
 }
 
 .brunch {
-  height: clamp(320px, 40vw, 580px);
-  border-radius: 0;
+  width: min(100%, 1440px);
+  height: clamp(320px, 43vw, 640px);
+  margin-inline: auto;
 }
 
 .brunch img {
-  object-position: 50% 65%;
+  object-position: 50% 84%;
 }
 
 .reveal[data-state='armed'] {
