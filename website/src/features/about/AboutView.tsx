@@ -1,5 +1,4 @@
 import type { CSSProperties, ReactNode } from 'react';
-import Link from 'next/link';
 import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
 import { ABOUT, VISIT } from '@/data/content';
 import styles from './About.module.css';
@@ -62,12 +61,6 @@ const gallery = [
   { photo: photos.kitchen, label: 'From the kitchen', lines: ['Made for long brunches.', 'Served all day.'] },
   { photo: photos.skewers, label: 'For the table', lines: ['A little of everything.', 'Plenty to share.'] },
   { photo: photos.counter, label: 'At the counter', lines: ['A coffee to start.', 'A seat to stay.'] },
-] as const;
-
-const visitLinks = [
-  { href: '/menu/', title: ABOUT.ctaLabel, detail: 'Specialty coffee, all-day brunch and evening pours.' },
-  { href: '/book/', title: 'Book a table', detail: 'Make time for brunch, a drink or a long catch-up.' },
-  { href: '/visit/', title: 'Visit us', detail: 'Find Lumi Lane on Fosters Road in Lightsview.' },
 ] as const;
 
 const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties;
@@ -226,34 +219,6 @@ export function AboutView() {
             </ChapterHeading>
           </div>
         </article>
-      </section>
-
-      <section className={styles.visit} aria-labelledby="about-visit">
-        <div className={styles.container}>
-          <div className={styles.visitIntro}>
-            <h2 id="about-visit" className={styles.reveal}>
-              Come for the coffee.
-              <br />
-              <span>Stay for the company.</span>
-            </h2>
-            <p className={styles.reveal} style={delay(120)}>
-              Make Lumi Lane part of your day, from the first flat white to the last plate on the table.
-            </p>
-          </div>
-          <ul className={styles.visitLinks}>
-            {visitLinks.map(({ href, title, detail }, index) => (
-              <li key={href} className={styles.reveal} style={delay(index * 110)}>
-                <Link href={href}>
-                  <span aria-hidden="true" className={styles.visitArrow}>
-                    ↗
-                  </span>
-                  <span className={styles.visitLinkTitle}>{title}</span>
-                  <span>{detail}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
       </section>
     </AboutReveal>
   );

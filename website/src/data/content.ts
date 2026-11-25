@@ -73,7 +73,6 @@ export const ABOUT = {
   kitchenTitle: 'Modern Australian, seasoned Middle Eastern.',
   kitchen:
     'The kitchen cooks Australian brunch with a Middle Eastern accent: labneh under poached eggs, za’atar on smashed avocado, beetroot hummus beside falafel, pomegranate over crisp cauliflower. Familiar plates, seasoned the way we grew up eating.',
-  ctaLabel: 'See the menu',
 } as const;
 
 export const VISIT = {
