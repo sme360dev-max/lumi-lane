@@ -128,10 +128,9 @@ export function Membership() {
       </div>
       <div className={styles.realPhone}>
         <div ref={screen} className={styles.realScreen}>
-          <div className={styles.walletStack} aria-hidden="true" />
+          <div className={styles.walletHeading} aria-hidden="true" />
           <div ref={pass} className={styles.memberPass} aria-live="polite">
             <p className={styles.passBrand}>Lumi Lane</p>
-            <p className={styles.passTitle}>Coffee Club</p>
             <div className={styles.memberDetails}>
               {card ? (
                 <>
@@ -142,10 +141,11 @@ export function Membership() {
                   </div>
                 </>
               ) : (
-                <p className={styles.passPlaceholder}>Your name and barcode will appear here.</p>
+                <p className={styles.passPlaceholder}>Member card</p>
               )}
             </div>
           </div>
+          <div className={styles.walletStack} aria-hidden="true" />
         </div>
       </div>
     </section>

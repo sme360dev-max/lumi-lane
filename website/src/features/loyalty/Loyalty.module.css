@@ -661,7 +661,7 @@
   padding: clamp(1.25rem, 5vw, 4.5rem);
   border: 1px solid var(--rule);
   border-radius: 8px;
-  background: #fbf2e5;
+  background: linear-gradient(120deg, #fff8ef, var(--shell) 80%);
 }
 @media (min-width: 768px) {
   .membership {
@@ -693,8 +693,8 @@
   margin-top: 0.5rem;
 }
 .memberNote {
-  max-width: 38ch;
-  margin-top: 1.6rem;
+  margin: 1rem 0 0;
+  max-width: 34rem;
   font-size: 0.9rem;
   color: var(--muted);
 }
@@ -711,26 +711,36 @@
   background: url('/assets/img/loyalty-phone-in-hand.png') 53.4% center / auto 100% no-repeat;
   mix-blend-mode: multiply;
   filter: brightness(1.19);
-  mask-image: radial-gradient(ellipse 75% 71% at 51% 51%, #000 64%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 71% at 51% 51%, #000 64%, transparent 100%), linear-gradient(#000 94%, transparent);
+  mask-composite: intersect;
 }
 .realScreen {
   position: absolute;
   inset: 13.2% 32% 10.4% 23.5%;
-  display: grid;
-  align-content: start;
-  padding: 5% 2.4% 4%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 1.25%;
   overflow: hidden;
-  border-radius: 3px;
-  color: #302018;
-  background: #f7f7f7;
+  background: #f2f1f6;
   container-type: inline-size;
 }
+/* Two windows into the supplied photo. The card logos retain the source aspect ratio. */
+.walletHeading,
 .walletStack {
-  position: absolute;
-  inset: auto 5% 0;
-  height: 31%;
-  border-radius: 6px 6px 0 0;
-  background: url('/assets/img/loyalty-wallet-reference.png') 28.65% bottom / 293% 156% no-repeat;
+  flex: none;
+  background-image: url('/assets/img/loyalty-wallet-reference.png');
+  background-repeat: no-repeat;
+  background-size: 292.5% auto;
+}
+.walletHeading {
+  aspect-ratio: 547 / 114;
+  background-position: 28.68% 26.28%;
+}
+.walletStack {
+  aspect-ratio: 547 / 577;
+  background-position: 28.68% bottom;
+  margin-top: auto;
+  border-radius: 2cqi 2cqi 0 0;
 }
 .memberPass {
   position: relative;
@@ -744,23 +754,19 @@
   box-shadow: 0 12px 24px #29171048;
 }
 .passBrand {
-  margin-bottom: 1.1rem;
-  font-size: clamp(0.56rem, 3.7cqi, 0.76rem);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-.passTitle {
-  color: #f2b394;
-  font: 600 clamp(0.72rem, 12cqi, 1.5rem)/1 var(--sans);
-  letter-spacing: -0.05em;
+  font: 600 11cqi/1.15 var(--serif);
+  letter-spacing: -.04em;
 }
 .memberDetails {
-  margin-top: 1.2rem;
-  padding-top: 0.8rem;
+  margin-top: 4cqi;
+  padding-top: 3cqi;
   border-top: 1px solid #a78f79;
 }
 .memberName {
-  margin-bottom: 0.55rem;
+  margin-bottom: 2cqi;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
