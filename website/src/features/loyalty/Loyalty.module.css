@@ -659,9 +659,7 @@
   overflow: clip;
   margin: clamp(5rem, 8vw, 8rem) auto 0;
   padding: clamp(1.25rem, 5vw, 4.5rem);
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-  background: linear-gradient(120deg, #fff8ef, var(--shell) 80%);
+  background: transparent;
 }
 @media (min-width: 768px) {
   .membership {
@@ -691,6 +689,16 @@
 .joinForm button {
   justify-self: start;
   margin-top: 0.5rem;
+}
+.walletButton {
+  display: block;
+  margin-top: 1.5rem;
+  padding: .7rem 1.1rem;
+  border-radius: .55rem;
+  background: #423d37;
+  color: white;
+  font: 500 .95rem/1.4 var(--sans);
+  cursor: not-allowed;
 }
 .memberNote {
   margin: 1rem 0 0;
@@ -748,9 +756,10 @@
   width: 100%;
   overflow: hidden;
   border-radius: 5cqi;
-  background: #fffaf1;
+  background: #f8efe1;
   color: #381d18;
-  box-shadow: 0 2cqi 4cqi #49261938;
+  border: 1px solid #d4c6b6;
+  box-shadow: 0 1cqi 2cqi #36291b12;
 }
 .passFace {
   position: relative;
@@ -759,22 +768,15 @@
   min-height: 36cqi;
   overflow: hidden;
   padding: 4cqi 5cqi;
-  background: linear-gradient(120deg, #843228, #a94430 70%, #be593b);
-  color: #fff3df;
+  background: #f8efe1;
+  color: #352c26;
+  border-bottom: 1px solid #dfd4c5;
 }
 .passBrand {
   position: relative;
   z-index: 1;
-  font: 600 12cqi/1.05 var(--serif);
+  font: 500 12cqi/1.05 var(--serif);
   letter-spacing: -.055em;
-}
-.passSeal {
-  position: absolute;
-  width: 42%;
-  right: -8%;
-  bottom: -20%;
-  color: #f4b792;
-  transform: rotate(-16deg);
 }
 .passLabel {
   font: 600 4cqi/1.2 var(--sans);

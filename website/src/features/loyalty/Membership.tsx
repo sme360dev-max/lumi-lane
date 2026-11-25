@@ -1,6 +1,5 @@
 'use client';
 
-import { InkStamp } from '@/components/brand/InkStamp';
 import JsBarcode from 'jsbarcode';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import styles from './Loyalty.module.css';
@@ -123,7 +122,12 @@ export function Membership() {
             {error && <p role="alert">{error}</p>}
           </form>
         )}
-        <p className={styles.memberNote}>
+        {card && (
+          <button type="button" disabled aria-describedby="wallet-availability" className={styles.walletButton}>
+            Add to Apple Wallet
+          </button>
+        )}
+        <p id="wallet-availability" className={styles.memberNote}>
           Device-only card. Apple Wallet and in-store membership are currently unavailable.
         </p>
       </div>
@@ -133,7 +137,6 @@ export function Membership() {
           <div ref={pass} className={styles.memberPass} aria-live="polite">
             <div className={styles.passFace}>
               <p className={styles.passBrand}>Lumi Lane</p>
-              <InkStamp id="device-pass-seal" className={styles.passSeal} />
               <p className={styles.passLabel}>Member card</p>
             </div>
             {card && (
