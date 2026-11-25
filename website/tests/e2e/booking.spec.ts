@@ -52,7 +52,9 @@ test('booking: validation errors, API submission, and request summary', async ({
 
   const summary = page.getByTestId('booking-summary');
   await expect(summary.getByRole('heading', { name: 'We have your request.' })).toBeFocused();
-  await expect(summary.getByText('Your request has been sent to Lumi Lane. The team will contact you to confirm your table.')).toBeVisible();
+  await expect(
+    summary.getByText('Your request has been sent to Lumi Lane. The team will contact you to confirm your table.'),
+  ).toBeVisible();
   await expect(summary).toContainText('10:30 AM');
   await expect(summary).toContainText('High chair please');
   expect(requests).toHaveLength(1);
@@ -67,3 +69,29 @@ test('booking: validation errors, API submission, and request summary', async ({
   await summary.getByRole('button', { name: 'Edit details' }).click();
   await expect(page.getByLabel('Name')).toHaveValue('Sam Lee');
 });
+
+for (const type of ['Catering', 'Private function']) {
+  test(`sends a ${type.toLowerCase()} enquiry with the selected request type`, async ({ page }) => {
+    test.skip(!process.env.NEXT_PUBLIC_API_BASE_URL, 'Requires an API base URL at build time.');
+    let notes = '';
+    await page.route('**/api/bookings/', async (route) => {
+      notes = route.request().postDataJSON().notes;
+      await route.fulfill({ status: 201, json: { message: 'Request received' } });
+    });
+    await page.goto('/book/');
+    await page.getByText(type, { exact: true }).click();
+    const form = page.getByRole('form', { name: `${type} enquiry` });
+    await form.getByLabel('Name').fill('Sam Lee');
+    await form.getByLabel('Email').fill('sam@example.com');
+    await form.getByLabel('Phone').fill('0400 000 000');
+    await form.getByLabel('Guests').fill('12');
+    await form.getByLabel('Date').fill(`24/08/${new Date().getFullYear() + 1}`);
+    await form.getByLabel('Time').fill('12pm');
+    await form.getByLabel('Event details').fill('Birthday lunch');
+    await form.getByRole('button', { name: 'Send enquiry' }).click();
+    const summary = page.getByTestId('booking-summary');
+    await expect(summary).toContainText(type);
+    await expect(summary).toContainText('The team will contact you to discuss your event.');
+    expect(notes).toBe(`Enquiry type: ${type}\nBirthday lunch`);
+  });
+}

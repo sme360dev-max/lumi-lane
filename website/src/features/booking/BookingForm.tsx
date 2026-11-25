@@ -23,10 +23,16 @@ import {
   type BookingValues,
 } from './validation';
 
+const REQUEST_TYPES = ['Table booking', 'Catering', 'Private function'] as const;
+type RequestType = (typeof REQUEST_TYPES)[number];
+
 /**
  * Submit table requests to Django and show confirmation only after the API saves the request.
  */
 export function BookingForm() {
+  const [requestType, setRequestType] = useState<RequestType>('Table booking');
+  const isTable = requestType === 'Table booking';
+  const notesPrefix = isTable ? '' : `Enquiry type: ${requestType}\n`;
   const [values, setValues] = useState<BookingValues>(EMPTY_BOOKING);
   const [errors, setErrors] = useState<BookingErrors>({});
   const [checked, setChecked] = useState(false);
@@ -49,6 +55,8 @@ export function BookingForm() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const found = validateBooking(values);
+    const notes = `${notesPrefix}${values.notes.trim()}`.trim();
+    if (notes.length > 2000) found.notes = `Please use ${2000 - notesPrefix.length} characters or fewer.`;
     setErrors(found);
     const first = FIELD_ORDER.find((f) => found[f]);
     if (first) {
@@ -77,7 +85,7 @@ export function BookingForm() {
           guests: values.guests.trim(),
           date: `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`,
           time: `${String(time.hours).padStart(2, '0')}:${String(time.minutes).padStart(2, '0')}`,
-          notes: values.notes.trim(),
+          notes,
         }),
       });
       const result = await response.json();
@@ -102,6 +110,7 @@ export function BookingForm() {
     window.requestAnimationFrame(() => focusField('name'));
   };
   const reset = () => {
+    setRequestType('Table booking');
     setValues(EMPTY_BOOKING);
     setErrors({});
     setRequestError('');
@@ -118,6 +127,7 @@ export function BookingForm() {
       ['When', `${date ? prettyDate(date) : values.date}, ${time ? formatTime(time) : values.time}`],
       ['Contact', `${values.email.trim()} · ${values.phone.trim()}`],
     ];
+    if (!isTable) rows.unshift(['Enquiry', requestType]);
     if (values.notes.trim()) rows.push(['Requests', values.notes.trim()]);
 
     return (
@@ -131,7 +141,9 @@ export function BookingForm() {
           We have your request.
         </h1>
         <p role="status" className="mx-auto mt-8 max-w-[44ch] font-sans text-[15px] leading-relaxed text-cocoa/70">
-          Your request has been sent to Lumi Lane. The team will contact you to confirm your table.
+          {isTable
+            ? 'Your request has been sent to Lumi Lane. The team will contact you to confirm your table.'
+            : 'Your enquiry has been sent to Lumi Lane. The team will contact you to discuss your event.'}
         </p>
         <div className="relative mx-auto mt-12 max-w-md text-left sm:mt-14">
           <SlipPaper paperClassName={slipStyles.impact}>
@@ -178,10 +190,42 @@ export function BookingForm() {
       <form
         noValidate
         onSubmit={onSubmit}
-        aria-label="Table request"
+        aria-label={isTable ? 'Table request' : `${requestType} enquiry`}
         className="mt-14 border-t border-cocoa/10 pt-12 sm:mt-16 sm:pt-14 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-14 xl:grid-cols-[minmax(0,1fr)_24rem] xl:gap-x-20"
       >
         <div className="grid gap-x-5 gap-y-7 sm:grid-cols-6 lg:col-start-1 lg:row-start-1">
+          <fieldset className="min-w-0 sm:col-span-6" disabled={submitting}>
+            <legend className="mb-3 text-sm font-semibold text-cocoa">What are you planning?</legend>
+            <div className="flex flex-wrap gap-2">
+              {REQUEST_TYPES.map((type) => (
+                <label key={type} className="relative cursor-pointer">
+                  <input
+                    type="radio"
+                    name="request-type"
+                    value={type}
+                    checked={type === requestType}
+                    onChange={() => setRequestType(type)}
+                    className="peer sr-only"
+                  />
+                  <span className="inline-flex min-h-11 items-center rounded-full border border-cocoa/25 px-4 text-sm text-cocoa peer-checked:border-cocoa peer-checked:bg-cocoa peer-checked:text-shell peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ember">
+                    {type}
+                  </span>
+                </label>
+              ))}
+            </div>
+            {!isTable && (
+              <p className="mt-3 text-sm text-cocoa/75">
+                {requestType === 'Catering'
+                  ? 'Tell us about your occasion, food preferences and dietary requirements.'
+                  : 'Tell us the occasion and what you need from the space.'}{' '}
+                For more than 30 guests,{' '}
+                <a href={BUSINESS.phone.href} className="underline">
+                  call {BUSINESS.phone.display}
+                </a>
+                .
+              </p>
+            )}
+          </fieldset>
           <BookingField
             id="book-name"
             label="Name"
@@ -244,13 +288,18 @@ export function BookingForm() {
           />
           <BookingField
             id="book-notes"
-            label="Special Requests"
+            label={isTable ? 'Special Requests' : 'Event details'}
             optional
             multiline
             className="sm:col-span-6"
             value={values.notes}
             onChange={set('notes')}
-            placeholder="Dietary requirements, allergies, high chair, accessibility, a birthday"
+            error={errors.notes}
+            placeholder={
+              isTable
+                ? 'Dietary requirements, allergies, high chair, accessibility, a birthday'
+                : 'Occasion, location, dietary requirements and anything else we should know'
+            }
           />
         </div>
 
@@ -265,11 +314,18 @@ export function BookingForm() {
             disabled={submitting}
             className={buttonClass({ className: 'w-full py-5 text-[12px] tracking-[0.34em] sm:w-auto' })}
           >
-            {submitting ? 'Sending…' : BOOK.submitLabel}
+            {submitting ? 'Sending…' : isTable ? BOOK.submitLabel : 'Send enquiry'}
           </button>
-          {requestError && <p role="alert" className="mt-5 max-w-[52ch] text-sm text-red-700">{requestError}</p>}
+          {requestError && (
+            <p role="alert" className="mt-5 max-w-[52ch] text-sm text-red-700">
+              {requestError}
+            </p>
+          )}
           <p className="mt-5 max-w-[52ch] font-sans text-[12.5px] italic leading-relaxed text-cocoa/65">
-            Sending a request does not confirm the reservation. The team will contact you; for urgent bookings, call us on{' '}
+            {isTable
+              ? 'The team will contact you to confirm the reservation.'
+              : 'The team will contact you to discuss your enquiry.'}{' '}
+            For urgent requests, call us on{' '}
             <a
               href={BUSINESS.phone.href}
               className="not-italic text-cocoa/80 underline decoration-cocoa/25 underline-offset-4 transition-colors hover:text-ember"

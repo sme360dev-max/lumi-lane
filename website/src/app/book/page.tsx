@@ -4,7 +4,7 @@ import { BookingForm } from '@/features/booking/BookingForm';
 
 export const metadata: Metadata = {
   title: 'Book a Table',
-  description: 'Plan a visit to Lumi Lane in Lightsview for breakfast, brunch, lunch, coffee or a drink.',
+  description: 'Book a table or enquire about catering and private functions at Lumi Lane in Lightsview.',
   alternates: { canonical: '/book/' },
 };
 
