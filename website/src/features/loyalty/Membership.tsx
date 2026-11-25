@@ -23,7 +23,7 @@ export function Membership() {
     motion.current =
       pass.current?.animate(
         [
-          { transform: 'translateY(108cqi) scale(.9)', opacity: 0, offset: 0 },
+          { transform: 'translateY(145cqi) scale(.9)', opacity: 0, offset: 0 },
           { opacity: 1, offset: 0.24 },
           { transform: 'translateY(-4%) scale(1.025)', offset: 0.74 },
           { transform: 'translateY(0) scale(1)', offset: 1 },
@@ -129,8 +129,12 @@ export function Membership() {
       <div className={styles.realPhone}>
         <div ref={screen} className={styles.realScreen}>
           <div className={styles.island} aria-hidden="true" />
+          <div className={styles.phoneStatus} aria-hidden="true">
+            <span>9:41</span>
+            <span>▮▮▮ ▰</span>
+          </div>
           <header className={styles.walletHeader}>
-            <p>Pass preview</p>
+            <p>Coffee Club pass</p>
             <button type="button" onClick={reveal}>
               Replay
             </button>

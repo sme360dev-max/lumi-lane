@@ -697,39 +697,54 @@
 }
 .realPhone {
   position: relative;
-  width: min(100%, 310px);
-  aspect-ratio: 490 / 1008;
+  width: min(100%, 440px);
+  aspect-ratio: 410 / 476;
   justify-self: center;
-  background: url('/assets/img/loyalty-iphone.png') center / 100% 100% no-repeat;
-  filter: drop-shadow(0 16px 22px rgb(28 24 20 / 20%));
-  container-type: inline-size;
+}
+.realPhone::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: url('/assets/img/loyalty-phone-in-hand.png') 53.4% center / auto 100% no-repeat;
+  mix-blend-mode: multiply;
+  filter: brightness(1.19);
+  mask-image: radial-gradient(ellipse 75% 71% at 51% 51%, #000 64%, transparent 100%);
 }
 .realScreen {
   position: absolute;
-  inset: 1.9% 4.5% 2.15%;
+  inset: 8% 32% 6.75% 23.5%;
   display: grid;
   align-content: start;
-  padding: 22% 6% 6%;
+  padding: 12% 4% 4%;
   overflow: hidden;
-  border-radius: 14% / 6.8%;
+  border-radius: 15% / 7%;
   color: #302018;
-  background: linear-gradient(155deg, #fffaf3, #f3e1d0);
+  background: linear-gradient(155deg, #fcfaf8, #ece8e4);
+  container-type: inline-size;
 }
 .walletHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: .5rem;
+  gap: 0.5rem;
   margin-bottom: 6%;
-  font-size: clamp(.8rem, 6cqi, 1.15rem);
+  font-size: clamp(0.8rem, 6cqi, 1.15rem);
+  font-weight: 700;
+}
+.phoneStatus {
+  position: absolute;
+  inset: 2% 7% auto;
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(5px, 5cqi, 10px);
   font-weight: 700;
 }
 .walletHeader button {
   min-height: 44px;
-  padding: 0 .55rem;
+  padding: 0 0.55rem;
   border-radius: 999px;
   background: #ecdbc9;
-  font-size: .7rem;
+  font-size: 0.7rem;
 }
 @media (prefers-reduced-motion: reduce) {
   .walletHeader button {
@@ -758,11 +773,11 @@
 }
 .island {
   position: absolute;
-  top: 1.4%;
-  left: 34%;
-  width: 32%;
-  height: 4.1%;
-  border-radius: 999px;
+  top: 0;
+  left: 23%;
+  width: 54%;
+  height: 4%;
+  border-radius: 0 0 1rem 1rem;
   background: #080706;
 }
 .memberPass {
@@ -784,7 +799,7 @@
 }
 .passTitle {
   color: #f2b394;
-  font: 600 clamp(1rem, 10cqi, 1.9rem)/1 var(--sans);
+  font: 600 clamp(0.72rem, 12cqi, 1.5rem)/1 var(--sans);
   letter-spacing: -0.05em;
 }
 .memberDetails {
