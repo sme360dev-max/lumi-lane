@@ -1,5 +1,6 @@
 'use client';
 
+import { InkStamp } from '@/components/brand/InkStamp';
 import JsBarcode from 'jsbarcode';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import styles from './Loyalty.module.css';
@@ -130,20 +131,20 @@ export function Membership() {
         <div ref={screen} className={styles.realScreen}>
           <div className={styles.walletHeading} aria-hidden="true" />
           <div ref={pass} className={styles.memberPass} aria-live="polite">
-            <p className={styles.passBrand}>Lumi Lane</p>
-            <div className={styles.memberDetails}>
-              {card ? (
-                <>
-                  <p className={styles.memberName}>{card.name}</p>
-                  <div className={styles.barcode}>
-                    <svg ref={barcode} role="img" aria-label="Device card barcode" />
-                    <span>{card.code}</span>
-                  </div>
-                </>
-              ) : (
-                <p className={styles.passPlaceholder}>Member card</p>
-              )}
+            <div className={styles.passFace}>
+              <p className={styles.passBrand}>Lumi Lane</p>
+              <InkStamp id="device-pass-seal" className={styles.passSeal} />
+              <p className={styles.passLabel}>Member card</p>
             </div>
+            {card && (
+              <div className={styles.memberDetails}>
+                <p className={styles.memberName}>{card.name}</p>
+                <div className={styles.barcode}>
+                  <svg ref={barcode} role="img" aria-label="Device card barcode" />
+                  <span>{card.code}</span>
+                </div>
+              </div>
+            )}
           </div>
           <div className={styles.walletStack} aria-hidden="true" />
         </div>

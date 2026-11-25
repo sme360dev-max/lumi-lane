@@ -747,41 +747,58 @@
   z-index: 1;
   width: 100%;
   overflow: hidden;
-  border-radius: 12px;
-  padding: 7%;
-  background: #302018;
-  color: #fff2e4;
-  box-shadow: 0 12px 24px #29171048;
+  border-radius: 5cqi;
+  background: #fffaf1;
+  color: #381d18;
+  box-shadow: 0 2cqi 4cqi #49261938;
+}
+.passFace {
+  position: relative;
+  display: grid;
+  align-content: space-between;
+  min-height: 36cqi;
+  overflow: hidden;
+  padding: 4cqi 5cqi;
+  background: linear-gradient(120deg, #843228, #a94430 70%, #be593b);
+  color: #fff3df;
 }
 .passBrand {
-  font: 600 11cqi/1.15 var(--serif);
-  letter-spacing: -.04em;
+  position: relative;
+  z-index: 1;
+  font: 600 12cqi/1.05 var(--serif);
+  letter-spacing: -.055em;
+}
+.passSeal {
+  position: absolute;
+  width: 42%;
+  right: -8%;
+  bottom: -20%;
+  color: #f4b792;
+  transform: rotate(-16deg);
+}
+.passLabel {
+  font: 600 4cqi/1.2 var(--sans);
+  text-transform: uppercase;
+  letter-spacing: .17em;
 }
 .memberDetails {
-  margin-top: 4cqi;
-  padding-top: 3cqi;
-  border-top: 1px solid #a78f79;
+  padding: 3cqi 4cqi 2cqi;
 }
 .memberName {
-  margin-bottom: 2cqi;
+  margin: 0 0 1.5cqi;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-.passPlaceholder,
-.memberName {
-  font-size: clamp(0.62rem, 4.6cqi, 0.9rem);
+  font: 600 6.2cqi/1.2 var(--sans);
 }
 .barcode {
-  border-radius: 4px;
-  padding-bottom: 0.35rem;
+  border-radius: 2cqi;
+  padding-bottom: 1.5cqi;
   background: white;
   text-align: center;
   color: black;
-  font: 500 clamp(0.55rem, 3.6cqi, 0.8rem)/1.2 monospace;
-  font-variant-numeric: tabular-nums;
+  font: 500 4.2cqi/1.2 monospace;
+  letter-spacing: .07em;
 }
 .barcode svg {
   display: block;
