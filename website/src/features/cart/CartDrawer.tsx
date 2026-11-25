@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { ButtonLink, buttonClass } from '@/components/ui/Button';
 import { formatAUD } from './cartData';
 import { useCart } from './CartProvider';
@@ -14,6 +14,9 @@ const focus =
 export function CartDrawer() {
   const { lines, count, subtotal, change, remove } = useCart();
   const pathname = usePathname();
+  const [reviewing, setReviewing] = useState(false);
+  const atCheckout = reviewing && lines.length > 0;
+  const heading = useRef<HTMLHeadingElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -38,12 +41,18 @@ export function CartDrawer() {
 
   const close = () => dialog.current?.close();
   const restore = () => {
+    setReviewing(false);
     unlock.current?.();
     unlock.current = null;
     trigger.current?.focus({ preventScroll: true });
   };
 
   useEffect(() => () => unlock.current?.(), []);
+
+  const changeStep = (next: boolean) => {
+    setReviewing(next);
+    heading.current?.focus();
+  };
 
   const wrapFocus = (event: KeyboardEvent<HTMLDialogElement>) => {
     if (event.key !== 'Tab') return;
@@ -104,8 +113,13 @@ export function CartDrawer() {
         <div className="flex h-full flex-col">
           <div className="flex shrink-0 items-start justify-between gap-3 border-b border-cocoa/15 px-6 pb-5 pt-7 sm:px-8">
             <div>
-              <h2 id="shopping-bag-heading" className="font-serif text-3xl font-black tracking-tight">
-                Shopping bag
+              <h2
+                ref={heading}
+                tabIndex={-1}
+                id="shopping-bag-heading"
+                className="font-serif text-3xl font-black tracking-tight"
+              >
+                {atCheckout ? 'Checkout' : 'Shopping bag'}
               </h2>
               <p aria-live="polite" className="mt-2 text-sm text-cocoa/75">
                 {itemCount}
@@ -143,25 +157,29 @@ export function CartDrawer() {
                         </span>
                       </div>
                       {line.variant && <p className="mt-1 text-sm text-cocoa/75">{line.variant}</p>}
-                      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3">
-                        <QuantityControl
-                          label={label}
-                          quantity={line.quantity}
-                          onChange={(delta) => change(line.key, delta)}
-                          onEmpty={onRemove}
-                        />
-                        <button
-                          type="button"
-                          aria-label={`Remove ${label}`}
-                          className={`min-h-9 rounded-sm px-1 text-xs underline underline-offset-4 transition-colors hover:text-ember ${focus}`}
-                          onClick={() => {
-                            onRemove();
-                            remove(line.key);
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
+                      {atCheckout ? (
+                        <p className="mt-2 text-sm text-cocoa/75">Quantity {line.quantity}</p>
+                      ) : (
+                        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3">
+                          <QuantityControl
+                            label={label}
+                            quantity={line.quantity}
+                            onChange={(delta) => change(line.key, delta)}
+                            onEmpty={onRemove}
+                          />
+                          <button
+                            type="button"
+                            aria-label={`Remove ${label}`}
+                            className={`min-h-9 rounded-sm px-1 text-xs underline underline-offset-4 transition-colors hover:text-ember ${focus}`}
+                            onClick={() => {
+                              onRemove();
+                              remove(line.key);
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
                     </li>
                   );
                 })}
@@ -173,17 +191,48 @@ export function CartDrawer() {
             {lines.length > 0 && (
               <>
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="font-serif text-lg font-medium">Subtotal</span>
+                  <span className="font-serif text-lg font-medium">{atCheckout ? 'Order subtotal' : 'Subtotal'}</span>
                   <output aria-label="Subtotal in Australian dollars" className="font-semibold tabular-nums">
                     {formatAUD(subtotal)} AUD
                   </output>
                 </div>
-                <p className="text-sm leading-relaxed text-cocoa/75">
-                  This is an order summary. Online ordering and payment are unavailable.
-                </p>
+                {atCheckout ? (
+                  <section
+                    aria-labelledby="checkout-payment-heading"
+                    className="space-y-3 rounded-lg border border-cocoa/15 bg-[#fffaf2] p-4"
+                  >
+                    <h3 id="checkout-payment-heading" className="font-serif text-lg font-medium">
+                      Payment
+                    </h3>
+                    <p className="text-sm leading-relaxed text-cocoa/75">Online payment is currently unavailable.</p>
+                    <button
+                      type="button"
+                      disabled
+                      className={buttonClass({ size: 'sm', className: 'w-full cursor-not-allowed opacity-50' })}
+                    >
+                      Pay {formatAUD(subtotal)} AUD
+                    </button>
+                  </section>
+                ) : (
+                  <button
+                    type="button"
+                    className={buttonClass({ size: 'sm', className: 'w-full' })}
+                    onClick={() => changeStep(true)}
+                  >
+                    Checkout
+                  </button>
+                )}
               </>
             )}
-            {pathname === '/menu/' || pathname === '/menu' ? (
+            {atCheckout ? (
+              <button
+                type="button"
+                className={buttonClass({ variant: 'outline', size: 'sm' })}
+                onClick={() => changeStep(false)}
+              >
+                Back to bag
+              </button>
+            ) : pathname === '/menu/' || pathname === '/menu' ? (
               <button type="button" className={buttonClass({ variant: 'outline', size: 'sm' })} onClick={close}>
                 Continue Shopping
               </button>

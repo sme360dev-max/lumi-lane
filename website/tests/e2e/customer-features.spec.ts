@@ -113,7 +113,12 @@ test('cart and menu synchronize and persist through navigation and reload', asyn
   await expect(subtotal(page)).toHaveText('$51.80 AUD');
   await drawer(page).getByRole('button', { name: 'Decrease quantity of Lumi Breakfast' }).click();
   await expect(subtotal(page)).toHaveText('$25.90 AUD');
-  await expect(drawer(page).getByText('Online ordering and payment are unavailable.', { exact: false })).toBeVisible();
+  await drawer(page).getByRole('button', { name: 'Checkout', exact: true }).click();
+  const checkout = page.getByRole('dialog', { name: 'Checkout' });
+  await expect(checkout.getByRole('heading', { name: 'Checkout' })).toBeFocused();
+  await expect(checkout.getByRole('button', { name: /^Pay .* AUD$/ })).toBeDisabled();
+  await expect(checkout.getByText('Online payment is currently unavailable.')).toBeVisible();
+  await checkout.getByRole('button', { name: 'Back to bag' }).click();
   await drawer(page).getByRole('button', { name: 'Continue Shopping' }).click();
   await expect(breakfast.getByLabel('Lumi Breakfast quantity')).toHaveText('1');
   await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'About' }).click();
