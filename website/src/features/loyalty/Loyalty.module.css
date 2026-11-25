@@ -713,7 +713,7 @@
   overflow: hidden;
   border-radius: 14% / 6.8%;
   color: #fff2e4;
-  background: radial-gradient(ellipse at 90% 15%, #704431, #251b16 68%);
+  background: radial-gradient(ellipse at 90% 15%, #fff6e8, #ded0c2 85%);
 }
 .island {
   position: absolute;
@@ -729,9 +729,9 @@
   overflow: hidden;
   border-radius: 12px;
   padding: 7%;
-  background: #efdcc4;
-  color: #291c16;
-  box-shadow: 0 12px 24px #150d08aa;
+  background: #302018;
+  color: #fff2e4;
+  box-shadow: 0 12px 24px #29171048;
 }
 .passBrand {
   margin-bottom: 1.1rem;
@@ -740,7 +740,7 @@
   text-transform: uppercase;
 }
 .passTitle {
-  color: #9f3d2d;
+  color: #f2b394;
   font: 600 clamp(1rem, 10cqi, 1.9rem)/1 var(--sans);
   letter-spacing: -0.05em;
 }

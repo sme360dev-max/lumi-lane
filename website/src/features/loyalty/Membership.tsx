@@ -4,72 +4,108 @@ import JsBarcode from 'jsbarcode';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import styles from './Loyalty.module.css';
 
-const SAMPLE_CODE = 'LUMI-PREVIEW';
+const STORAGE_KEY = 'lumi-lane-coffee-club-device-card';
+type DeviceCard = { name: string; code: string };
 
 export function Membership() {
   const [name, setName] = useState('');
-  const [previewName, setPreviewName] = useState('');
+  const [card, setCard] = useState<DeviceCard | null>(null);
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState('');
   const barcode = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    if (!previewName || !barcode.current) return;
-    JsBarcode(barcode.current, SAMPLE_CODE, {
+    const restore = window.setTimeout(() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null');
+        if (typeof saved?.name === 'string' && typeof saved.code === 'string' && /^LL[0-9A-F]{10}$/.test(saved.code)) {
+          setCard(saved);
+        }
+      } catch {
+        // An invalid or inaccessible card can be replaced.
+      }
+      setReady(true);
+    }, 0);
+    return () => window.clearTimeout(restore);
+  }, []);
+
+  useEffect(() => {
+    if (!card || !barcode.current) return;
+    JsBarcode(barcode.current, card.code, {
       format: 'CODE128',
       width: 2,
-      height: 64,
-      margin: 20,
+      height: 60,
+      margin: 18,
       displayValue: false,
     });
-  }, [previewName]);
+  }, [card]);
 
-  function preview(event: FormEvent<HTMLFormElement>) {
+  function signUp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const fullName = name.trim();
-    if (fullName) setPreviewName(fullName);
+    if (!ready || card || !name.trim()) return;
+    try {
+      const code = 'LL' + crypto.randomUUID().replaceAll('-', '').slice(0, 10).toUpperCase();
+      const nextCard = { name: name.trim(), code };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextCard));
+      setCard(nextCard);
+    } catch {
+      setError('Your browser could not save the card. Allow browser storage and try again.');
+    }
   }
 
   return (
     <section id="join-club" tabIndex={-1} className={styles.membership} aria-labelledby="club-membership-title">
       <div>
         <h2 id="club-membership-title" className={styles.h2}>
-          Preview your Coffee Club card
+          {card ? 'Your Coffee Club card' : 'Sign up for Coffee Club'}
         </h2>
-        <p className={styles.lede}>Enter a name to see how the card will look. This preview stays on this page.</p>
-        <form className={styles.joinForm} onSubmit={preview}>
-          <label htmlFor="club-name">Full name</label>
-          <input
-            id="club-name"
-            name="name"
-            maxLength={100}
-            required
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-          <button className={styles.primary} type="submit" disabled={!name.trim()}>
-            Preview my card
-          </button>
-        </form>
+        <p className={styles.lede}>
+          {card
+            ? 'Your card is saved on this device. Return to this page to open it.'
+            : 'Enter your name to create a card on this device.'}
+        </p>
+        {!card && (
+          <form className={styles.joinForm} onSubmit={signUp}>
+            <label htmlFor="club-name">Full name</label>
+            <input
+              id="club-name"
+              name="name"
+              autoComplete="name"
+              maxLength={100}
+              required
+              value={name}
+              onChange={(event) => {
+                setName(event.target.value);
+                setError('');
+              }}
+            />
+            <button className={styles.primary} type="submit" disabled={!ready || !name.trim()}>
+              Create my card
+            </button>
+            {error && <p role="alert">{error}</p>}
+          </form>
+        )}
         <p className={styles.memberNote}>
-          Sample barcode for display only. A live membership and Apple Wallet pass require service activation.
+          Device-only card. Apple Wallet and in-store membership are currently unavailable.
         </p>
       </div>
       <div className={styles.realPhone}>
         <div className={styles.realScreen}>
           <div className={styles.island} aria-hidden="true" />
-          <div className={styles.memberPass}>
+          <div className={styles.memberPass} aria-live="polite">
             <p className={styles.passBrand}>Lumi Lane</p>
             <p className={styles.passTitle}>Coffee Club</p>
-            <div className={styles.memberDetails} aria-live="polite">
-              {previewName ? (
+            <div className={styles.memberDetails}>
+              {card ? (
                 <>
-                  <p className={styles.memberName}>{previewName}</p>
+                  <p className={styles.memberName}>{card.name}</p>
                   <div className={styles.barcode}>
-                    <svg ref={barcode} role="img" aria-label="Sample Coffee Club barcode" />
-                    <span>{SAMPLE_CODE}</span>
+                    <svg ref={barcode} role="img" aria-label="Device card barcode" />
+                    <span>{card.code}</span>
                   </div>
                 </>
               ) : (
-                <p className={styles.passPlaceholder}>Your sample barcode appears here.</p>
+                <p className={styles.passPlaceholder}>Your name and barcode will appear here.</p>
               )}
             </div>
           </div>
