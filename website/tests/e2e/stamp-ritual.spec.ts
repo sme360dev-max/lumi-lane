@@ -22,8 +22,8 @@ test('introduces the proposed programme before the demo and answers customer que
     const sections = [
       element.querySelector('section[aria-labelledby="loyalty-title"]'),
       element.querySelector('section[aria-labelledby="story-title"]'),
+      element.querySelector('#join-club'),
       element.querySelector('section[aria-labelledby="demo-title"]'),
-      element.querySelector('section[aria-labelledby="counter-title"]'),
       element.querySelector('section[aria-labelledby="faq-title"]'),
     ];
     return sections.every(
@@ -35,9 +35,9 @@ test('introduces the proposed programme before the demo and answers customer que
   });
   expect(ordered).toBe(true);
   await expect(demo.getByRole('button', { name: 'Try a demo purchase' })).toBeEnabled();
-  const counter = main.getByRole('region', { name: 'At the counter' });
-  await expect(counter.getByText('Preview — not yet issued')).toHaveCount(2);
-  await expect(counter.getByRole('img', { name: /empty code area, not issued/ })).toBeVisible();
+  const membership = main.getByRole('region', { name: 'Join the Coffee Club' });
+  await expect(membership.getByLabel('Full name')).toBeVisible();
+  await expect(membership.getByRole('button', { name: 'Create my card' })).toBeEnabled();
 
   const questions = [
     ['How do I earn stamps?', 'approved way to confirm purchases'],

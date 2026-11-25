@@ -584,192 +584,6 @@
   margin-top: 1rem;
 }
 
-/* ---- 4. at the counter ---- */
-.counter {
-  max-width: 1240px;
-  margin: clamp(5rem, 8vw, 8rem) auto 0;
-}
-.counterGrid {
-  display: grid;
-  gap: 1rem;
-  margin-top: 3.25rem;
-}
-@media (min-width: 768px) {
-  .counterGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2rem;
-  }
-}
-.counterItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0;
-  padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 3vw, 2rem);
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--panel);
-}
-@media (min-width: 768px) {
-  .counterItem > [role='img'] {
-    margin-block: auto;
-  }
-}
-.counterItem figcaption {
-  max-width: 19rem;
-  margin-top: 1.75rem;
-  color: var(--muted);
-  font-size: 0.95rem;
-  line-height: 1.5;
-  text-align: center;
-}
-.previewLabel {
-  display: block;
-  margin-bottom: 0.45rem;
-  color: var(--faint);
-  font: 600 0.625rem/1.4 var(--sans);
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-}
-.phone {
-  position: relative;
-  display: block;
-  width: 13.5rem;
-  aspect-ratio: 9 / 18.5;
-  padding: 0.55rem;
-  border: 1.5px solid var(--cocoa);
-  border-radius: 2.2rem;
-}
-.phoneSpeaker {
-  position: absolute;
-  top: 1.05rem;
-  left: 50%;
-  width: 3.6rem;
-  height: 0.85rem;
-  border-radius: 1rem;
-  background: var(--cocoa);
-  transform: translateX(-50%);
-}
-.phoneScreen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  padding: 2.6rem 1rem 1.1rem;
-  border-radius: 1.7rem;
-  background: var(--cream);
-  text-align: center;
-}
-.phoneWordmark {
-  display: block;
-  font: 500 1.3rem/1.1 var(--serif);
-}
-.phoneLabel {
-  display: block;
-  margin-top: 0.3rem;
-  color: var(--muted);
-  font: 600 0.55rem/1.4 var(--sans);
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-}
-.phoneCard {
-  display: block;
-  width: 100%;
-  margin-top: 1.6rem;
-  padding: 1rem 0.85rem 0.85rem;
-  border-radius: 6px;
-  background: var(--shell);
-}
-.phoneCount {
-  display: block;
-  margin-top: 0.8rem;
-  font-size: 0.72rem;
-}
-.phoneNext {
-  margin-top: 1.1rem;
-  font: italic 400 0.95rem/1.3 var(--serif);
-}
-.phoneHint {
-  margin-top: auto;
-  color: var(--muted);
-  font-size: 0.72rem;
-}
-.miniDots {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.5rem;
-}
-.miniDots span {
-  aspect-ratio: 1;
-  border: 1px solid rgb(28 24 20 / 36%);
-  border-radius: 50%;
-}
-.miniDots span[data-filled='true'] {
-  border-color: var(--ember);
-  background: var(--ember);
-}
-.pass {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: min(100%, 17rem);
-  height: 23.5rem;
-  padding: 1.25rem 1.25rem 1.35rem;
-  border-radius: 14px;
-  background: var(--cream);
-}
-.passHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px dashed rgb(28 24 20 / 30%);
-}
-.passHead .phoneLabel {
-  margin: 0;
-}
-.passFields {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1.1rem;
-  text-align: left;
-}
-.passFields > span {
-  display: grid;
-  gap: 0.3rem;
-}
-.passFields > span:last-child {
-  text-align: right;
-}
-.passKey {
-  color: var(--muted);
-  font: 600 0.55rem/1.4 var(--sans);
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-}
-.passValue {
-  font: 500 1.15rem/1.1 var(--serif);
-}
-.passDots {
-  width: 7.25rem;
-  margin-top: 1.35rem;
-  gap: 0.45rem;
-}
-.codeArea {
-  display: grid;
-  place-items: center;
-  min-height: 6.5rem;
-  margin-top: auto;
-  padding: 1rem;
-  border: 1.5px dashed rgb(28 24 20 / 34%);
-  border-radius: 6px;
-  color: var(--muted);
-  font-size: 0.75rem;
-  text-align: center;
-}
-
 /* ---- 5. questions ---- */
 .faq {
   display: grid;
@@ -855,4 +669,128 @@
   .tilt {
     will-change: auto;
   }
+}
+
+.membership {
+  display: grid;
+  align-items: center;
+  gap: clamp(2rem, 6vw, 7rem);
+  max-width: 1240px;
+  margin: clamp(5rem, 8vw, 8rem) auto 0;
+  padding: clamp(1.25rem, 5vw, 4.5rem);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--panel);
+}
+@media (min-width: 768px) {
+  .membership {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 0.8fr);
+  }
+}
+.joinForm {
+  display: grid;
+  gap: 0.8rem;
+  max-width: 27rem;
+  margin-top: 1.75rem;
+}
+.joinForm label {
+  font-weight: 600;
+}
+.joinForm input {
+  min-height: 48px;
+  padding: 0.75rem;
+  border: 1px solid #a78f79;
+  border-radius: 5px;
+  background: #fff6e9;
+}
+.joinForm input:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+.joinForm button {
+  justify-self: start;
+  margin-top: 0.5rem;
+}
+.memberNote {
+  max-width: 38ch;
+  margin-top: 1.6rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.realPhone {
+  position: relative;
+  width: min(100%, 310px);
+  aspect-ratio: 490 / 1008;
+  justify-self: center;
+  background: url('/assets/img/loyalty-iphone.png') center / 100% 100% no-repeat;
+  filter: drop-shadow(0 16px 22px rgb(28 24 20 / 20%));
+  container-type: inline-size;
+}
+.realScreen {
+  position: absolute;
+  inset: 1.9% 4.5% 2.15%;
+  display: grid;
+  place-items: center;
+  padding: 10% 7% 6%;
+  overflow: hidden;
+  border-radius: 14% / 6.8%;
+  color: #fff2e4;
+  background: radial-gradient(ellipse at 90% 15%, #704431, #251b16 68%);
+}
+.island {
+  position: absolute;
+  top: 1.4%;
+  left: 34%;
+  width: 32%;
+  height: 4.1%;
+  border-radius: 999px;
+  background: #080706;
+}
+.memberPass {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  padding: 7%;
+  background: #efdcc4;
+  color: #291c16;
+  box-shadow: 0 12px 24px #150d08aa;
+}
+.passBrand {
+  margin-bottom: 1.1rem;
+  font-size: clamp(0.56rem, 3.7cqi, 0.76rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.passTitle {
+  color: #9f3d2d;
+  font: 600 clamp(1rem, 10cqi, 1.9rem)/1 var(--sans);
+  letter-spacing: -0.05em;
+}
+.memberDetails {
+  margin-top: 1.2rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid #a78f79;
+}
+.memberName {
+  margin-bottom: 0.55rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.passPlaceholder,
+.memberName {
+  font-size: clamp(0.62rem, 4.6cqi, 0.9rem);
+}
+.barcode {
+  border-radius: 4px;
+  padding-bottom: 0.35rem;
+  background: white;
+  text-align: center;
+  color: black;
+  font: 500 clamp(0.55rem, 3.6cqi, 0.8rem)/1.2 monospace;
+  font-variant-numeric: tabular-nums;
+}
+.barcode svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
