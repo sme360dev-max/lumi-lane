@@ -128,22 +128,7 @@ export function Membership() {
       </div>
       <div className={styles.realPhone}>
         <div ref={screen} className={styles.realScreen}>
-          <div className={styles.island} aria-hidden="true" />
-          <div className={styles.phoneStatus} aria-hidden="true">
-            <span>9:41</span>
-            <span>▮▮▮ ▰</span>
-          </div>
-          <header className={styles.walletHeader}>
-            <p>Coffee Club pass</p>
-            <button type="button" onClick={reveal}>
-              Replay
-            </button>
-          </header>
-          <div className={styles.walletStack} aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </div>
+          <div className={styles.walletStack} aria-hidden="true" />
           <div ref={pass} className={styles.memberPass} aria-live="polite">
             <p className={styles.passBrand}>Lumi Lane</p>
             <p className={styles.passTitle}>Coffee Club</p>

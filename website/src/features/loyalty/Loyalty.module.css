@@ -653,12 +653,15 @@
   display: grid;
   align-items: center;
   gap: clamp(2rem, 6vw, 7rem);
+  width: 100%;
   max-width: 1240px;
+  box-sizing: border-box;
+  overflow: clip;
   margin: clamp(5rem, 8vw, 8rem) auto 0;
   padding: clamp(1.25rem, 5vw, 4.5rem);
   border: 1px solid var(--rule);
   border-radius: 8px;
-  background: var(--panel);
+  background: #fbf2e5;
 }
 @media (min-width: 768px) {
   .membership {
@@ -712,73 +715,22 @@
 }
 .realScreen {
   position: absolute;
-  inset: 8% 32% 6.75% 23.5%;
+  inset: 13.2% 32% 10.4% 23.5%;
   display: grid;
   align-content: start;
-  padding: 12% 4% 4%;
+  padding: 5% 2.4% 4%;
   overflow: hidden;
-  border-radius: 15% / 7%;
+  border-radius: 3px;
   color: #302018;
-  background: linear-gradient(155deg, #fcfaf8, #ece8e4);
+  background: #f7f7f7;
   container-type: inline-size;
-}
-.walletHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 6%;
-  font-size: clamp(0.8rem, 6cqi, 1.15rem);
-  font-weight: 700;
-}
-.phoneStatus {
-  position: absolute;
-  inset: 2% 7% auto;
-  display: flex;
-  justify-content: space-between;
-  font-size: clamp(5px, 5cqi, 10px);
-  font-weight: 700;
-}
-.walletHeader button {
-  min-height: 44px;
-  padding: 0 0.55rem;
-  border-radius: 999px;
-  background: #ecdbc9;
-  font-size: 0.7rem;
-}
-@media (prefers-reduced-motion: reduce) {
-  .walletHeader button {
-    display: none;
-  }
 }
 .walletStack {
   position: absolute;
-  inset: auto 6% 5%;
-  display: grid;
-}
-.walletStack i {
-  grid-area: 1 / 1;
-  height: 24cqi;
-  border-radius: 12px;
-  background: #6b755f;
-  transform: translateY(-45%);
-}
-.walletStack i:nth-child(2) {
-  background: #b45f4c;
-  transform: translateY(-24%);
-}
-.walletStack i:nth-child(3) {
-  background: #e5ad88;
-  transform: none;
-}
-.island {
-  position: absolute;
-  top: 0;
-  left: 23%;
-  width: 54%;
-  height: 4%;
-  border-radius: 0 0 1rem 1rem;
-  background: #080706;
+  inset: auto 5% 0;
+  height: 31%;
+  border-radius: 6px 6px 0 0;
+  background: url('/assets/img/loyalty-wallet-reference.png') 28.65% bottom / 293% 156% no-repeat;
 }
 .memberPass {
   position: relative;
