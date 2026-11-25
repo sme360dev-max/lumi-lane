@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "bookings",
+    "loyalty",
     "menu",
     "staff",  # last: fills preset roles once every app's permissions exist
 ]

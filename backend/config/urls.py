@@ -4,6 +4,7 @@ from django.views.generic import RedirectView
 
 from bookings.views import booking_create, health
 from menu.views import menu_list
+from loyalty.views import register
 
 admin.site.site_header = "Lumi Lane"
 admin.site.site_title = "Lumi Lane Admin"
@@ -16,4 +17,5 @@ urlpatterns = [
     path("health/", health, name="health"),
     path("api/bookings/", booking_create, name="booking-create"),
     path("api/menu/", menu_list, name="menu-list"),
+    path("api/loyalty/register/", register, name="loyalty-register"),
 ]
