@@ -34,6 +34,7 @@ export function BookingForm() {
   const isTable = requestType === 'Table booking';
   const notesPrefix = isTable ? '' : `Enquiry type: ${requestType}\n`;
   const [values, setValues] = useState<BookingValues>(EMPTY_BOOKING);
+  const [foodPreorder, setFoodPreorder] = useState('');
   const [errors, setErrors] = useState<BookingErrors>({});
   const [checked, setChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -55,8 +56,15 @@ export function BookingForm() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const found = validateBooking(values);
-    const notes = `${notesPrefix}${values.notes.trim()}`.trim();
-    if (notes.length > 2000) found.notes = `Please use ${2000 - notesPrefix.length} characters or fewer.`;
+    const preorder = foodPreorder.trim();
+    const preorderNote = preorder ? `Food pre-order request: ${preorder}` : '';
+    const details = values.notes.trim();
+    const separator = preorderNote && details ? '\n\nAdditional notes: ' : '';
+    const notes = `${notesPrefix}${preorderNote}${separator}${details}`.trim();
+    if (Array.from(notes).length > 2000) {
+      const remaining = 2000 - Array.from(`${notesPrefix}${preorderNote}${separator}`).length;
+      found.notes = `Please keep your notes to ${remaining} characters or fewer.`;
+    }
     setErrors(found);
     const first = FIELD_ORDER.find((f) => found[f]);
     if (first) {
@@ -112,6 +120,7 @@ export function BookingForm() {
   const reset = () => {
     setRequestType('Table booking');
     setValues(EMPTY_BOOKING);
+    setFoodPreorder('');
     setErrors({});
     setRequestError('');
     requestId.current = crypto.randomUUID();
@@ -128,6 +137,7 @@ export function BookingForm() {
       ['Contact', `${values.email.trim()} · ${values.phone.trim()}`],
     ];
     if (!isTable) rows.unshift(['Enquiry', requestType]);
+    if (foodPreorder.trim()) rows.push(['Food pre-order request', foodPreorder.trim()]);
     if (values.notes.trim()) rows.push(['Requests', values.notes.trim()]);
 
     return (
@@ -286,6 +296,26 @@ export function BookingForm() {
             placeholder="e.g. 10:30 AM"
             inputProps={{ type: 'text', autoComplete: 'off' }}
           />
+          <BookingField
+            id="book-preorder"
+            label="Food pre-order request"
+            optional
+            multiline
+            className="sm:col-span-6"
+            value={foodPreorder}
+            onChange={(value) => {
+              setFoodPreorder(value);
+              if (errors.notes) setErrors((current) => ({ ...current, notes: undefined }));
+            }}
+            maxLength={900}
+            placeholder="List menu items and quantities, e.g. 2 shakshukas and 3 breakfast rolls"
+          />
+          <p className="-mt-2 text-sm text-cocoa/75 sm:col-span-6">
+            <a href="/menu/" target="_blank" rel="noopener noreferrer" className="underline">
+              View the menu (opens in a new tab)
+            </a>
+            . We’ll confirm availability with you.
+          </p>
           <BookingField
             id="book-notes"
             label={isTable ? 'Special Requests' : 'Event details'}

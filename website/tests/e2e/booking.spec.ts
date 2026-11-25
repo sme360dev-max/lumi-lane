@@ -87,11 +87,15 @@ for (const type of ['Catering', 'Private function']) {
     await form.getByLabel('Guests').fill('12');
     await form.getByLabel('Date').fill(`24/08/${new Date().getFullYear() + 1}`);
     await form.getByLabel('Time').fill('12pm');
+    await form.getByLabel('Food pre-order request').fill('2 shakshukas');
     await form.getByLabel('Event details').fill('Birthday lunch');
     await form.getByRole('button', { name: 'Send enquiry' }).click();
     const summary = page.getByTestId('booking-summary');
     await expect(summary).toContainText(type);
     await expect(summary).toContainText('The team will contact you to discuss your event.');
-    expect(notes).toBe(`Enquiry type: ${type}\nBirthday lunch`);
+    await expect(summary).toContainText('2 shakshukas');
+    expect(notes).toBe(
+      `Enquiry type: ${type}\nFood pre-order request: 2 shakshukas\n\nAdditional notes: Birthday lunch`,
+    );
   });
 }

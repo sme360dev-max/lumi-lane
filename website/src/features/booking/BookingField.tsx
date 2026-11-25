@@ -12,6 +12,7 @@ interface FieldProps {
   onChange: (value: string) => void;
   optional?: boolean;
   multiline?: boolean;
+  maxLength?: number;
   className?: string;
   inputProps?: InputHTMLAttributes<HTMLInputElement>;
   placeholder?: string;
@@ -26,6 +27,7 @@ export function BookingField({
   onChange,
   optional,
   multiline,
+  maxLength,
   className = '',
   inputProps,
   placeholder,
@@ -36,6 +38,7 @@ export function BookingField({
     name: id.replace('book-', ''),
     value,
     placeholder,
+    maxLength,
     required: !optional,
     'aria-invalid': error ? true : undefined,
     'aria-describedby': error ? errorId : undefined,
@@ -45,12 +48,19 @@ export function BookingField({
 
   return (
     <div className={className}>
-      <label htmlFor={id} className="block font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-cocoa/70">
+      <label
+        htmlFor={id}
+        className="block font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-cocoa/70"
+      >
         {label}
         {optional && <span className="font-normal normal-case tracking-normal text-cocoa/50"> (optional)</span>}
       </label>
       {multiline ? (
-        <textarea {...shared} rows={4} className={`${control} ${border} min-h-[7.5rem] resize-y py-3 leading-relaxed`} />
+        <textarea
+          {...shared}
+          rows={4}
+          className={`${control} ${border} min-h-[7.5rem] resize-y py-3 leading-relaxed`}
+        />
       ) : (
         <input {...shared} {...inputProps} className={`${control} ${border} py-3`} />
       )}
