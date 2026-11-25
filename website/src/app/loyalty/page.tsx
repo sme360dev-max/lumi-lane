@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
 import { LOYALTY } from '@/data/loyalty';
 import { CounterPreview } from '@/features/loyalty/CounterPreview';
 import { HeroCard } from '@/features/loyalty/HeroCard';
@@ -19,20 +20,35 @@ export default function LoyaltyPage() {
     // No entry transform on <main>: a transformed ancestor would break the scroll story's pin.
     <main id="main" className={styles.page}>
       <section className={`view-enter ${styles.hero}`} aria-labelledby="loyalty-title">
-        <div className={styles.heroCopy}>
-          <p className={styles.eyebrow}>{LOYALTY.eyebrow}</p>
-          <h1 id="loyalty-title" className={styles.title}>
-            <span>{firstLine}</span> <em>{secondLine}</em>
-          </h1>
-          <p className={styles.disclaimer}>
-            {LOYALTY.disclaimer}{' '}
-            <a href="#try-it" className={styles.inlineLink}>
+        <div className={styles.heroHeader}>
+          <div>
+            <p className={styles.eyebrow}>{LOYALTY.eyebrow}</p>
+            <h1 id="loyalty-title" className={styles.title}>
+              <span>{firstLine}</span> <span>{secondLine}</span>
+            </h1>
+          </div>
+          <div className={styles.heroAside}>
+            <p className={styles.disclaimer}>{LOYALTY.disclaimer}</p>
+            <a href="#try-it" className={styles.heroLink}>
               {LOYALTY.disclaimerLink}
+              <span aria-hidden="true">↓</span>
             </a>
-            .
-          </p>
+          </div>
         </div>
-        <HeroCard />
+        <div className={styles.heroVisual}>
+          <figure className={styles.heroPhoto}>
+            <ResponsivePicture
+              name="loyalty-cocoa"
+              widths={[480, 800, 1440]}
+              sizes="(min-width: 1340px) 900px, (min-width: 900px) 68vw, 100vw"
+              width={1440}
+              height={1440}
+              alt="Cocoa being dusted over a ceramic cup at Lumi Lane"
+              priority
+            />
+          </figure>
+          <HeroCard />
+        </div>
       </section>
 
       <ScrollStory />
@@ -42,9 +58,23 @@ export default function LoyaltyPage() {
       <CounterPreview />
 
       <section className={styles.faq} aria-labelledby="faq-title">
-        <h2 id="faq-title" className={styles.h2}>
-          {LOYALTY.faqTitle}
-        </h2>
+        <div>
+          <h2 id="faq-title" className={styles.h2}>
+            {LOYALTY.faqTitle}
+          </h2>
+          <p className={styles.closing}>{LOYALTY.closing}</p>
+          <p className={styles.account}>
+            Try the demo without an account, or{' '}
+            <Link className={styles.inlineLink} href="/login/">
+              Login
+            </Link>{' '}
+            <span aria-hidden="true">·</span>{' '}
+            <Link className={styles.inlineLink} href="/signup/">
+              Sign Up
+            </Link>
+            .
+          </p>
+        </div>
         <div className={styles.faqList}>
           {LOYALTY.faq.map(({ question, answer }) => (
             <details key={question} className={styles.faqItem}>
@@ -53,18 +83,6 @@ export default function LoyaltyPage() {
             </details>
           ))}
         </div>
-        <p className={styles.closing}>{LOYALTY.closing}</p>
-        <p className={styles.account}>
-          Try the demo without an account, or{' '}
-          <Link className={styles.inlineLink} href="/login/">
-            Login
-          </Link>{' '}
-          <span aria-hidden="true">·</span>{' '}
-          <Link className={styles.inlineLink} href="/signup/">
-            Sign Up
-          </Link>
-          .
-        </p>
       </section>
     </main>
   );

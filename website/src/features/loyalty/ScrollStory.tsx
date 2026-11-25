@@ -8,7 +8,7 @@ import { ClubCard, TicketStub } from './ClubCard';
 import { STAMP_TARGET } from './ritualState';
 import styles from './Loyalty.module.css';
 
-const MOTION = '(prefers-reduced-motion: no-preference)';
+const MOTION = '(min-width: 1044px) and (min-height: 740px) and (prefers-reduced-motion: no-preference)';
 
 /**
  * The page's one big motion moment. The card pins mid-screen while scrolling strikes a stamp into
@@ -51,7 +51,7 @@ export function ScrollStory() {
         scrollTrigger: {
           trigger: pinned,
           start: 'top top',
-          end: () => `+=${Math.round(window.innerHeight * 2)}`,
+          end: () => `+=${Math.round(window.innerHeight * 1.35)}`,
           pin: true,
           scrub: 0.4,
           anticipatePin: 1,

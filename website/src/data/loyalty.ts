@@ -7,8 +7,8 @@ import { STAMP_TARGET } from '@/features/loyalty/ritualState';
 export const LOYALTY = {
   eyebrow: 'Coffee Club · Proposed',
   titleLines: ['Eight coffees.', "The next one's on us."],
-  disclaimer: 'A proposed programme, shown as a demo —',
-  disclaimerLink: 'try it below',
+  disclaimer: 'A proposed programme, shown as a demo. Collect eight stamps to unlock a sample coffee reward.',
+  disclaimerLink: 'Try the demo',
   story: {
     title: 'How it would work',
     lines: ['Order a coffee.', 'Collect a stamp each time.', 'Your eighth unlocks a free coffee.'],

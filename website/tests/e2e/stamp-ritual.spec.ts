@@ -6,7 +6,7 @@ test('introduces the proposed programme before the demo and answers customer que
   await expect(main.getByRole('heading', { level: 1, name: "Eight coffees. The next one's on us." })).toBeVisible();
   await expect(main.getByText('Coffee Club · Proposed')).toBeVisible();
   await expect(main.getByText(/A proposed programme, shown as a demo/)).toBeVisible();
-  const tryIt = main.getByRole('link', { name: 'try it below' });
+  const tryIt = main.getByRole('link', { name: 'Try the demo' });
   await tryIt.focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/#try-it$/);
