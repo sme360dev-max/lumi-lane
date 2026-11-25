@@ -41,7 +41,7 @@ export function HomeEditorial() {
               </Link>
             </div>
           </div>
-          <figure data-home-intro-part className="aspect-[4/3] overflow-hidden rounded-md">
+          <figure data-home-intro-part className="aspect-[16/10] overflow-hidden rounded-md">
             <ResponsivePicture
               name="about-drink-pour"
               widths={[480, 800, 1440]}

@@ -148,6 +148,7 @@ export function ExploreTrail() {
             Explore <em>Lumi Lane</em>
           </h2>
           <p className={styles.line}>{HERO.eyebrow}</p>
+          <p className={styles.pointerHint}>Move your mouse to explore the dishes.</p>
         </div>
 
         <div ref={stripRef} aria-hidden="true" className={styles.strip}>
