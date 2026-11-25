@@ -733,7 +733,17 @@
   mask-image: radial-gradient(ellipse 75% 71% at 51% 51%, #000 64%, transparent 100%), linear-gradient(#000 94%, transparent);
   mask-composite: intersect;
 }
+/* Keep the photographed glass and status bar in their original tones. */
+.realPhone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/assets/img/loyalty-phone-in-hand.png') 53.4% center / auto 100% no-repeat;
+  clip-path: inset(8% 31.8% 6.9% 23.45% round 5.5% / 4.8%);
+  pointer-events: none;
+}
 .realScreen {
+  z-index: 1;
   position: absolute;
   inset: 13.2% 32% 10.4% 23.5%;
   display: flex;
@@ -758,7 +768,7 @@
 .walletStack {
   aspect-ratio: 547 / 577;
   background-position: 28.68% bottom;
-  margin-top: auto;
+  margin-top: -1.5cqi;
   border-radius: 2cqi 2cqi 0 0;
 }
 .memberPass {
@@ -766,11 +776,12 @@
   z-index: 1;
   width: 100%;
   overflow: hidden;
-  border-radius: 5cqi;
+  flex: none;
+  border-radius: 4cqi;
   background: #f8efe1;
   color: #381d18;
   border: 1px solid #d4c6b6;
-  box-shadow: 0 1cqi 2cqi #36291b12;
+  box-shadow: 0 1.6cqi 2.4cqi #20191530;
 }
 .passFace {
   position: relative;

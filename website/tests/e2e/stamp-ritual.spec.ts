@@ -10,7 +10,12 @@ test('creates a device card, retains its barcode after reload, and omits the sta
   await expect(form).toBeFocused();
   await expect(form.getByRole('button', { name: 'Create my card' })).toBeDisabled();
   await form.getByLabel('Full name').fill('Sample Member');
+  const wallet = form.getByRole('button', { name: 'Add to Apple Wallet' });
+  await expect(wallet).toHaveCount(0);
+  await form.getByLabel('Email address').fill('member@example.com');
+  await form.getByLabel('Phone number').fill('0412 345 678');
   await form.getByRole('button', { name: 'Create my card' }).click();
+  await expect(wallet).toBeVisible();
   const code = form.getByText(/^LL[0-9A-F]{10}$/);
   await expect(code).toBeVisible();
   const memberCode = await code.innerText();

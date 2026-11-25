@@ -5,11 +5,15 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import styles from './Loyalty.module.css';
 
 const STORAGE_KEY = 'lumi-lane-coffee-club-device-card';
-type DeviceCard = { name: string; code: string };
+type DeviceCard = { name: string; code: string; email?: string; phone?: string };
+
+const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const validPhone = (value: string) => /^\+?[\d ()-]+$/.test(value) && /^\d{8,15}$/.test(value.replace(/\D/g, ''));
 
 export function Membership() {
   const [name, setName] = useState('');
   const [card, setCard] = useState<DeviceCard | null>(null);
+  const registered = !!(card?.name.trim() && validEmail(card.email ?? '') && validPhone(card.phone ?? ''));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   const barcode = useRef<SVGSVGElement>(null);
@@ -55,7 +59,13 @@ export function Membership() {
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null');
         if (typeof saved?.name === 'string' && typeof saved.code === 'string' && /^LL[0-9A-F]{10}$/.test(saved.code)) {
-          setCard(saved);
+          setName(saved.name);
+          setCard({
+            name: saved.name,
+            code: saved.code,
+            email: typeof saved.email === 'string' ? saved.email : undefined,
+            phone: typeof saved.phone === 'string' ? saved.phone : undefined,
+          });
         }
       } catch {
         // An invalid or inaccessible card can be replaced.
@@ -78,10 +88,22 @@ export function Membership() {
 
   function signUp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!ready || card || !name.trim()) return;
+    if (!ready || registered || !name.trim()) return;
+    const form = event.currentTarget;
+    const fields = new FormData(form);
+    const email = String(fields.get('email') ?? '').trim();
+    const phone = String(fields.get('phone') ?? '').trim();
+    if (!validEmail(email) || !validPhone(phone)) {
+      const field = form.elements.namedItem(!validEmail(email) ? 'email' : 'phone') as HTMLInputElement;
+      field.setCustomValidity(
+        !validEmail(email) ? 'Enter a valid email address.' : 'Enter a phone number with 8 to 15 digits.',
+      );
+      field.reportValidity();
+      return;
+    }
     try {
-      const code = 'LL' + crypto.randomUUID().replaceAll('-', '').slice(0, 10).toUpperCase();
-      const nextCard = { name: name.trim(), code };
+      const code = card?.code ?? 'LL' + crypto.randomUUID().replaceAll('-', '').slice(0, 10).toUpperCase();
+      const nextCard = { name: name.trim(), email, phone, code };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nextCard));
       setCard(nextCard);
       reveal();
@@ -94,14 +116,14 @@ export function Membership() {
     <section id="join-club" tabIndex={-1} className={styles.membership} aria-labelledby="club-membership-title">
       <div>
         <h2 id="club-membership-title" className={styles.h2}>
-          {card ? 'Your Coffee Club card' : 'Sign up for Coffee Club'}
+          {registered ? 'Your Coffee Club card' : card ? 'Complete your membership' : 'Sign up for Coffee Club'}
         </h2>
         <p className={styles.lede}>
-          {card
+          {registered
             ? 'Your card is saved on this device. Return to this page to open it.'
-            : 'Enter your name to create a card on this device.'}
+            : 'Enter your contact details to save your membership on this device.'}
         </p>
-        {!card && (
+        {!registered && (
           <form className={styles.joinForm} onSubmit={signUp}>
             <label htmlFor="club-name">Full name</label>
             <input
@@ -116,13 +138,33 @@ export function Membership() {
                 setError('');
               }}
             />
+            <label htmlFor="club-email">Email address</label>
+            <input
+              id="club-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              maxLength={254}
+              onInput={(event) => event.currentTarget.setCustomValidity('')}
+            />
+            <label htmlFor="club-phone">Phone number</label>
+            <input
+              id="club-phone"
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              required
+              maxLength={32}
+              onInput={(event) => event.currentTarget.setCustomValidity('')}
+            />
             <button className={styles.primary} type="submit" disabled={!ready || !name.trim()}>
-              Create my card
+              {card ? 'Save details' : 'Create my card'}
             </button>
             {error && <p role="alert">{error}</p>}
           </form>
         )}
-        {card && (
+        {registered && (
           <button type="button" disabled aria-describedby="wallet-availability" className={styles.walletButton}>
             Add to Apple Wallet
           </button>
