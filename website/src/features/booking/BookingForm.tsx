@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { BUSINESS } from '@/data/business';
 import { BOOK } from '@/data/content';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
 import { ButtonLink, buttonClass } from '@/components/ui/Button';
 import { InkStamp } from '@/components/brand/InkStamp';
 import { BookingField } from './BookingField';
@@ -25,6 +26,15 @@ import {
 
 const REQUEST_TYPES = ['Table booking', 'Catering', 'Private function'] as const;
 type RequestType = (typeof REQUEST_TYPES)[number];
+
+const CATERING_PHOTOS = [
+  {
+    name: 'about-brunch-spread',
+    label: 'Brunch spread',
+    alt: 'Brunch plates, coffee and pastries on a Lumi Lane table',
+  },
+  { name: 'about-mezze-share', label: 'Mezze to share', alt: 'Lumi Lane mezze with dips, olives and warm bread' },
+] as const;
 
 /**
  * Submit table requests to Django and show confirmation only after the API saves the request.
@@ -236,6 +246,41 @@ export function BookingForm() {
               </p>
             )}
           </fieldset>
+          {requestType === 'Catering' && (
+            <section
+              aria-labelledby="catering-inspiration"
+              className="rounded-lg border border-cocoa/15 bg-[#fffaf2] p-4 sm:col-span-6 sm:p-5"
+            >
+              <h2 id="catering-inspiration" className="font-serif text-2xl font-semibold">
+                Catering inspiration
+              </h2>
+              <p className="mt-1 text-sm text-cocoa/75">
+                A look at food from the Lumi Lane kitchen. Tell us what you’d like to serve at your event.
+              </p>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4">
+                {CATERING_PHOTOS.map(({ name, label, alt }) => (
+                  <figure key={name}>
+                    <ResponsivePicture
+                      name={name}
+                      widths={[480, 800]}
+                      width={800}
+                      height={799}
+                      alt={alt}
+                      sizes="(min-width: 1024px) 28vw, 44vw"
+                      className="aspect-[4/3] w-full rounded-md object-cover"
+                    />
+                    <figcaption className="mt-2 text-sm font-medium">{label}</figcaption>
+                  </figure>
+                ))}
+              </div>
+              <a
+                href="https://www.instagram.com/lumilane.adl/"
+                className="mt-4 inline-block text-sm underline underline-offset-4"
+              >
+                More from {BUSINESS.instagramHandle}
+              </a>
+            </section>
+          )}
           <BookingField
             id="book-name"
             label="Name"
