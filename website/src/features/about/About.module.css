@@ -145,22 +145,14 @@
   object-fit: cover;
 }
 
-.storefront {
+.heroImage {
   aspect-ratio: 4 / 3.4;
   border-radius: 10px;
 }
 
-.storefront img {
-  object-position: 50% 56%;
-}
-
-.falafel {
+.heroDetail {
   aspect-ratio: 4 / 5;
   box-shadow: 0 24px 56px rgb(68 38 24 / 0.15);
-}
-
-.falafel img {
-  object-position: 50% 70%;
 }
 
 .firstChapter {
@@ -314,12 +306,12 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .storefront {
+  .heroImage {
     aspect-ratio: 16 / 10.5;
     border-radius: 0;
   }
 
-  .falafel {
+  .heroDetail {
     aspect-ratio: 1 / 1.05;
   }
 

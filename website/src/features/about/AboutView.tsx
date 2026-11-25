@@ -1,52 +1,54 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
-import { ABOUT, VISIT } from '@/data/content';
+import { ABOUT } from '@/data/content';
 import styles from './About.module.css';
 import { AboutReveal } from './AboutReveal';
 
-// Lumi Lane's storefront photo and Instagram stills, cropped in CSS to suit each layout.
+const photoWidths = [480, 800, 1440] as const;
+
+// Photographs from Lumi Lane's Instagram, cropped in CSS to suit each layout.
 const photos = {
-  storefront: {
-    name: 'storefront',
-    widths: [480, 800, 1200],
-    width: 1360,
-    height: 972,
-    alt: VISIT.storefrontAlt,
-  },
-  falafel: {
-    name: 'about-falafel',
-    widths: [480, 800],
-    width: 1080,
+  burger: {
+    name: 'about-breakfast-burger',
+    widths: photoWidths,
+    width: 1440,
     height: 1440,
-    alt: 'Falafel, tomatoes and grilled bread at a table inside Lumi Lane',
+    alt: 'Two hands holding a Lumi Lane breakfast burger',
   },
-  kitchen: {
-    name: 'about-kitchen',
-    widths: [480, 800, 1080],
-    width: 1080,
-    height: 1080,
-    alt: 'A Lumi Lane team member holding a plated kitchen special',
-  },
-  skewers: {
-    name: 'about-skewers',
-    widths: [480, 800],
-    width: 1080,
+  pour: {
+    name: 'about-drink-pour',
+    widths: photoWidths,
+    width: 1440,
     height: 1440,
-    alt: 'Grilled skewers with chips, salad and a dip',
+    alt: 'A warm drink poured from a red jug into a ceramic cup',
   },
-  counter: {
-    name: 'about-counter',
-    widths: [480, 640],
-    width: 640,
-    height: 1136,
-    alt: 'Hands working at the marble counter inside Lumi Lane',
+  scroll: {
+    name: 'about-cinnamon-scroll',
+    widths: photoWidths,
+    width: 1440,
+    height: 1440,
+    alt: 'A cinnamon scroll served with freshly dispensed soft serve',
+  },
+  mezze: {
+    name: 'about-mezze-share',
+    widths: photoWidths,
+    width: 1440,
+    height: 1439,
+    alt: 'A close-up of the Lumi Lane mezze platter with dips, olives and warm bread',
+  },
+  dessert: {
+    name: 'about-chocolate-dessert',
+    widths: photoWidths,
+    width: 1440,
+    height: 1439,
+    alt: 'A chocolate cupcake topped with shards of dark chocolate',
   },
   table: {
-    name: 'about-table',
-    widths: [480, 800, 1080, 1920, 2560, 3840],
-    width: 1080,
-    height: 1440,
-    alt: 'A Lumi Lane table set with falafel, skewers and baked pasta',
+    name: 'about-brunch-spread',
+    widths: [...photoWidths, 1920, 2560, 3840],
+    width: 1440,
+    height: 1439,
+    alt: 'An overhead view of mezze, brunch plates, coffee and pastries at Lumi Lane',
   },
   brunch: {
     name: 'about-brunch',
@@ -58,9 +60,9 @@ const photos = {
 } as const;
 
 const gallery = [
-  { photo: photos.kitchen, label: 'From the kitchen', lines: ['Made for long brunches.', 'Served all day.'] },
-  { photo: photos.skewers, label: 'For the table', lines: ['A little of everything.', 'Plenty to share.'] },
-  { photo: photos.counter, label: 'At the counter', lines: ['A coffee to start.', 'A seat to stay.'] },
+  { photo: photos.scroll, label: 'From the kitchen', lines: ['Warm cinnamon scrolls.', 'Soft serve on the side.'] },
+  { photo: photos.mezze, label: 'For the table', lines: ['A little of everything.', 'Plenty to share.'] },
+  { photo: photos.dessert, label: 'Something sweet', lines: ['Chocolate cupcake.', 'Dark chocolate shards.'] },
 ] as const;
 
 const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties;
@@ -131,17 +133,17 @@ export function AboutView() {
           <div className={`${styles.grid} ${styles.heroPhotos}`}>
             <figure className={styles.heroMain}>
               <StoryPhoto
-                photo={photos.storefront}
+                photo={photos.burger}
                 sizes="(min-width: 1044px) 70vw, 100vw"
-                className={styles.storefront}
+                className={styles.heroImage}
                 priority
               />
             </figure>
             <div className={styles.heroSide}>
               <StoryPhoto
-                photo={photos.falafel}
+                photo={photos.pour}
                 sizes="(min-width: 1044px) 395px, 40vw"
-                className={styles.falafel}
+                className={styles.heroDetail}
                 drift={22}
                 wait={170}
               />
