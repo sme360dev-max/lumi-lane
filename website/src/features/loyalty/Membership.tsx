@@ -13,6 +13,42 @@ export function Membership() {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   const barcode = useRef<SVGSVGElement>(null);
+  const screen = useRef<HTMLDivElement>(null);
+  const pass = useRef<HTMLDivElement>(null);
+  const motion = useRef<Animation | null>(null);
+
+  function reveal() {
+    motion.current?.cancel();
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    motion.current =
+      pass.current?.animate(
+        [
+          { transform: 'translateY(108cqi) scale(.9)', opacity: 0, offset: 0 },
+          { opacity: 1, offset: 0.24 },
+          { transform: 'translateY(-4%) scale(1.025)', offset: 0.74 },
+          { transform: 'translateY(0) scale(1)', offset: 1 },
+        ],
+        { duration: 900, easing: 'cubic-bezier(.22,.75,.24,1)' },
+      ) ?? null;
+  }
+
+  useEffect(() => {
+    const target = screen.current;
+    if (!target || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        observer.disconnect();
+        reveal();
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(target);
+    return () => {
+      observer.disconnect();
+      motion.current?.cancel();
+    };
+  }, []);
 
   useEffect(() => {
     const restore = window.setTimeout(() => {
@@ -48,6 +84,7 @@ export function Membership() {
       const nextCard = { name: name.trim(), code };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nextCard));
       setCard(nextCard);
+      reveal();
     } catch {
       setError('Your browser could not save the card. Allow browser storage and try again.');
     }
@@ -90,9 +127,20 @@ export function Membership() {
         </p>
       </div>
       <div className={styles.realPhone}>
-        <div className={styles.realScreen}>
+        <div ref={screen} className={styles.realScreen}>
           <div className={styles.island} aria-hidden="true" />
-          <div className={styles.memberPass} aria-live="polite">
+          <header className={styles.walletHeader}>
+            <p>Pass preview</p>
+            <button type="button" onClick={reveal}>
+              Replay
+            </button>
+          </header>
+          <div className={styles.walletStack} aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </div>
+          <div ref={pass} className={styles.memberPass} aria-live="polite">
             <p className={styles.passBrand}>Lumi Lane</p>
             <p className={styles.passTitle}>Coffee Club</p>
             <div className={styles.memberDetails}>

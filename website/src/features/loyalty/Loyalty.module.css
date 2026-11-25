@@ -708,12 +708,53 @@
   position: absolute;
   inset: 1.9% 4.5% 2.15%;
   display: grid;
-  place-items: center;
-  padding: 10% 7% 6%;
+  align-content: start;
+  padding: 22% 6% 6%;
   overflow: hidden;
   border-radius: 14% / 6.8%;
-  color: #fff2e4;
-  background: radial-gradient(ellipse at 90% 15%, #fff6e8, #ded0c2 85%);
+  color: #302018;
+  background: linear-gradient(155deg, #fffaf3, #f3e1d0);
+}
+.walletHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-bottom: 6%;
+  font-size: clamp(.8rem, 6cqi, 1.15rem);
+  font-weight: 700;
+}
+.walletHeader button {
+  min-height: 44px;
+  padding: 0 .55rem;
+  border-radius: 999px;
+  background: #ecdbc9;
+  font-size: .7rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .walletHeader button {
+    display: none;
+  }
+}
+.walletStack {
+  position: absolute;
+  inset: auto 6% 5%;
+  display: grid;
+}
+.walletStack i {
+  grid-area: 1 / 1;
+  height: 24cqi;
+  border-radius: 12px;
+  background: #6b755f;
+  transform: translateY(-45%);
+}
+.walletStack i:nth-child(2) {
+  background: #b45f4c;
+  transform: translateY(-24%);
+}
+.walletStack i:nth-child(3) {
+  background: #e5ad88;
+  transform: none;
 }
 .island {
   position: absolute;
@@ -725,6 +766,8 @@
   background: #080706;
 }
 .memberPass {
+  position: relative;
+  z-index: 1;
   width: 100%;
   overflow: hidden;
   border-radius: 12px;
