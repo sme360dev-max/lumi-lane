@@ -1,144 +1,258 @@
-import type { CSSProperties } from 'react';
-import { ButtonLink } from '@/components/ui/Button';
+import type { CSSProperties, ReactNode } from 'react';
+import Link from 'next/link';
 import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
-import { ABOUT, VISIT } from '@/data/content';
+import { ABOUT } from '@/data/content';
 import styles from './About.module.css';
 import { AboutReveal } from './AboutReveal';
 
-const DISH_WIDTHS = [480, 800, 1254] as const;
-const eyebrow = 'text-[11px] font-semibold uppercase tracking-[0.32em]';
+// Stills from Lumi Lane's Instagram, cropped in CSS to suit each layout.
+const photos = {
+  evening: {
+    name: 'about-evening',
+    widths: [480, 720],
+    width: 720,
+    height: 1280,
+    alt: 'Lumi Lane lit up at night, with diners outside',
+  },
+  falafel: {
+    name: 'about-falafel',
+    widths: [480, 800],
+    width: 1080,
+    height: 1440,
+    alt: 'Falafel, tomatoes and grilled bread at a table inside Lumi Lane',
+  },
+  kitchen: {
+    name: 'about-kitchen',
+    widths: [480, 800, 1080],
+    width: 1080,
+    height: 1080,
+    alt: 'A Lumi Lane team member holding a plated kitchen special',
+  },
+  skewers: {
+    name: 'about-skewers',
+    widths: [480, 800],
+    width: 1080,
+    height: 1440,
+    alt: 'Grilled skewers with chips, salad and a dip',
+  },
+  counter: {
+    name: 'about-counter',
+    widths: [480, 640],
+    width: 640,
+    height: 1136,
+    alt: 'Hands working at the marble counter inside Lumi Lane',
+  },
+  table: {
+    name: 'about-table',
+    widths: [480, 800, 1080],
+    width: 1080,
+    height: 1440,
+    alt: 'A Lumi Lane table set with falafel, skewers and baked pasta',
+  },
+  brunch: {
+    name: 'about-brunch',
+    widths: [480, 800, 1080],
+    width: 1080,
+    height: 1080,
+    alt: 'A Lumi Lane team member holding a dish topped with sliced avocado',
+  },
+} as const;
+
+const gallery = [
+  { photo: photos.kitchen, label: 'From the kitchen', lines: ['Made for long brunches.', 'Served all day.'] },
+  { photo: photos.skewers, label: 'For the table', lines: ['A little of everything.', 'Plenty to share.'] },
+  { photo: photos.counter, label: 'At the counter', lines: ['A coffee to start.', 'A seat to stay.'] },
+] as const;
+
+const visitLinks = [
+  { href: '/menu/', title: ABOUT.ctaLabel, detail: 'Specialty coffee, all-day brunch and evening pours.' },
+  { href: '/book/', title: 'Book a table', detail: 'Make time for brunch, a drink or a long catch-up.' },
+  { href: '/visit/', title: 'Visit us', detail: 'Find Lumi Lane on Fosters Road in Lightsview.' },
+] as const;
+
 const delay = (ms: number) => ({ '--delay': `${ms}ms` }) as CSSProperties;
+
+function StoryPhoto({
+  photo,
+  sizes,
+  className = '',
+  drift,
+  priority,
+  horizontal,
+  wait = 0,
+}: {
+  photo: (typeof photos)[keyof typeof photos];
+  sizes: string;
+  className?: string;
+  drift?: number;
+  priority?: boolean;
+  horizontal?: boolean;
+  wait?: number;
+}) {
+  return (
+    <div
+      className={`${styles.photo} ${styles.reveal} ${className}`}
+      data-photo={horizontal ? 'horizontal' : 'vertical'}
+      style={delay(wait)}
+    >
+      <div className={styles.photoImage} data-about-drift={drift}>
+        <ResponsivePicture {...photo} sizes={sizes} priority={priority} />
+      </div>
+    </div>
+  );
+}
+
+function ChapterHeading({ id, title, children }: { id: string; title: ReactNode; children: ReactNode }) {
+  return (
+    <div className={styles.grid}>
+      <h3 id={id} className={`${styles.chapterTitle} ${styles.reveal}`}>
+        {title}
+      </h3>
+      <p className={`${styles.bodyCopy} ${styles.chapterCopy} ${styles.reveal}`} style={delay(120)}>
+        {children}
+      </p>
+    </div>
+  );
+}
 
 export function AboutView() {
   return (
-    <AboutReveal className="mx-auto max-w-[1320px] px-6 lg:px-10">
-      {/* 1. Headline left, intro right, aligned to the headline's last line. */}
-      <header className="grid gap-y-10 lg:grid-cols-12 lg:items-end lg:gap-x-10">
-        <div className="lg:col-span-8">
-          <p className={`${eyebrow} text-cocoa/60`}>{ABOUT.eyebrow}</p>
-          <h1 className="mt-7 font-serif text-[clamp(2.6rem,11.8vw,5.6rem)] font-normal leading-[1.02] tracking-[-0.018em] text-cocoa sm:mt-9 lg:text-[clamp(4.5rem,7.6vw,7.5rem)]">
-            {ABOUT.title.map((line, i) => (
-              <span key={line}>
-                {i > 0 && ' '}
-                <span className={styles.line}>
-                  <span
-                    className={`${styles.lineInner} ${i > 0 ? 'italic text-ember' : ''}`}
-                    style={{ '--line': i } as CSSProperties}
-                  >
+    <AboutReveal className={styles.story}>
+      <header className={styles.hero}>
+        <div className={styles.container}>
+          <p className={styles.eyebrow}>{ABOUT.eyebrow}</p>
+          <div className={`${styles.grid} ${styles.heroHeading}`}>
+            <h1 className={styles.heroTitle}>
+              {ABOUT.title.map((line, index) => (
+                <span key={line} className={styles.line}>
+                  {index > 0 && ' '}
+                  <span className={styles.lineInner} style={delay(100 + index * 120)}>
                     {line}
                   </span>
                 </span>
-              </span>
-            ))}
-          </h1>
+              ))}
+            </h1>
+            <p className={`${styles.bodyCopy} ${styles.intro}`}>{ABOUT.intro}</p>
+          </div>
+
+          <div className={`${styles.grid} ${styles.heroPhotos}`}>
+            <figure className={styles.heroMain}>
+              <StoryPhoto
+                photo={photos.evening}
+                sizes="(min-width: 1044px) 70vw, 100vw"
+                className={styles.evening}
+                priority
+              />
+            </figure>
+            <div className={styles.heroSide}>
+              <StoryPhoto
+                photo={photos.falafel}
+                sizes="(min-width: 1044px) 395px, 40vw"
+                className={styles.falafel}
+                drift={22}
+                wait={170}
+              />
+              <div className={styles.reveal} style={delay(240)}>
+                <p className={`${styles.eyebrow} ${styles.accent}`}>Our story</p>
+                <p className={styles.heroNote}>Good coffee. Long lunches. Always room for one more.</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <p
-          className={`${styles.intro} max-w-[36ch] text-[17px] leading-[1.7] text-cocoa/75 md:ml-auto md:w-1/2 lg:col-span-4 lg:ml-0 lg:w-auto lg:pb-3 lg:text-lg`}
-        >
-          {ABOUT.intro}
-        </p>
       </header>
 
-      {/* 2. The shopfront bleeding off the left edge, a dish panel offset lower on the right. */}
-      <div className="mt-20 sm:mt-24 lg:mt-36 lg:flex lg:items-start lg:gap-10">
-        <figure
-          className={`${styles.reveal} -mx-6 lg:mx-0 lg:ml-[calc(50%-50vw)] lg:w-[calc(58%+50vw-50%)] lg:shrink-0`}
-        >
-          <div className="relative aspect-[4/3] overflow-hidden bg-cream/40 lg:aspect-[3/2]">
-            <ResponsivePicture
-              name="storefront"
-              widths={[480, 800, 1200]}
-              width={1360}
-              height={972}
-              alt={VISIT.storefrontAlt}
-              sizes="(min-width: 1024px) 62vw, 100vw"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          </div>
-          <figcaption className="mt-4 px-6 text-[13px] text-cocoa/60 lg:px-0 lg:text-right">
-            {ABOUT.storefrontCaption}
-          </figcaption>
-        </figure>
-
-        <figure
-          className={`${styles.reveal} mt-12 sm:ml-auto sm:w-[62%] lg:mt-40 lg:w-[30%]`}
-          style={delay(140)}
-        >
-          <div className="relative aspect-square bg-cream/60 sm:aspect-[4/3] lg:aspect-[3/4]">
-            <ResponsivePicture
-              name={ABOUT.pairDish.image}
-              widths={DISH_WIDTHS}
-              width={1254}
-              height={1254}
-              alt={ABOUT.pairDish.alt}
-              sizes="(min-width: 1320px) 330px, (min-width: 1024px) 25vw, (min-width: 640px) 52vw, 84vw"
-              className={styles.dish}
-            />
-          </div>
-        </figure>
-      </div>
-
-      {/* 3. Coffee, kitchen, bar. */}
-      <section aria-labelledby="about-day" className="mt-28 sm:mt-32 lg:mt-44">
-        <div className={`${styles.reveal} grid gap-y-5 lg:grid-cols-12 lg:items-end lg:gap-x-10`}>
-          <h2
-            id="about-day"
-            className="font-serif text-[clamp(2.25rem,7.6vw,4.75rem)] font-normal leading-[1.04] tracking-[-0.015em] text-cocoa lg:col-span-7"
-          >
-            {ABOUT.dayTitle}
+      <section aria-labelledby="about-chapters">
+        <div className={styles.container}>
+          <h2 id="about-chapters" className={`${styles.eyebrow} ${styles.accent}`}>
+            Life at Lumi Lane
           </h2>
-          <p className="font-serif text-xl italic text-cocoa/70 lg:col-span-5 lg:pb-3 lg:text-right lg:text-2xl">
-            {ABOUT.daySubline}
-          </p>
+          <article className={styles.firstChapter} aria-labelledby="about-day">
+            <ChapterHeading id="about-day" title={ABOUT.dayTitle}>
+              Start with an espresso, settle in for brunch or stay for a glass of South Australian wine and a few plates
+              to share.
+            </ChapterHeading>
+            <div className={styles.gallery}>
+              {gallery.map(({ photo, label, lines }, index) => (
+                <figure key={label} className={styles.galleryItem}>
+                  <StoryPhoto
+                    photo={photo}
+                    sizes="(min-width: 1044px) 40vw, 100vw"
+                    className={styles.galleryPhoto}
+                    drift={index === 1 ? 26 : undefined}
+                    wait={index * 140}
+                  />
+                  <figcaption className={`${styles.caption} ${styles.reveal}`} style={delay(150 + index * 140)}>
+                    <p className={styles.eyebrow}>{label}</p>
+                    <p>
+                      {lines[0]}
+                      <br />
+                      {lines[1]}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </article>
+
+          <article className={styles.chapter} aria-labelledby="about-kitchen">
+            <ChapterHeading id="about-kitchen" title={ABOUT.kitchenTitle}>
+              {ABOUT.kitchen}
+            </ChapterHeading>
+            <figure className={styles.chapterPhoto}>
+              <StoryPhoto
+                photo={photos.table}
+                sizes="(min-width: 1320px) 1240px, 100vw"
+                className={styles.table}
+                horizontal
+              />
+            </figure>
+            <ul className={styles.details}>
+              {ABOUT.day.map((item, index) => (
+                <li key={item.label} className={styles.reveal} style={delay(index * 120)}>
+                  <h4>{item.label}</h4>
+                  <p>{item.lines.join(' ')}</p>
+                </li>
+              ))}
+            </ul>
+          </article>
         </div>
 
-        <ul className="mt-12 grid gap-y-16 border-t border-cocoa/15 pt-10 sm:mt-16 sm:grid-cols-3 sm:gap-x-6 lg:gap-x-10 lg:pt-12">
-          {ABOUT.day.map((item, i) => (
-            <li key={item.label} className={styles.reveal} style={delay(i * 120)}>
-              <div className="relative aspect-[4/3] bg-cream/60 sm:aspect-[4/5]">
-                <ResponsivePicture
-                  name={item.image}
-                  widths={DISH_WIDTHS}
-                  width={1254}
-                  height={1254}
-                  alt={item.alt}
-                  sizes="(min-width: 1320px) 320px, (min-width: 640px) 26vw, 64vw"
-                  className={styles.dish}
-                />
-              </div>
-              <p className={`${eyebrow} mt-6 text-ember`}>{item.label}</p>
-              {/* Two lines on desktop; one flowing sentence where the column is too narrow to hold them. */}
-              <p className="mt-3 text-pretty font-serif text-xl leading-[1.35] text-cocoa sm:text-lg lg:text-[22px]">
-                {item.lines.map((line, j) => (
-                  <span key={line} className="xl:block">
-                    {j > 0 && ' '}
-                    {line}
-                  </span>
-                ))}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <article className={`${styles.chapter} ${styles.neighbourhood}`} aria-labelledby="about-neighbourhood">
+          <StoryPhoto photo={photos.brunch} sizes="100vw" className={styles.brunch} drift={30} />
+          <div className={`${styles.container} ${styles.chapterPhoto}`}>
+            <ChapterHeading id="about-neighbourhood" title="A place to stay a little longer.">
+              We’re on Fosters Road in Lightsview. Drop by for a coffee, meet someone for brunch or bring the whole
+              table together for an occasion.
+            </ChapterHeading>
+          </div>
+        </article>
       </section>
 
-      {/* 4. Closing statement and the way to the menu. */}
-      <section
-        aria-labelledby="about-closing"
-        className={`${styles.reveal} mt-28 border-t border-cocoa/15 pt-16 sm:mt-32 lg:mt-44 lg:pt-24`}
-      >
-        <h2
-          id="about-closing"
-          className="font-serif text-[clamp(2.4rem,8.4vw,6rem)] font-normal leading-[1.04] tracking-[-0.018em] text-cocoa"
-        >
-          {ABOUT.closing[0]} <em className="block text-balance italic text-ember">{ABOUT.closing[1]}</em>
-        </h2>
-        <div className="mt-10 grid gap-y-10 lg:mt-14 lg:grid-cols-12 lg:gap-x-10">
-          <p className="max-w-[52ch] text-base leading-[1.75] text-cocoa/70 lg:col-span-6 lg:col-start-7">
-            {ABOUT.kitchen}
-          </p>
-          <div className="lg:col-span-6 lg:col-start-7">
-            <ButtonLink href="/menu/">{ABOUT.ctaLabel}</ButtonLink>
+      <section className={styles.visit} aria-labelledby="about-visit">
+        <div className={styles.container}>
+          <div className={styles.visitIntro}>
+            <h2 id="about-visit" className={styles.reveal}>
+              Come for the coffee.
+              <br />
+              <span>Stay for the company.</span>
+            </h2>
+            <p className={styles.reveal} style={delay(120)}>
+              Make Lumi Lane part of your day, from the first flat white to the last plate on the table.
+            </p>
           </div>
+          <ul className={styles.visitLinks}>
+            {visitLinks.map(({ href, title, detail }, index) => (
+              <li key={href} className={styles.reveal} style={delay(index * 110)}>
+                <Link href={href}>
+                  <span aria-hidden="true" className={styles.visitArrow}>
+                    ↗
+                  </span>
+                  <span className={styles.visitLinkTitle}>{title}</span>
+                  <span>{detail}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </AboutReveal>

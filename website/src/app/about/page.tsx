@@ -7,10 +7,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/about/' },
 };
 
-/** Same clearances as PageShell, without its side padding, so the shopfront photo can bleed to the edge. */
 export default function AboutPage() {
   return (
-    <main id="main" className="view-enter overflow-x-clip pb-[max(11rem,var(--nav-clearance))] pt-32 sm:pt-36">
+    <main id="main" className="view-enter overflow-x-clip pt-[5.5rem]">
       <AboutView />
     </main>
   );

@@ -55,34 +55,22 @@ export const ABOUT = {
   title: ['A coffee house', 'with a long table.'],
   intro:
     'Lumi Lane is a modern Australian coffee house and bar in Lightsview, built around long brunches, good coffee and the kind of table you don’t rush to leave.',
-  storefrontCaption: 'Lumi Lane on Fosters Rd, Lightsview.',
-  /** Cut-out dish beside the shopfront photo. */
-  pairDish: { image: 'choco', alt: 'Hot chocolate topped with marshmallows, seen from above' },
   dayTitle: 'From seven till four',
-  daySubline: 'By afternoon the room shifts.',
-  /** Coffee, kitchen, bar: each caption is two lines lifted from the copy above. */
   day: [
     {
       label: 'Coffee',
-      image: 'coffee',
-      alt: 'Latte with leaf art, seen from above',
       lines: ['Espresso from open,', 'long blacks through the morning.'],
     },
     {
       label: 'Kitchen',
-      image: 'food',
-      alt: 'Scrambled eggs on sourdough with roasted tomatoes, seen from above',
       lines: ['All-day brunch,', 'seven till four; eight on Sundays.'],
     },
     {
       label: 'Bar',
-      image: 'mezze',
-      alt: 'Mezze board with hummus, beetroot dip, olives and pita',
       lines: ['South Australian wine by the glass,', 'a short cocktail list and small plates.'],
     },
   ],
-  /** Closing statement; the second line is set in italic ember. */
-  closing: ['Modern Australian,', 'seasoned Middle Eastern.'],
+  kitchenTitle: 'Modern Australian, seasoned Middle Eastern.',
   kitchen:
     'The kitchen cooks Australian brunch with a Middle Eastern accent: labneh under poached eggs, za’atar on smashed avocado, beetroot hummus beside falafel, pomegranate over crisp cauliflower. Familiar plates, seasoned the way we grew up eating.',
   ctaLabel: 'See the menu',
