@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ResponsivePicture } from '@/components/ui/ResponsivePicture';
 import { LOYALTY } from '@/data/loyalty';
-import { HeroCard } from '@/features/loyalty/HeroCard';
 import { Membership } from '@/features/loyalty/Membership';
 import { ScrollStory } from '@/features/loyalty/ScrollStory';
 import { StampDemo } from '@/features/loyalty/StampDemo';
@@ -15,43 +14,37 @@ export const metadata: Metadata = {
 };
 
 export default function LoyaltyPage() {
-  const [firstLine, secondLine] = LOYALTY.titleLines;
   return (
     // No entry transform on <main>: a transformed ancestor would break the scroll story's pin.
     <main id="main" className={styles.page}>
       <section className={`view-enter ${styles.hero}`} aria-labelledby="loyalty-title">
-        <div className={styles.heroHeader}>
-          <div>
-            <p className={styles.eyebrow}>{LOYALTY.eyebrow}</p>
-            <h1 id="loyalty-title" className={styles.title}>
-              <span>{firstLine}</span> <span>{secondLine}</span>
-            </h1>
-          </div>
-          <div className={styles.heroAside}>
+        <div className={styles.heroContent}>
+          <h1 id="loyalty-title" className={styles.title}>
+            Lumi Lane <span>Coffee Club</span>
+          </h1>
+          <p className={styles.heroIntro}>Get a digital member card with your own barcode.</p>
+          <a href="#join-club" className={`${styles.primary} ${styles.heroJoin}`}>
+            Join the Coffee Club
+          </a>
+          <div className={styles.heroDemo}>
             <p className={styles.disclaimer}>{LOYALTY.disclaimer}</p>
-            <a href="#join-club" className={styles.heroLink}>
-              Join the Coffee Club
-            </a>{' '}
             <a href="#try-it" className={styles.heroLink}>
               {LOYALTY.disclaimerLink}
               <span aria-hidden="true">↓</span>
             </a>
           </div>
         </div>
-        <div className={styles.heroVisual}>
-          <figure className={styles.heroPhoto}>
-            <ResponsivePicture
-              name="loyalty-cocoa"
-              widths={[480, 800, 1440]}
-              sizes="(min-width: 1340px) 900px, (min-width: 900px) 68vw, 100vw"
-              width={1440}
-              height={1440}
-              alt="Cocoa being dusted over a ceramic cup at Lumi Lane"
-              priority
-            />
-          </figure>
-          <HeroCard />
-        </div>
+        <figure className={styles.heroPhoto}>
+          <ResponsivePicture
+            name="loyalty-cocoa"
+            widths={[480, 800, 1440]}
+            sizes="(min-width: 1340px) 720px, (min-width: 850px) 55vw, 100vw"
+            width={1440}
+            height={1440}
+            alt="Cocoa being dusted over a ceramic cup at Lumi Lane"
+            priority
+          />
+        </figure>
       </section>
 
       <ScrollStory />
